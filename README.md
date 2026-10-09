@@ -1,4 +1,4 @@
-# SHADYNASTY · The Bro Hub
+# SHADYNASTY · Dynasty. Degeneracy. Shoeys.
 
 Live: https://howibrettyourmother.github.io/shadynasty/
 

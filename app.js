@@ -1,5 +1,5 @@
 'use strict';
-// SHADYNASTY bro hub: everything is computed in the browser from the free public Sleeper API (+ FantasyCalc dynasty SF values).
+// SHADYNASTY (Dynasty. Degeneracy. Shoeys.): everything is computed in the browser from the free public Sleeper API (+ FantasyCalc dynasty SF values).
 const API='https://api.sleeper.app/v1/',LEAGUE='1312055708249767936',BRETT='603082868373135360';
 const KTC='https://keeptradecut.com/dynasty/power-rankings/league-overview?leagueId='+LEAGUE+'&platform=Sleeper';
 const GAME='https://howibrettyourmother.github.io/mo-morehouse-mo-problems/',TANK='https://howibrettyourmother.github.io/tank-for-jeremiah-smith/';
@@ -94,7 +94,7 @@ function teamValue(T,V,tp,lg){const season=+lg.season,RD=+lg.settings.draft_roun
 // ---------------- pages ----------------
 const R={};
 const HOMECARDS=[['#recap','📰','RECAP','Who owes a shoey this week'],['#power','⚡','POWER RANKINGS','A formula that hates your team'],['#race','🏁','PLAYOFF RACE','Your odds, simulated 3,000 times'],
- ['https://howibrettyourmother.github.io/tank-for-jeremiah-smith/','🚽','TANK WATCH','The race to be worst on purpose'],['#teams','👥','TEAMS','Rosters, picks and receipts'],['#fleece','🧶','FLEECE FACTORY','Trades you should send tonight'],
+ ['#tank','🚽','TANK WATCH','The race to be worst on purpose'],['#teams','👥','TEAMS','Rosters, picks and receipts'],['#fleece','🧶','FLEECE FACTORY','Trades you should send tonight'],
  ['#trades','🔁','TRADES & MOVES','Every deal and every dumb drop'],['#history','🏛️','HISTORY','Champions and cautionary tales'],['#records','📕','RECORD BOOK','Highs, lows and who owns who'],
  ['#shame','🍺','HALL OF SHAME','Frame it. Never forget it.'],['#arcade','🕹️','ARCADE','Mo Morehouse, mo problems']];
 R.home=async el=>{const {state,lg,T}=await current();const leg=+state.leg||1,last=+lg.settings.last_scored_leg||0,wk=lg.status==='in_season'?Math.max(1,leg):last||1;
@@ -271,40 +271,61 @@ R.after=k=>{if(k!=='home')return;const t=$('#ticker');if(t)t.classList.add('in')
 const FP={
  gen:["{A}, you need a {pa}. {B} needs a {pb}. Do the math, cowards.","{A} gets {Y}, {B} gets {X}. Within {d}% on value. Nobody gets fleeced. Allegedly.","Both rosters get better. Which means one of you will still find a way to screw it up.","{B} has {Y} gathering dust at {pa}. {A} has {X} doing nothing. Make the call.","Fair on paper. Someone will still cry about it in the group chat.","This deal fixes {A}'s {pa} hole and {B}'s {pb} problem. Accept before someone sober reviews it."],
  cont:["{A} is contending. {Y} helps now. {X} helps {B} later. Win-win, unless you're the guy who loses.","Contender tax: {A} buys {Y} for the stretch run and {B} gets younger. Classic dynasty."],
- joe:["Joe, take this deal before you trade for another 2029 4th.","Joe, this is a REAL trade, with REAL players. Try it. Just once.","Joe gets {X}. Year 6 of the rebuild starts now. Again.","Joe, accept this and we promise to stop roasting you for a week. (We won't.)"]};
+ joe:["Joe, take this deal before you trade for another 2029 4th.","Joe, this is a REAL trade, with REAL players. Try it. Just once.","Joe gets {Y}. Year 6 of the rebuild starts now. Again.","Joe, accept this and we promise to stop roasting you for a week. (We won't.)"]};
 const NEED={QB:2,RB:3,WR:4,TE:1};
 R.fleece=async el=>{const {lg,T,tp}=await current();const V=await values();const ts=Object.values(T);
   await playersFor(ts.flatMap(t=>t.players)).then(P=>{PL=Object.assign(PL,P)});
-  const pos=pid=>((PL[pid]||{}).p||[])[0],val=pid=>V.p[pid]||0,age=pid=>V.a[pid]||0;
-  const TV=teamValue(T,V,tp,lg),ns=Object.keys(NEED);
+  const pos=pid=>((PL[pid]||{}).p||[])[0],val=pid=>V.p[pid]||0,age=pid=>V.a[pid]||0,ns=Object.keys(NEED),TV=teamValue(T,V,tp,lg);
+  // "assets that matter": top-60 rostered players by superflex value, plus 1st-round picks
+  const ranked=ts.flatMap(t=>t.players).filter(p=>val(p)>0&&ns.includes(pos(p))).sort((a,b)=>val(b)-val(a)),top=new Set(ranked.slice(0,60));
   const info={};for(const t of ts){const by={};ns.forEach(k=>by[k]=t.players.filter(p=>pos(p)===k&&val(p)>0).sort((a,b)=>val(b)-val(a)));
-    const sv={};ns.forEach(k=>sv[k]=by[k].slice(0,NEED[k]).reduce((a,p)=>a+val(p),0));const core=t.players.filter(p=>val(p)>0).sort((a,b)=>val(b)-val(a)).slice(0,12);
-    info[t.rid]={t,by,sv,age:core.reduce((a,p)=>a+(age(p)||26),0)/Math.max(1,core.length)}}
-  const avg={};ns.forEach(k=>avg[k]=ts.reduce((a,t)=>a+info[t.rid].sv[k],0)/ts.length||1);
-  const g=Math.max(1,ts[0]?ts.reduce((a,t)=>a+t.w+t.l,0)/ts.length:1);
-  for(const t of ts){const I=info[t.rid];I.ratio={};ns.forEach(k=>I.ratio[k]=I.sv[k]/avg[k]);{const o=[...ns].sort((a,b)=>I.ratio[a]-I.ratio[b]);I.need=o.filter(k=>I.ratio[k]<1).slice(0,2);if(!I.need.length)I.need=o.slice(0,1)}I.surplus=[...ns].sort((a,b)=>I.ratio[b]-I.ratio[a]).filter(k=>I.ratio[k]>=0.95).slice(0,2);
+    const sv={};ns.forEach(k=>sv[k]=by[k].slice(0,NEED[k]).reduce((x,p)=>x+val(p),0));const core=t.players.filter(p=>val(p)>0).sort((a,b)=>val(b)-val(a)).slice(0,12);
+    info[t.rid]={t,by,sv,age:core.reduce((x,p)=>x+(age(p)||26),0)/Math.max(1,core.length)}}
+  const avg={};ns.forEach(k=>avg[k]=ts.reduce((x,t)=>x+info[t.rid].sv[k],0)/ts.length||1);
+  for(const t of ts){const I=info[t.rid];I.ratio={};ns.forEach(k=>I.ratio[k]=I.sv[k]/avg[k]);const o=[...ns].sort((x,y)=>I.ratio[x]-I.ratio[y]);
+    I.need=o.filter(k=>I.ratio[k]<1).slice(0,2);if(!I.need.length)I.need=o.slice(0,1);I.surplus=[...o].reverse().filter(k=>I.ratio[k]>=1).slice(0,2);
     const pct=(t.w+.5*t.t)/Math.max(1,t.w+t.l+t.t);I.mode=(pct>=0.5&&I.age>=24.5)||pct>=0.65?'CONTENDER':pct<0.4||I.age<24.5?'REBUILDER':'TWEENER';
-    // tradeable = depth beyond the starter count at surplus spots, plus non-elite starters at a strong (>1.15x) spot
-    I.give=I.surplus.flatMap(k=>I.by[k].slice(I.ratio[k]>1.15?NEED[k]-1:NEED[k]).filter(p=>val(p)>=600))}
+    const A=x=>({k:'p',id:x,v:val(x),pos:pos(x),age:age(x),big:top.has(x)});
+    // what this team can move: players at its strong spots (never its last starter there), plus picks
+    I.give=I.surplus.flatMap(k=>I.by[k].slice(I.ratio[k]>1.25?0:1).filter(p=>val(p)>=900)).map(A);
+    I.picks=TV[t.rid].picks.filter(p=>p.v>=900).map(p=>({k:'k',id:p.s+'-'+p.r+'-'+p.o,v:p.v,pos:'PICK',s:p.s,r:p.r,o:p.o,big:p.r===1,age:0}));
+    I.all=t.players.filter(p=>val(p)>=900&&ns.includes(pos(p))).map(A)}
+  const combos=(arr,n)=>{const out=[];const f=(i,cur)=>{if(cur.length&&cur.length<=n)out.push(cur);if(cur.length===n)return;for(let j=i;j<arr.length;j++)f(j+1,cur.concat([arr[j]]))};f(0,[]);return out};
+  const sum=x=>x.reduce((a,b)=>a+b.v,0),used={},CAP=2;
+  const lab=x=>x.k==='p'?`${pn(x.id)} <small>${esc(x.pos)}${x.age?' · '+x.age:''} · ${int(x.v)}</small>`:`${x.s} ${ORD[x.r]}${x.o?` <small>(${esc((T[x.o]||{}).team||'')}’s)</small>`:''} <small>· ${int(x.v)}</small>`;
   const sug={};
-  for(const t of ts){const A=info[t.rid],cand=[];
+  const order=[...ts].sort((a,b)=>TV[b.rid].tot-TV[a.rid].tot);
+  for(const t of order){const A=info[t.rid],cand=[];
     for(const u of ts){if(u===t)continue;const B=info[u.rid];
-      for(const need of A.need){if(!B.surplus.includes(need))continue;
-        for(const y of B.give.filter(p=>pos(p)===need))for(const x of A.give){if(!B.need.includes(pos(x)))continue;
-          const vx=val(x),vy=val(y),d=Math.abs(vx-vy)/Math.max(vx,vy);if(d>0.10)continue;
-          let sc=(1.2-A.ratio[need])+(1.2-B.ratio[pos(x)])-d;if(A.mode==='CONTENDER'&&B.mode==='REBUILDER'&&age(y)>age(x))sc+=.3;if(A.mode==='REBUILDER'&&B.mode==='CONTENDER'&&age(x)>age(y))sc+=.3;
-          cand.push({u,x,y,vx,vy,d,sc,need})}}}
-    cand.sort((a,b)=>b.sc-a.sc);const out=[],seen=new Set();for(const c of cand){if(seen.has(c.u.rid)||out.some(o=>o.x===c.x))continue;seen.add(c.u.rid);out.push(c);if(out.length===2)break}sug[t.rid]=out}
-  const pitch=(t,c)=>{const A=info[t.rid],k=t.joe?'joe':A.mode==='CONTENDER'?'cont':'gen';const arr=k==='gen'?FP.gen:FP[k].concat(FP.gen);
-    return pickOf(arr,'fl'+t.rid+c.x+c.y).replace(/\{(\w+)\}/g,(m,q)=>`<b>${esc({A:t.team,B:c.u.team,X:(PL[c.x]||{}).n,Y:(PL[c.y]||{}).n,pa:c.need,pb:pos(c.x),d:Math.round(c.d*100)}[q])}</b>`)};
-  const pl=p=>`${pn(p)} <small>${esc(pos(p)||'')}${age(p)?' · '+age(p):''} · ${int(val(p))}</small>`;
-  const rows=[...ts].sort((a,b)=>TV[b.rid].tot-TV[a.rid].tot);
-  el.innerHTML=`<section class="panel"><h2>🧶 THE FLEECE FACTORY</h2><div class="hint">Auto-generated trade ideas from public dynasty superflex values (FantasyCalc). Each idea is 1-for-1, within 10% on value, and fills a weak spot for <b>both</b> teams. Suggestions only. Not financial advice. Definitely not fantasy advice.</div>${ktcBtn}
-  ${rows.map(t=>{const A=info[t.rid];return`<article class="fl${t.wz?' wzc':''}"><div class="pn"><a href="#team/${t.rid}">${esc(t.team)}</a>${tag(t)} <span class="pill ${A.mode==='CONTENDER'?'gold':A.mode==='REBUILDER'?'':'pink'}">${A.mode}</span></div>
-    <div class="ps">Avg core age ${A.age.toFixed(1)} · strong: ${A.surplus.map(k=>`${k} ${Math.round(A.ratio[k]*100)}%`).join(', ')||'nothing, lol'} · weak: ${A.need.map(k=>`${k} ${Math.round(A.ratio[k]*100)}%`).join(', ')} <small>(starter value vs league avg)</small></div>
-    ${sug[t.rid].length?sug[t.rid].map(c=>`<div class="deal"><div class="dl"><span>${esc(t.team)} gets</span>${pl(c.y)}</div><div class="dl"><span>${esc(c.u.team)} gets</span>${pl(c.x)}</div><div class="rl">${pitch(t,c)}</div></div>`).join(''):'<div class="hint">No clean 1-for-1 fits right now. Time to overpay like a man.</div>'}</article>`}).join('')}${credit}</section>`};
-TABS.splice(6,0,['fleece','🧶','FLEECE']);TABS.splice(TABS.findIndex(t=>t[0]==='arcade'),0,['tank','🚽','TANK WATCH']);
-$('#tabs').innerHTML=TABS.map(([k,i,n])=>k==='tank'?`<a href="${TANK}" data-k="tank" class="ext"><span>${i}</span>${n}</a>`:`<a href="#${k}" data-k="${k}"><span>${i}</span>${n}</a>`).join('');
+      // anchor: a top-60 player B can spare at A's need
+      const anchors=B.all.filter(x=>x.big&&A.need.includes(x.pos)&&(B.ratio[x.pos]>=1||B.mode==='REBUILDER'&&x.age>=27));
+      if(!anchors.length)continue;
+      const aPool=[...A.give.filter(x=>B.need.includes(x.pos)||x.big),...A.picks].sort((x,y)=>y.v-x.v).slice(0,7);
+      const bExtra=B.all.filter(x=>!anchors.includes(x)&&x.v>=900&&x.v<val(anchors[0].id)).sort((x,y)=>y.v-x.v).slice(0,5).concat(B.picks.slice(0,3));
+      for(const an of anchors.slice(0,2))for(const add of [[],...bExtra.map(x=>[x])]){const get=[an,...add],gv=sum(get);
+        for(const give of combos(aPool,3)){const n=give.length+get.length;if(n<3||give.length>3||get.length>2)continue;
+          if(!give.some(x=>x.big))continue;if(!give.some(x=>x.k==='k'?B.mode!=='CONTENDER':B.need.includes(x.pos)))continue;
+          const v=sum(give),d=Math.abs(v-gv)/Math.max(v,gv);if(d>0.10)continue;
+          if([...give,...get].some(x=>(used[x.id]||0)>=CAP))continue;
+          let sc=(gv+v)/4000+(1.1-A.ratio[an.pos])*2-d*3;
+          const ga=give.filter(x=>x.k==='p').reduce((a,x)=>a+x.age,0)/Math.max(1,give.filter(x=>x.k==='p').length)||22;
+          if(A.mode==='CONTENDER'&&B.mode!=='CONTENDER'&&an.age>ga)sc+=1.2;if(A.mode==='REBUILDER'&&B.mode==='CONTENDER'&&an.age<ga)sc+=1.2;if(A.mode===B.mode&&A.mode!=='TWEENER')sc-=.6;
+          cand.push({u,give,get,v,gv,d,sc,need:an.pos})}}}
+    cand.sort((a,b)=>b.sc-a.sc);const out=[];for(const c of cand){if(out.some(o=>o.u===c.u))continue;if([...c.give,...c.get].some(x=>(used[x.id]||0)>=CAP))continue;
+      out.push(c);[...c.give,...c.get].forEach(x=>used[x.id]=(used[x.id]||0)+1);if(out.length===2)break}sug[t.rid]=out}
+  const pitch=(t,c)=>{const A=info[t.rid],k=t.joe?'joe':A.mode==='CONTENDER'?'cont':A.mode==='REBUILDER'?'reb':'gen';const arr=FP[k].concat(FP.gen);
+    const nm=x=>x.k==='p'?(PL[x.id]||{}).n:x.s+' '+ORD[x.r];
+    return pickOf(arr,'fl'+t.rid+c.get[0].id).replace(/\{(\w+)\}/g,(m,q)=>`<b>${esc({A:t.team,B:c.u.team,X:nm(c.give[0]),Y:nm(c.get[0]),pa:c.need,pb:c.give[0].pos,d:Math.round(c.d*100)}[q])}</b>`)};
+  el.innerHTML=`<section class="panel"><h2>🧶 THE FLEECE FACTORY</h2><div class="hint"><b>Blockbusters only.</b> Every idea has at least one top-60 superflex asset or a 1st on <b>each</b> side, comes as 2-for-1, 2-for-2 or 3-for-2, lands within 10% on FantasyCalc value and fills a real weak spot. Contenders buy proven vets with youth and picks; rebuilders cash vets in. Suggestions from public values only.</div>${ktcBtn}
+  ${order.map(t=>{const A=info[t.rid];return`<article class="fl"><div class="pn"><a href="#team/${t.rid}">${esc(t.team)}</a> <span class="pill ${A.mode==='CONTENDER'?'gold':A.mode==='REBUILDER'?'':'pink'}">${A.mode}</span></div>
+    <div class="ps">Core age ${A.age.toFixed(1)} · strong: ${A.surplus.map(k=>`${k} ${Math.round(A.ratio[k]*100)}%`).join(', ')||'nothing, lol'} · weak: ${A.need.map(k=>`${k} ${Math.round(A.ratio[k]*100)}%`).join(', ')}</div>
+    ${sug[t.rid].length?sug[t.rid].map(c=>`<div class="deal"><div class="dl"><span>${esc(t.team)} gets · ${int(c.gv)}</span><ul>${c.get.map(x=>`<li>${lab(x)}</li>`).join('')}</ul></div><div class="dl"><span>${esc(c.u.team)} gets · ${int(c.v)}</span><ul>${c.give.map(x=>`<li>${lab(x)}</li>`).join('')}</ul></div><div class="rl">${pitch(t,c)}</div></div>`).join(''):'<div class="hint">No blockbuster fits right now. Either the roster is perfect or nobody wants your guys. (It’s the second one.)</div>'}</article>`}).join('')}${credit}</section>`};
+FP.reb=["{A} is rebuilding. Sell {X} while somebody still believes in him.","Cash out, {A}. {X} won't be worth this when the rebuild finally ends in 2031.","{A} turns a vet into a pile of future. Very Joe of you."];
+FP.cont=["{A} is all-in. Push the chips: {Y} wins weeks, {X} wins press conferences.","Contender move: {A} buys {Y} for the stretch run and {B} gets younger. Classic dynasty.","{A}, rings aren't won with draft picks. Go get {Y}."];
+FP.gen=["{A} needs a {pa}. {B} needs a {pb}. This is a real trade, not a lowball. Send it.","{A} gets {Y}, {B} gets {X}. Within {d}% on value. Somebody still gets fleeced, we just don't know who yet.","Blockbuster alert: {Y} for {X}. The group chat is going to melt down.","Fair on paper. Someone will still cry about it in the group chat."];
+
+TABS.splice(6,0,['fleece','🧶','FLEECE']);TABS.splice(3,0,['tank','🚽','TANK']);
+$('#tabs').innerHTML=TABS.map(([k,i,n])=>`<a href="#${k}" data-k="${k}"><span>${i}</span>${n}</a>`).join('');
 
 // ---------------- BEST & WORST TRADES / WORST DROPS ----------------
 TB.fleece=["{W} robbed {L} blind. Margin {c}. Somebody check {L}'s phone for malware.","Heist of the century: {W} over {L}. {L} still thinks it was fair.","{W} should send {L} a thank-you card. Margin {c}.","{L} got fleeced so hard it's now a sweater. {W} wears it proudly.","{W} won this deal so bad the commissioner should review it.","{L} accepted this sober. Allegedly."];
@@ -332,3 +353,7 @@ function dropsPanel(S,V){const L=dropsList(S,V).slice(0,10);return`<section clas
 // per-season best trade / worst trade / worst drop for the History tab
 function yearMoves(s,TL,DL){const {best,worst}=rankTrades(TL.filter(t=>t.season===s.season));const b=best[0],w=worst[0]||best[1],d=DL.find(x=>x.season===s.season);
   if(!b&&!d)return'';return`<div class="ym">${b?`<h3>BEST TRADE OF ${s.season}</h3>${tradeCard(b,'fl')}`:''}${w?`<h3>WORST TRADE OF ${s.season}</h3>${tradeCard(w,'dis')}`:''}${d?`<h3>WORST DROP OF ${s.season}</h3>${dropItem(d,0).replace(/<span class="rank">#1<\/span>/,'')}`:''}</div>`}
+
+R.tank=async el=>{el.innerHTML=`<section class="panel tankp"><h2>🚽 TANK WATCH</h2><div class="hint">The race to the bottom for the 1.01: lowest max PF among non-playoff teams picks first. Live from Sleeper. <a href="${TANK}" target="_blank" rel="noopener">Open full screen ↗</a></div></section>
+   <iframe id="tankf" class="tankf" src="${TANK}?embed=1" title="Tank Watch" loading="eager"></iframe>`;
+  clearInterval(R.tf);R.tf=setInterval(()=>{const f=document.getElementById('tankf');if(!f){clearInterval(R.tf);return}try{const d=f.contentDocument;if(d&&d.body){const h=Math.max(d.body.scrollHeight,d.documentElement.scrollHeight);if(Math.abs(h-f.offsetHeight)>4)f.style.height=h+'px'}}catch(e){f.style.height='85vh'}},400)};
