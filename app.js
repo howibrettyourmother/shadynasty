@@ -227,7 +227,7 @@ async function route(){const h=(location.hash||'#home').slice(1).split('/'),k=R[
 $('#tabs').innerHTML=TABS.map(([k,i,n])=>`<a href="#${k}" data-k="${k}"><span>${i}</span>${n}</a>`).join('');
 // R pages write into a detached box; the ticker needs to find #ticker after insertion
 R.after=k=>{if(k==='home'){const t=$('#ticker');if(t)t.classList.add('in')}};
-addEventListener('hashchange',route);route();
+addEventListener('hashchange',route);
 // ---------------- PLAYOFF RACE: Monte Carlo over the real remaining schedule ----------------
 function randn(r){let u=0,v=0;while(!u)u=r();while(!v)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
 function simRace(T,M,upto,pws,pt,N){const ids=Object.keys(T).map(Number),sc={},base={};ids.forEach(i=>{sc[i]=[];base[i]={w:0,pf:0}});
@@ -357,3 +357,4 @@ function yearMoves(s,TL,DL){const {best,worst}=rankTrades(TL.filter(t=>t.season=
 R.tank=async el=>{el.innerHTML=`<section class="panel tankp"><h2>🚽 TANK WATCH</h2><div class="hint">The race to the bottom for the 1.01: lowest max PF among non-playoff teams picks first. Live from Sleeper. <a href="${TANK}" target="_blank" rel="noopener">Open full screen ↗</a></div></section>
    <iframe id="tankf" class="tankf" src="${TANK}?embed=1" title="Tank Watch" loading="eager"></iframe>`;
   clearInterval(R.tf);R.tf=setInterval(()=>{const f=document.getElementById('tankf');if(!f){clearInterval(R.tf);return}try{const d=f.contentDocument;if(d&&d.body){const h=Math.max(d.body.scrollHeight,d.documentElement.scrollHeight);if(Math.abs(h-f.offsetHeight)>4)f.style.height=h+'px'}}catch(e){f.style.height='85vh'}},400)};
+route();   // last: every R.* page above is registered before the first render
