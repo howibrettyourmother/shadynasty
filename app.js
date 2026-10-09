@@ -94,7 +94,7 @@ function teamValue(T,V,tp,lg){const season=+lg.season,RD=+lg.settings.draft_roun
 // ---------------- pages ----------------
 const R={};
 const HOMECARDS=[['#recap','📰','RECAP','Who owes a shoey this week'],['#power','⚡','POWER RANKINGS','A formula that hates your team'],['#race','🏁','PLAYOFF RACE','Your odds, simulated 3,000 times'],
- ['#tank','🚽','TANK WATCH','The race to be worst on purpose'],['#teams','👥','TEAMS','Rosters, picks and receipts'],['#fleece','🧶','FLEECE FACTORY','Trades you should send tonight'],
+ ['#tank','🚽','TANK WATCH','The race to be worst on purpose'],['#draft','🎓','DRAFT ROOM','Mock 2027 rookie draft. Joe is on the clock.'],['#teams','👥','TEAMS','Rosters, picks and receipts'],['#fleece','🧶','FLEECE FACTORY','Trades you should send tonight'],
  ['#trades','🔁','TRADES & MOVES','Every deal and every dumb drop'],['#history','🏛️','HISTORY','Champions and cautionary tales'],['#records','📕','RECORD BOOK','Highs, lows and who owns who'],
  ['#shame','🍺','HALL OF SHAME','Frame it. Never forget it.'],['#arcade','🕹️','ARCADE','Mo Morehouse, mo problems']];
 R.home=async el=>{const {state,lg,T}=await current();const leg=+state.leg||1,last=+lg.settings.last_scored_leg||0,wk=lg.status==='in_season'?Math.max(1,leg):last||1;
@@ -328,7 +328,7 @@ FP.reb=["{A} is rebuilding. Sell {X} while somebody still believes in him.","Cas
 FP.cont=["{A} is all-in. Push the chips: {Y} wins weeks, {X} wins press conferences.","Contender move: {A} buys {Y} for the stretch run and {B} gets younger. Classic dynasty.","Contender move: {A} buys {Y} for the stretch run. {B} gets a pile of talent to flip. Everybody wins, allegedly.","{A}, rings aren't won with draft picks. Go get {Y}."];
 FP.gen=["{A} needs a {pa}. {B} needs a {pb}. This is a real trade, not a lowball. Send it.","{A} gets {Y}, {B} gets {X}. Within {d}% on value. Somebody still gets fleeced, we just don't know who yet.","Blockbuster alert: {Y} for {X}. The group chat is going to melt down.","Fair on paper. Someone will still cry about it in the group chat."];
 
-TABS.splice(6,0,['fleece','🧶','FLEECE']);TABS.splice(3,0,['tank','🚽','TANK']);
+TABS.splice(6,0,['fleece','🧶','FLEECE']);TABS.splice(3,0,['tank','🚽','TANK']);TABS.splice(4,0,['draft','🎓','DRAFT']);
 $('#tabs').innerHTML=TABS.map(([k,i,n])=>`<a href="#${k}" data-k="${k}"><span>${i}</span>${n}</a>`).join('');
 
 // ---------------- BEST & WORST TRADES / WORST DROPS ----------------
@@ -361,7 +361,6 @@ function yearMoves(s,TL,DL){const {best,worst}=rankTrades(TL.filter(t=>t.season=
 R.tank=async el=>{el.innerHTML=`<section class="panel tankp"><h2>🚽 TANK WATCH</h2><div class="hint">The race to the bottom for the 1.01: lowest max PF among non-playoff teams picks first. Live from Sleeper. <a href="${TANK}" target="_blank" rel="noopener">Open full screen ↗</a></div></section>
    <iframe id="tankf" class="tankf" src="${TANK}?embed=1" title="Tank Watch" loading="eager"></iframe>`;
   clearInterval(R.tf);R.tf=setInterval(()=>{const f=document.getElementById('tankf');if(!f){clearInterval(R.tf);return}try{const d=f.contentDocument;if(d&&d.body){const h=Math.max(d.body.scrollHeight,d.documentElement.scrollHeight);if(Math.abs(h-f.offsetHeight)>4)f.style.height=h+'px'}}catch(e){f.style.height='85vh'}},400)};
-route();   // last: every R.* page above is registered before the first render
 
 // Rival Report: all-time regular-season H2H for this manager (min 2 games)
 function rivals(S,t){const h={};games(S).forEach(g=>{for(const [x,y] of [[g.a,g.b],[g.b,g.a]]){if(x.uid!==t.uid)continue;const r=h[y.uid]=h[y.uid]||{w:0,l:0,team:y.team,pf:0,pa:0};r.team=y.team;r.pf+=x.p;r.pa+=y.p;if(x.p>y.p)r.w++;else if(y.p>x.p)r.l++}});
@@ -371,3 +370,22 @@ function rivals(S,t){const h={};games(S).forEach(g=>{for(const [x,y] of [[g.a,g.
         VL=["{T} is {r} against {O}. Free win, every time.","{O} is {T}'s personal ATM. {r} all-time.","{T} gets to bully {O} at {r}. Somebody call HR."];
   const f=(arr,r,k)=>pickOf(arr,k+t.uid+r.team).replace(/\{(\w+)\}/g,(m,q)=>`<b>${esc({T:t.team,O:r.team,r:r.w+'-'+r.l}[q])}</b>`);
   return`<h3>RIVAL REPORT</h3><div class="stats rv"><div><span>😈 NEMESIS</span><b>${esc(nem.team)}</b><span>${nem.w}-${nem.l} all-time</span></div><div><span>🎯 FAVORITE VICTIM</span><b>${esc(vic.team)}</b><span>${vic.w}-${vic.l} all-time</span></div></div><div class="rl">${f(NL,nem,'n')}</div><div class="rl">${f(VL,vic,'v')}</div>`}
+
+// ---------------- DRAFT ROOM: snapshot mock of the 2027 rookie draft ----------------
+// Unofficial 2027 superflex rookie board, hand-set as of Oct 2026 (no free public devy API). Order uses Tank Watch logic.
+const BOARD27=[['Jeremiah Smith','WR'],['Arch Manning','QB'],['Ryan Williams','WR'],['Dylan Raiola','QB'],['Julian Sayin','QB'],['Cam Coleman','WR'],['Nate Frazier','RB'],['DJ Lagway','QB'],
+ ['Ahmad Hardy','RB'],['Dakorien Moore','WR'],['Nico Iamaleava','QB'],['Ryan Wingo','WR'],['Isaac Brown','RB'],['Bryant Wesco','WR'],['Mike Matthews','WR'],['Kewan Lacy','RB'],
+ ['Micah Hudson','WR'],['Jerrick Gibson','RB'],['Eric Singleton Jr.','WR'],['Jamarion Miller','RB'],['Mark Bowman','TE'],['Caleb Douglas','WR'],['Jordan Marshall','RB'],['Joey Aguilar','QB']];
+const DRL={one:["{T} takes {P} at 1.01. Jeremiah Smith, welcome to the rebuild. Bring a helmet.","{T} finally wins something: the 1.01. {P} is already asking for a trade."],
+ joe:["Joe sprints to the podium for {P}. The tank worked. Nothing else has.","Joe takes {P}. Year 6 of the rebuild has a pulse.","{P} to Joe. Somebody check on {P}'s agent."],
+ qb:["{T} grabs {P}. Superflex math says yes, the group chat says reach.","{P} to {T}. Two-QB leagues make everyone desperate."],
+ gen:["{T} takes {P}. Bold. Wrong, probably, but bold.","{P} to {T}. Instant upgrade over whoever was rotting on that bench.","{T} turns in the card for {P} and immediately checks Twitter for validation.","{T} drafts {P}. See you on the trade block in two years.","{P} goes to {T}. The war room is high-fiving. The war room is one guy on a couch.","{T} takes {P}. Somewhere a dynasty podcaster just sighed."]};
+R.draft=async el=>{const {lg,T,tp}=await current();const pt=+lg.settings.playoff_teams||6,ts=Object.values(T),NEXT=String(+lg.season+1);
+  const seeds=[...ts].sort((a,b)=>b.w-a.w||b.pf-a.pf),po=new Set(seeds.slice(0,pt).map(t=>t.rid));
+  const order=[...ts.filter(t=>!po.has(t.rid)).sort((a,b)=>a.max-b.max),...seeds.slice(0,pt).reverse()];
+  const own=(r,rid)=>{const x=(tp||[]).find(p=>String(p.season)===NEXT&&+p.round===r&&p.roster_id===rid);return x?x.owner_id:rid};
+  const picks=[];for(let r=1;r<=2;r++)order.forEach((t,i)=>{const o=T[own(r,t.rid)]||t;picks.push({r,n:i+1,orig:t,o})});
+  const line=(p,k)=>{const P=BOARD27[k];const arr=k===0?DRL.one:p.o.joe?DRL.joe:P[1]==='QB'?DRL.qb.concat(DRL.gen):DRL.gen;return pickOf(arr,'dr27'+k+p.o.rid).replace(/\{(\w+)\}/g,(m,q)=>`<b>${esc({T:p.o.team,P:P[0]}[q])}</b>`)};
+  el.innerHTML=`<section class="panel"><h2>🎓 DRAFT ROOM · ${NEXT} MOCK</h2><div class="hint">Snapshot mock of the May ${NEXT} rookie draft. Order: non-playoff teams by <b>lowest max PF</b> (Tank Watch rules), then playoff teams by projected finish from current standings. Traded picks from Sleeper. Board: unofficial superflex rookie rankings, <b>as of Oct 2026</b>. Changes every week; nobody hold us to this.</div>
+   ${picks.map((p,k)=>`${k===0||k===12?`<h3>ROUND ${p.r}</h3>`:''}<article class="dp${k===0?' first':''}"><div class="dn">${p.r}.${String(p.n).padStart(2,'0')}</div><div class="db"><div class="dpp">${esc(BOARD27[k][0])} <small>${BOARD27[k][1]}</small></div><div class="dt"><a href="#team/${p.o.rid}">${esc(p.o.team)}</a>${p.o.rid!==p.orig.rid?` <small>(via ${esc(p.orig.team)})</small>`:''}</div><div class="rl">${line(p,k)}</div>${k===0?photo('laugh','THE 1.01. THE SQUAD SAW THIS COMING.'):''}</div></article>`).join('')}</section>`};
+route();   // last: every R.* page above is registered before the first render
