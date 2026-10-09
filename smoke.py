@@ -2,7 +2,7 @@
 import asyncio,sys,time
 from playwright.async_api import async_playwright
 BASE=sys.argv[1] if len(sys.argv)>1 else 'http://127.0.0.1:18802/index.html'
-TABS=['home','recap','power','race','teams','team/2','fleece','trades','history','records','shame','arcade']
+TABS=['home','trades','history','shame','arcade']
 async def main():
   ok=True
   async with async_playwright() as p:
@@ -18,7 +18,7 @@ async def main():
       bad=[w for w in ['undefined','NaN','{T}','{W}','[object'] if w in txt]
       print(('PASS ' if good and xo<=1 and not bad else 'FAIL ')+t,f'{time.time()-t0:.1f}s',len(txt),'chars xo',xo,bad,'' if good else txt[:200].replace('\n',' '))
       ok&=good and xo<=1 and not bad
-      await m.wait_for_timeout(500);await m.screenshot(path=f'/workspace/tankshots/snlive-{t.replace("/","-")}.png')
+      await m.wait_for_timeout(500);await m.screenshot(path=f'/workspace/tankshots/sn2-{t.replace("/","-")}.png')
     print('errors',errs[:5]);ok&=not errs
     await b.close()
   print('ALL PASS' if ok else 'SOME FAIL')

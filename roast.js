@@ -223,10 +223,10 @@ async function recapData(lg,rows,week){
   for(const m of M){const pp=m.players_points||{},st=(m.starters||[]).filter(x=>x&&x!=='0'),opt=optimal(slots,m.players||[],pp,PL),pts=+m.points||0;
     const sp=st.map(id=>({id,n:(PL[id]||{}).n||'Player '+id,p:+pp[id]||0,pos:((PL[id]||{}).p||[])[0]||''}));
     const dud=sp.filter(x=>['QB','RB','WR','TE'].includes(x.pos)).sort((a,b)=>a.p-b.p)[0],hero=[...sp].sort((a,b)=>b.p-a.p)[0];
-    T[m.roster_id]={rid:m.roster_id,mid:m.matchup_id,pts,opt,bench:Math.max(0,opt-pts),dud,hero,team:R[m.roster_id]?R[m.roster_id].team:'Team '+m.roster_id,joe:R[m.roster_id]&&R[m.roster_id].joe,wz:R[m.roster_id]&&R[m.roster_id].weasel}}
+    T[m.roster_id]={rid:m.roster_id,mid:m.matchup_id,pts,opt,bench:Math.max(0,opt-pts),dud,hero,team:R[m.roster_id]?R[m.roster_id].team:'Team '+m.roster_id,joe:R[m.roster_id]&&R[m.roster_id].joe,wz:false&&R[m.roster_id].weasel}}
   const all=Object.values(T).filter(t=>t.pts>0);all.forEach(t=>{t.beat=all.filter(o=>o!==t&&o.pts<t.pts).length});
   const by={};all.forEach(t=>{if(t.mid!=null)(by[t.mid]=by[t.mid]||[]).push(t)});
-  const games=Object.values(by).filter(g=>g.length===2).map(([a,b])=>{const w=a.pts>=b.pts?a:b,l=w===a?b:a;return{w,l,m:w.pts-l.pts}}).sort((x,y)=>(y.w.wz||y.l.wz)-(x.w.wz||x.l.wz)||(y.w.joe||y.l.joe)-(x.w.joe||x.l.joe)||y.m-x.m);
+  const games=Object.values(by).filter(g=>g.length===2).map(([a,b])=>{const w=a.pts>=b.pts?a:b,l=w===a?b:a;return{w,l,m:w.pts-l.pts}}).sort((x,y)=>y.m-x.m);
   return{week,all,games}}
 
 function renderRecap(lg,rows,D){
@@ -241,7 +241,7 @@ function renderRecap(lg,rows,D){
   // the laughing squad sits beside the Shoey card and any award Joe "wins"; Weasels awards stay photo-free (they're the best team in the league)
   const jph=t=>t&&t.joe?photo('laugh','JOE AGAIN. THE SQUAD CAN’T BREATHE.'):'';
   let h=`<div class="awards">
-   ${award('👟🍺','SHOEY OF THE WEEK',lo,[f1(lo.pts),fill(pick('shoey'),V(lo))],photo('laugh',lo.joe?'SHOEY OF THE WEEK: JOE. OF COURSE.':'SHOEY OF THE WEEK. THE SQUAD IS LAUGHING.'))}
+   ${award('👟🍺','SHOEY OF THE WEEK',lo,[f1(lo.pts),fill(pick('shoey'),V(lo))],photo('laugh','SHOEY OF THE WEEK. THE SQUAD IS LAUGHING.'))}
    ${award('🪑','POINTS LEFT ON BENCH',bn,[f1(bn.bench),fill(pick('benchAward'),V(bn))],jph(bn))}
    ${lucky?award('🍀','LUCKIEST WIN',lucky,[f1(lucky.pts),fill(pick('lucky'),V(lucky))],jph(lucky)):''}
    ${robbed?award('🚨','MOST ROBBED',robbed,[f1(robbed.pts),fill(pick('robbed'),V(robbed))],jph(robbed)):''}</div>`;
@@ -257,9 +257,9 @@ function renderRecap(lg,rows,D){
     for(const t of [l,w])if(t.dud&&t.dud.p<5&&!t.wz)add('dud',t,{P:t.dud.n,pp:f1(t.dud.p)});
     for(const t of [l,w])if(t.bench>30&&!t.wz)add('bench',t);
     if(lines.length<1)add('generic',l);
-    const ph=wz===w?photo('swoon','WEASELS WIN. THE SQUAD APPROVES.'):joe===l?photo('laugh','JOE LOST. THE SQUAD IS LOSING IT.'):joe?photo('laugh','JOE WON? THE SQUAD STILL THINKS IT’S FUNNY.'):'';
-    const side=t=>`<div class="rt${t===w?' win':''}${t.wz?' wz':''}${t.joe?' joe':''}"><span class="rn">${esc(t.team)}${t.joe?' <span class="pill red">JOE</span>':''}${t.wz?' <span class="pill pink">BEST TEAM IN THE LEAGUE</span>':''}</span><span class="rs">${f1(t.pts)}</span></div>`;
-    h+=`<article class="rgame${ph?' withph':''}${wz?' wzg':''}${joe?' joeg':''}">${side(w)}${side(l)}<div class="rh">${head}</div>${lines.map(x=>`<div class="rl">${x}</div>`).join('')}${ph}</article>`}
+    const ph=hi===w?photo('swoon','HIGH SCORE OF THE WEEK. THE SQUAD APPROVES.'):joe===l?photo('laugh','JOE LOST. THE SQUAD IS LOSING IT.'):joe?photo('laugh','JOE WON? THE SQUAD STILL THINKS IT’S FUNNY.'):'';
+    const side=t=>`<div class="rt${t===w?' win':''}"><span class="rn">${esc(t.team)}</span><span class="rs">${f1(t.pts)}</span></div>`;
+    h+=`<article class="rgame${ph?' withph':''}">${side(w)}${side(l)}<div class="rh">${head}</div>${lines.map(x=>`<div class="rl">${x}</div>`).join('')}${ph}</article>`}
   return h;
 }
 
@@ -271,7 +271,7 @@ low:["{T} scores {s}. Boot is filled, shoey is owed","{s} points from {T}. Embar
 blow:["{T} bodybags {O} by {m}","{O} gets boat-raced by {m}. Thoughts and prayers","{T} beats {O} by {m}, sends flowers","{m}-point massacre: {T} over {O}"],
 close:["{T} edges {O} by {m}. {O} is screaming at a kicker","{m} points. {O} will never recover from this","Heart attack special: {T} by {m}"],
 joe:["Joe tank update: {J} remains committed to the bit","{J} sitting at {n} wins. The rebuild is going great, Joe","Year 5 of the rebuild. Same plan. Same results","Joe is on the clock. He's always on the clock"],
-wz:["The Wilson Weasels: still the best team in the league","Brett's Weasels flexing again. Best team in the league, no trophy required","Weasels at {n} wins. Everyone else is playing for second"],
+
 hero:["{P} drops {pp} for {T}. League-winner energy","{pp} from {P}. {T} owes him dinner"],
 streak:["{T} has won {n} straight. Somebody stop them","{T} has lost {n} straight. Somebody hug them. From a distance"]};
 // Power ranking blurbs by tier: {T} team, {r} rank, {ap} all-play record, {f} last-3 avg, {pf} PF
@@ -279,8 +279,7 @@ const PB={
 top:["{T} sits at #{r} with an all-play of {ap}. Everyone else is just content.","#{r} {T}: averaging {f} the last three weeks. Disgusting. Respect.","{T} is the team you pray to not see on your schedule.","{T} at #{r}. Enjoy the view, the fall is gonna hurt.","{T} is cooking with {pf} PF. The rest of the league is microwaving.","All-play {ap}. {T} would beat your team, your backup team and your fantasy podcast."],
 mid:["{T} at #{r}: aggressively fine. Like a gas-station sandwich.","{T} is in the mushy middle. Make a trade or make peace with mediocrity.","#{r} {T}. Could make a run. Could also faceplant. Coin flip franchise.","All-play {ap}. {T} beats the bad teams and gets bullied by the good ones.","{T} is one waiver pickup away from relevance. Or irrelevance.","{T} averaging {f} lately. Not scary. Not embarrassing. Just there."],
 low:["{T} at #{r}. The tank is calling and {T} is picking up.","All-play {ap}. {T} would lose to a roster of kickers.","{T} averaging {f}. That's not a slump, that's a lifestyle.","#{r} {T}: somebody check if the manager still has the app.","{T} is playing for pride. There is no pride left.","{T} has {pf} PF. Most of it came by accident."],
-joe:["{J} at #{r}. Joe's not losing, he's 'accumulating draft capital'. Sure, Joe.","#{r} {J}. The rebuild is in year 5 and the blueprint is a napkin.","{J}: all-play {ap}. Jeremiah Smith is already house-hunting near Joe.","{J} at #{r}. Joe's GM philosophy: why win now when you can lose forever?"],
-wz:["Wilson Weasels at #{r}. Best team in the league, regardless of what a formula says.","#{r}? The formula is clearly broken. Wilson Weasels: best team in the league.","Wilson Weasels at #{r} with all-play {ap}. Brett's sunglasses remain on."]};
+joe:["{J} at #{r}. Joe's not losing, he's 'accumulating draft capital'. Sure, Joe.","#{r} {J}. The rebuild is in year 5 and the blueprint is a napkin.","{J}: all-play {ap}. Jeremiah Smith is already house-hunting near Joe.","{J} at #{r}. Joe's GM philosophy: why win now when you can lose forever?"]};
 // Trade roasts for lopsided deals: {W} winner, {L} loser, {d} point gap
 const TB={
 lop:["{W} fleeced {L} by {d} points. Somebody call fantasy-football police.","{L} got robbed in broad daylight: {d} points and counting.","{W} won this trade by {d}. {L} should have its trade privileges revoked.","{L} accepted this. On purpose. {W} is up {d}.","{d} points of pure larceny. {W} thanks {L} for the donation.","This trade aged like milk for {L}: down {d}.","{L} is still telling people it was 'for the future'. Down {d}.","{W} owes {L} a fruit basket. Up {d}."],

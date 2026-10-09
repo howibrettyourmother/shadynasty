@@ -58,7 +58,7 @@ th:nth-child(2),td:nth-child(2){text-align:left}
 td{padding:8px 4px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 td.tm{white-space:normal}td.tm a{color:#fff;font-weight:700;text-decoration:none}
 .ow{display:block;color:var(--mute);font-size:10.5px}
-tr.po td{background:rgba(125,255,176,.06)}tr.wz td{background:rgba(255,79,168,.13)!important}
+tr.po td{background:rgba(125,255,176,.06)}
 table.mini th:first-child,table.mini td:first-child{text-align:left}table.mini td{white-space:nowrap}
 tr.st td:first-child{font-weight:700;color:#fff}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -88,7 +88,7 @@ tr.st td:first-child{font-weight:700;color:#fff}
 .award,.rgame,.trade,.pr{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin:0 0 9px}
 .aw-t{font:700 12px/1.1 var(--disp);letter-spacing:.08em;color:#ffe07a}.aw-n{font:700 17px/1.2 var(--disp);color:#fff;margin:3px 0 2px;overflow-wrap:anywhere}.aw-n span{color:#ff6b6b;margin-left:4px}
 .aw-l,.rl,.pbl{font-size:13.5px;line-height:1.38;color:#d6dbe4}.aw-l b,.rl b,.rh b,.pbl b,.ticker b{color:#fff}
-.rgame.wzg{border-color:rgba(255,124,192,.55)}.rgame.joeg{border-color:rgba(255,59,59,.5)}
+
 .rt{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:3px 0;color:#aab3c2}.rt .rn{font-weight:700;overflow-wrap:anywhere;min-width:0}.rt .rs{font:700 18px/1 var(--disp);white-space:nowrap}.rt.win{color:#fff}.rt.win .rs{color:#7dffb0}
 .rh{font:700 15.5px/1.3 var(--disp);color:#ffe07a;margin:6px 0 4px}.rl{margin-top:4px;padding-left:9px;border-left:2px solid rgba(255,255,255,.14)}
 .rphoto{margin:9px 0 0}.rphoto img{display:block;width:100%;max-width:340px;height:auto;aspect-ratio:360/163;border-radius:8px;background:#0b0f18}.rphoto.swoon img{aspect-ratio:360/169}
@@ -96,7 +96,7 @@ tr.st td:first-child{font-weight:700;color:#fff}
 .rphoto.top{margin:4px 0 10px}
 @media(min-width:640px){.awards{grid-template-columns:1fr 1fr}.withph{display:grid;grid-template-columns:minmax(0,1fr) 230px;column-gap:12px;align-items:start}.withph>*:not(.rphoto){grid-column:1}.withph>.rphoto{grid-column:2;grid-row:1/span 8;margin:0}.award.withph{grid-column:1/-1}}
 .pr{display:flex;gap:10px}.pr .rk{font:700 30px/1 var(--disp);color:var(--gold);min-width:34px;text-align:center}.pr .pb{min-width:0;flex:1}.pr .pn a{color:#fff;font:700 17px/1.2 var(--disp);text-decoration:none}.pr .ps{color:var(--mute);font-size:12px;margin:2px 0 4px}
-.pr.first{border-color:rgba(255,199,44,.6);background:linear-gradient(180deg,rgba(255,199,44,.12),rgba(255,255,255,.03))}.wzc{border-color:rgba(255,124,192,.5)!important}
+.pr.first{border-color:rgba(255,199,44,.6);background:linear-gradient(180deg,rgba(255,199,44,.12),rgba(255,255,255,.03))}
 .tg{display:grid;grid-template-columns:1fr;gap:8px}@media(min-width:560px){.tg{grid-template-columns:1fr 1fr}}
 .tc{display:flex;align-items:center;gap:8px;min-height:56px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:#fff;text-decoration:none}.tc small{color:var(--mute)}
 .th{display:flex;gap:10px;align-items:center}
@@ -113,6 +113,10 @@ ol.sh{list-style:none;padding:0}ol.sh li{display:flex;gap:8px;align-items:center
 .mv{font:700 11px/1 var(--disp)}.mv.up,td.up{color:#7dffb0}.mv.dn,td.dn{color:#ff8080}.mv.eq{color:var(--mute)}
 .fl{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin:0 0 9px}.fl .pn a{color:#fff;font:700 17px/1.2 var(--disp);text-decoration:none}.fl .ps{color:var(--mute);font-size:12px;margin:3px 0 6px}
 .deal{border-top:1px solid var(--line);padding:7px 0 2px}.dl{font-size:13px;padding:2px 0}.dl span{display:inline-block;min-width:0;color:var(--mute);font:700 11px/1 var(--disp);letter-spacing:.06em;margin-right:6px;text-transform:uppercase}.dl small{color:var(--mute)}.pill.gold{background:linear-gradient(180deg,#ffe07a,#e3a400);color:#1a1200}
+.mv2{font:700 12px/1 var(--disp);letter-spacing:.08em;color:var(--mute);margin:2px 0 6px}.trade .rank{font:700 22px/1 var(--disp);color:var(--gold);margin-right:6px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media(min-width:640px){.cards{grid-template-columns:repeat(3,1fr)}}
+.card{display:flex;flex-direction:column;gap:3px;min-height:104px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#fff;background:linear-gradient(180deg,rgba(40,50,72,.9),rgba(14,18,28,.95));border:1px solid rgba(255,199,44,.25);box-shadow:0 6px 16px rgba(0,0,0,.45)}
+.card:active{transform:scale(.98)}.card .ci{font-size:26px;line-height:1}.card b{font:700 15px/1.1 var(--disp);letter-spacing:.06em;color:var(--gold)}.card small{color:#cfd6e2;font-size:12px;line-height:1.3}
 .credit,.foot{color:var(--mute);font-size:11.5px;margin-top:10px}.foot{text-align:center;padding:10px 0 0}
 </style></head>
 <body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -132,6 +136,6 @@ ol.sh{list-style:none;padding:0}ol.sh li{display:flex;gap:8px;align-items:center
 <header class="top"><div class="brand"><svg class="shoey" viewBox="0 0 120 96" aria-hidden="true"><use href="#shoey"/></svg><b>SHADYNASTY</b><small>THE BRO HUB<br>EST. 2021 · SLEEPER</small></div><nav id="tabs" aria-label="Sections"></nav></header>
 <main class="wrap" id="view"></main>
 <div class="foot wrap">Auto-built in your browser from the public <a href="https://docs.sleeper.com/" rel="noopener">Sleeper API</a> · values by <a href="https://fantasycalc.com" rel="noopener">FantasyCalc</a> · no humans were harmed, only lineups.</div>
-<script src="roast.js?v=2"></script>
-<script src="app.js?v=2"></script>
+<script src="roast.js?v=4"></script>
+<script src="app.js?v=4"></script>
 </body></html>
