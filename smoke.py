@@ -18,7 +18,7 @@ async def main():
       bad=[w for w in ['undefined','NaN','{T}','{W}','[object'] if w in txt]
       print(('PASS ' if good and xo<=1 and not bad else 'FAIL ')+t,f'{time.time()-t0:.1f}s',len(txt),'chars xo',xo,bad,'' if good else txt[:200].replace('\n',' '))
       ok&=good and xo<=1 and not bad
-      await m.wait_for_timeout(500);await m.screenshot(path=f'/workspace/tankshots/sn-{t.replace("/","-")}.png')
+      await m.wait_for_timeout(500);await m.screenshot(path=f'/workspace/tankshots/snlive-{t.replace("/","-")}.png')
     print('errors',errs[:5]);ok&=not errs
     await b.close()
   print('ALL PASS' if ok else 'SOME FAIL')

@@ -76,7 +76,7 @@ wzWin:[
  "Weasels win. {O} never stood a chance. Brett is already picking his next victim.",
  "{T} by {m}. The best team in the league just cleared its throat.",
  "Weasels {s}, {O} {os}. That's what a real roster looks like, boys.",
- "Another W for the best team in the league. {O} will be telling their grandkids they kept it to {m}.",
+ "Another W for the best team in the league. {O} will be bragging forever that they kept it to {m}.",
  "The Weasels dropped {s} on {O}. EAT SHIT, respectfully.",
  "{T} rolls. Brett set the lineup with one eye closed and still won by {m}.",
  "Weasels over {O} by {m}. The rest of the league is playing for second.",
@@ -276,7 +276,7 @@ hero:["{P} drops {pp} for {T}. League-winner energy","{pp} from {P}. {T} owes hi
 streak:["{T} has won {n} straight. Somebody stop them","{T} has lost {n} straight. Somebody hug them. From a distance"]};
 // Power ranking blurbs by tier: {T} team, {r} rank, {ap} all-play record, {f} last-3 avg, {pf} PF
 const PB={
-top:["{T} sits at #{r} with an all-play of {ap}. Everyone else is just content.","#{r} {T}: averaging {f} the last three weeks. Disgusting. Respect.","{T} is the team you pray to not see on your schedule.","{T} at #{r}. Enjoy the view, the fall is gonna hurt.","{T} is cooking with {pf} PF. The rest of the league is microwaving.","All-play {ap}. {T} would beat your team, your dad's team and your fantasy podcast."],
+top:["{T} sits at #{r} with an all-play of {ap}. Everyone else is just content.","#{r} {T}: averaging {f} the last three weeks. Disgusting. Respect.","{T} is the team you pray to not see on your schedule.","{T} at #{r}. Enjoy the view, the fall is gonna hurt.","{T} is cooking with {pf} PF. The rest of the league is microwaving.","All-play {ap}. {T} would beat your team, your backup team and your fantasy podcast."],
 mid:["{T} at #{r}: aggressively fine. Like a gas-station sandwich.","{T} is in the mushy middle. Make a trade or make peace with mediocrity.","#{r} {T}. Could make a run. Could also faceplant. Coin flip franchise.","All-play {ap}. {T} beats the bad teams and gets bullied by the good ones.","{T} is one waiver pickup away from relevance. Or irrelevance.","{T} averaging {f} lately. Not scary. Not embarrassing. Just there."],
 low:["{T} at #{r}. The tank is calling and {T} is picking up.","All-play {ap}. {T} would lose to a roster of kickers.","{T} averaging {f}. That's not a slump, that's a lifestyle.","#{r} {T}: somebody check if the manager still has the app.","{T} is playing for pride. There is no pride left.","{T} has {pf} PF. Most of it came by accident."],
 joe:["{J} at #{r}. Joe's not losing, he's 'accumulating draft capital'. Sure, Joe.","#{r} {J}. The rebuild is in year 5 and the blueprint is a napkin.","{J}: all-play {ap}. Jeremiah Smith is already house-hunting near Joe.","{J} at #{r}. Joe's GM philosophy: why win now when you can lose forever?"],
