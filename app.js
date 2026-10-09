@@ -46,15 +46,16 @@ function teamsOf(users,rosters){const U=Object.fromEntries(users.map(u=>[u.user_
       joe:/^joebags85$/i.test(un),wz:r.owner_id===BRETT,players:r.players||[],starters:r.starters||[],streak:(r.metadata&&r.metadata.streak)||''}}
   return T}
 // compact season summary; completed seasons are cached forever in localStorage
-async function season(lg){const done=lg.status==='complete',id=lg.league_id,key='sn:s4:'+id;if(done){const c=LS.get(key);if(c)return c}
+async function season(lg){const done=lg.status==='complete',id=lg.league_id,key='sn:s5:'+id;if(done){const c=LS.get(key);if(c)return c}
   const st=lg.settings||{},last=+st.last_scored_leg||0,pws=+st.playoff_week_start||15,leg=done?18:Math.max(1,+(D.state&&D.state.leg)||last+1);
   const g=done?jc:j;
   const [users,rosters,wb,drafts]=await Promise.all([g('league/'+id+'/users'),g('league/'+id+'/rosters'),g('league/'+id+'/winners_bracket').catch(()=>[]),jc('league/'+id+'/drafts').catch(()=>[])]);
   const M=await pool(Array.from({length:last},(_,k)=>()=>jc('league/'+id+'/matchups/'+(k+1)).catch(()=>[])),8);
   const TX=await pool(Array.from({length:leg},(_,k)=>()=>(done||k+1<leg?jc:j)('league/'+id+'/transactions/'+(k+1)).catch(()=>[])),8);
-  const dr=(drafts||[]).filter(d=>d.status==='complete'&&String(d.season)===String(lg.season)).sort((a,b)=>(b.start_time||0)-(a.start_time||0))[0];
-  let picks={};if(dr){try{const [dd,dp]=await Promise.all([jc('draft/'+dr.draft_id),jc('draft/'+dr.draft_id+'/picks')]);const s2r=dd.slot_to_roster_id||{};
-    for(const p of dp){const o=s2r[String(p.draft_slot)];if(o!=null)picks[lg.season+'|'+p.round+'|'+o]=[p.player_id,p.roster_id]}}catch(e){}}
+  // several drafts can exist per season (mocks, 1-round extras): use the newest multi-round one that actually has picks
+  const cands=(drafts||[]).filter(d=>d.status==='complete'&&String(d.season)===String(lg.season)&&(!d.settings||+d.settings.rounds>1)).sort((a,b)=>(b.start_time||0)-(a.start_time||0));
+  let picks={};for(const dr of cands){try{const [dd,dp]=await Promise.all([jc('draft/'+dr.draft_id),jc('draft/'+dr.draft_id+'/picks')]);if(!dp||!dp.length)continue;const s2r=dd.slot_to_roster_id||{};
+    for(const p of dp){const o=s2r[String(p.draft_slot)];if(o!=null)picks[lg.season+'|'+p.round+'|'+o]=[p.player_id,p.roster_id]}break}catch(e){}}
   const ids=new Set();M.forEach(w=>w.forEach(m=>(m.players||[]).forEach(p=>ids.add(p))));const P=await playersFor([...ids]);
   const slots=(lg.roster_positions||[]).filter(s=>!['BN','IR','TAXI'].includes(s));
   const wk=M.map(w=>w.map(m=>{const pp=m.players_points||{};return[m.roster_id,m.matchup_id,+m.points||0,Math.round(optimal(slots,m.players||[],pp,P)*100)/100]}));
