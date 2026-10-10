@@ -16,10 +16,12 @@ async function jc(u){const k='sn:'+u;if(SS){const v=SS.getItem(k);if(v)try{retur
 const LS={get(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}};
 async function pool(fns,n){const out=new Array(fns.length);let i=0;await Promise.all(Array.from({length:Math.min(n||8,fns.length)},async()=>{while(i<fns.length){const k=i++;out[k]=await fns[k]()}}));return out}
 // ---- players: one big download per week at most; only a slim id -> {n,p,t} subset is kept in localStorage ----
+// one shared download of Sleeper's big players file per page view (released after a minute so old iPhones get the memory back)
+const RAWP=()=>RAWP.p||(RAWP.p=fetch(API+'players/nfl').then(r=>{if(!r.ok)throw new Error('players '+r.status);return r.json()}).then(x=>{setTimeout(()=>{RAWP.p=null},60000);return x},e=>{RAWP.p=null;throw e}));
 async function playersFor(ids){
   const k='sn:players';let c=LS.get(k);if(!c||Date.now()-c.at>7*864e5)c={at:Date.now(),p:{}};const have=c.p;
   if(!ids.every(i=>have[i])){
-    if(!playersFor.slim)playersFor.slim=fetch(API+'players/nfl').then(r=>{if(!r.ok)throw new Error('players '+r.status);return r.json()}).then(all=>{const m={};
+    if(!playersFor.slim)playersFor.slim=RAWP().then(all=>{const m={};
       for(const i in all){const p=all[i];m[i]={n:p.position==='DEF'?((p.first_name||'')+' '+(p.last_name||'')).trim()+' D/ST':(p.full_name||((p.first_name||'')+' '+(p.last_name||'')).trim()),p:(p.fantasy_positions&&p.fantasy_positions.length?p.fantasy_positions:[p.position]).filter(Boolean),t:p.team||'FA'}}return m}).catch(e=>{playersFor.slim=null;throw e});
     const m=await playersFor.slim;ids.forEach(i=>{if(!have[i])have[i]=m[i]||{n:'Player '+i,p:[],t:''}});
     if(!LS.set(k,c)){c.p={};ids.forEach(i=>c.p[i]=have[i]);LS.set(k,c)}}
@@ -328,10 +330,12 @@ R.race=async el=>{const {lg,T}=await current();const last=+lg.settings.last_scor
 TABS.splice(3,0,['race','🏁','RACE']);$('#tabs').innerHTML=TABS.map(([k,i,n])=>`<a href="#${k}" data-k="${k}"><span>${i}</span>${n}</a>`).join('');
 // ---- INJURIES (Race tab): live Injury Report from Sleeper players/nfl (slim injured-only cache, 12h) + all-time "Most Screwed by the Injury Gods" estimate ----
 const INJW={Out:1,IR:1,PUP:1,Doubtful:0.75,Questionable:0.35};
-async function injuries(){const k='sn:inj';const c=LS.get(k);if(c&&Date.now()-c.at<12*36e5)return c.m;
-  const all=await fetch(API+'players/nfl').then(r=>{if(!r.ok)throw new Error('players '+r.status);return r.json()});const m={};
-  for(const i in all){const p=all[i],s=p&&p.injury_status;if(!s||!INJW[s])continue;m[i]=[s,p.injury_body_part||'',p.full_name||((p.first_name||'')+' '+(p.last_name||'')).trim(),p.position||'',p.team||'FA']}
-  LS.set(k,{at:Date.now(),m});return m}
+// slim 12h cache: injured players league-wide + NFL team for every rostered player (the full file is several MB, too big for localStorage)
+async function injuries(ros){const k='sn:inj2';const c=LS.get(k);if(c&&Date.now()-c.at<12*36e5&&(ros||[]).every(p=>c.tm[p]!==undefined))return c;
+  const all=await RAWP(),m={},tm={};
+  for(const i in all){const p=all[i],s=p&&p.injury_status;if(s&&INJW[s])m[i]=[s,p.injury_body_part||'',p.full_name||((p.first_name||'')+' '+(p.last_name||'')).trim(),p.position||'',p.team||'FA']}
+  for(const i of ros||[]){const p=all[i];tm[i]=p&&p.team?p.team:''}
+  const o={at:Date.now(),m,tm};LS.set(k,o);return o}
 const IRB={top:["{T} is basically fielding a MASH unit. {n} guys down, about {p} pts a week watching from a stretcher.","{T}'s training room has more talent than their starting lineup right now.","The injury gods picked {T} this week. {p} pts a week in street clothes."],
  mid:["{T} is limping, not dead. Yet.","{T} has a couple guys on the injury report and a GM who will blame them for everything."],
  none:["Fully healthy. {T} has no excuses left. None."]};
@@ -353,27 +357,6 @@ function injuryGods(S,T){const out={by:{},seasons:[],blows:[]},uidName=Object.fr
           const a=out.by[uid]=out.by[uid]||{uid,name,p:0,w:0,n:0};a.p+=p;a.w+=lost;a.n++;w=e+1}}
       if(segP)out.seasons.push({uid,name,season:s.season,p:segP,w:segW})}}
   out.board=Object.values(out.by).sort((a,b)=>b.p-a.p);out.seasons.sort((a,b)=>b.p-a.p);out.blows.sort((a,b)=>b.p-a.p);out.blows=out.blows.slice(0,10);out.seasons=out.seasons.slice(0,5);delete out.by;return out}
-const _race=R.race;R.race=async el=>{await _race(el);
-  el.insertAdjacentHTML('beforeend',`<section class="panel"><h2>🚑 INJURY REPORT</h2><div class="hint">Live from Sleeper's injury tags (Out, IR, PUP, Doubtful, Questionable). Sidelined = each injured rostered player's average points this season (or a value-based guess if he hasn't played), weighted by status, with starters counting full and bench guys 40%.</div><div id="injr">${SPIN('Checking the training room…')}</div></section>
-  <section class="panel"><h2>⚰️ MOST SCREWED BY THE INJURY GODS</h2><div class="hint"><b>Estimate</b> based on scoring gaps, not official injury reports: a regular starter (3+ starts in the prior 4 weeks, 10+ pts avg) who suddenly vanishes from the lineup for 2+ weeks (or starts and scores 0) counts as hurt. Points lost = weeks missed × his prior average. Trades and drops are excluded; byes and benchings can sneak in.</div><div id="injg">${SPIN('Counting the bodies since 2021…')}</div></section>`);
-  const nr=el.querySelector('#injr'),ng=el.querySelector('#injg');const {T,lg}=await current();
-  const r=(arr,key,x)=>pickOf(arr,key).replace(/\{(\w+)\}/g,(m,k)=>x[k]!=null?`<b>${esc(x[k])}</b>`:m);
-  (async()=>{const [IM,V]=await Promise.all([injuries(),values().catch(()=>({p:{}}))]);const last=+lg.settings.last_scored_leg||0;
-    const M=await pool(Array.from({length:last},(_,k)=>()=>jc('league/'+LEAGUE+'/matchups/'+(k+1)).catch(()=>[])),8);const avg={};
-    M.forEach(w=>w.forEach(m=>{const pp=m.players_points||{};for(const pid in pp){const v=+pp[pid]||0;if(v>0){const a=avg[pid]=avg[pid]||[0,0];a[0]+=v;a[1]++}}}));
-    const rows=Object.values(T).map(t=>{const st=new Set(t.starters||[]);const hurt=(t.players||[]).filter(p=>IM[p]).map(p=>{const a=avg[p],ppg=a?a[0]/a[1]:Math.min(18,(V.p[p]||0)/450),s=st.has(p);return{pid:p,i:IM[p],ppg,est:!a,s,x:ppg*INJW[IM[p][0]]*(s?1:0.4)}}).sort((a,b)=>b.x-a.x);
-      return{t,hurt,x:hurt.reduce((a,h)=>a+h.x,0)}}).sort((a,b)=>b.x-a.x);
-    nr.innerHTML=`<ol class="rec inj">${rows.map((o,i)=>`<li><div class="ih"><b>${fmt(o.x)}</b> pts/wk sidelined · <span>${esc(o.t.team)}</span>${tag(o.t)}</div>${o.hurt.length?`<div class="ipl">${o.hurt.slice(0,4).map(h=>`<div class="ip">${h.s?'⭐ ':''}<b>${esc(h.i[2])}</b> <span class="pill${h.i[0]==='Questionable'?'':' red'}">${esc(h.i[0])}</span> ${esc(h.i[1]||'')} <small>${fmt(h.ppg)}${h.est?'*':''}/wk</small></div>`).join('')}${o.hurt.length>4?`<div class="ip"><small>+${o.hurt.length-4} more on the trainer's table</small></div>`:''}</div>`:''}<div class="rl">${r(o.hurt.length?(i<3&&o.x>8?IRB.top:IRB.mid):IRB.none,'ir'+o.t.rid+last,{T:o.t.team,n:o.hurt.length,p:fmt(o.x)})}</div></li>`).join('')}</ol><div class="hint">⭐ = in the current starting lineup. * = hasn't scored this season, guessed from dynasty value.</div>`})()
-    .catch(e=>{nr.innerHTML=`<div class="hint">Sleeper's injury feed is napping (${esc(e.message||e)}). Try again in a bit.</div>`});
-  (async()=>{const S=await all();const k='sn:igods1',sig=S.map(s=>s.season+':'+s.last).join(',');let G=LS.get(k);
-    if(!G||G.sig!==sig){G={sig,...injuryGods(S,T)};LS.set(k,G)}
-    const ids=G.blows.map(b=>b.pid).filter(p=>!PL[p]);if(ids.length)Object.assign(PL,await playersFor(ids));
-    const b0=G.blows[0],s0=G.seasons[0];
-    ng.innerHTML=G.board.length?`<h3>ALL-TIME (BY MANAGER)</h3><ol class="rec ig">${G.board.map((a,i)=>`<li><div><b>~${int(a.p)}</b> pts lost · ${esc(a.name)} <small>${a.w} starter-weeks · ${a.n} injuries</small>${i<3?`<div class="rl">${r([IGR.tm[(i+G.sig.length)%IGR.tm.length]],'ig'+a.uid,{T:a.name,w:a.w,p:int(a.p)})}</div>`:''}</div></li>`).join('')}</ol>
-      ${s0?`<h3>WORST SINGLE SEASON</h3><ol class="rec ig">${G.seasons.map((x,i)=>`<li><div><b>~${int(x.p)}</b> pts · ${esc(x.name)} <small>${x.season} · ${x.w} starter-weeks</small>${i===0?`<div class="rl">${r(IGR.season,'igs'+x.uid+x.season,{T:x.name,s:x.season,p:int(x.p)})}</div>`:''}</div></li>`).join('')}</ol>`:''}
-      ${b0?`<h3>WORST SINGLE INJURY BLOW</h3><ol class="rec ig">${G.blows.slice(0,5).map((x,i)=>`<li><div><b>~${int(x.p)}</b> pts · ${pn(x.pid)} <small>${esc(x.name)} · ${x.season} wk ${x.w}${x.lost>1?'–'+(x.w+x.lost-1):''} · ${x.lost} wk × ${fmt(x.avg)}</small>${i===0?`<div class="rl">${r(IGR.blow,'igb'+x.pid+x.season,{T:x.name,P:(PL[x.pid]||{}).n||'Player '+x.pid,w:x.lost,p:int(x.p)})}</div>`:''}</div></li>`).join('')}</ol>`:''}`
-      :'<div class="hint">No clear injury gaps found. Either everyone is healthy or everyone is lying.</div>'})()
-    .catch(e=>{ng.innerHTML=`<div class="hint">History is still loading or Sleeper fumbled it (${esc(e.message||e)}).</div>`})};
 // all-time fun facts get added to the Home ticker once the history is loaded (instant when cached)
 R.after=k=>{if(k!=='home')return;const t=$('#ticker');if(t)t.classList.add('in');
   (all().then(S=>{const G=games(S),h={},nm={};G.forEach(g=>{for(const [x,y] of [[g.a,g.b],[g.b,g.a]]){nm[x.uid]=x.team;const k=x.uid+'|'+y.uid;h[k]=h[k]||[0,0];h[k][x.p>y.p?0:1]++}});
@@ -502,6 +485,48 @@ R.draft=async el=>{const {lg,T,tp}=await current();const wb=await j('league/'+LE
   const line=(p,k)=>{const P=BOARD27[k];const arr=k===0?DRL.one:p.o.joe?DRL.joe:P[1]==='QB'?DRL.qb.concat(DRL.gen):DRL.gen;return pickOf(arr,'dr27'+k+p.o.rid).replace(/\{(\w+)\}/g,(m,q)=>`<b>${esc({T:p.o.team,P:P[0]}[q])}</b>`)};
   el.innerHTML=`<section class="panel"><h2>🎓 DRAFT ROOM · ${NEXT} MOCK</h2><div class="hint">Snapshot mock of the May ${NEXT} rookie draft. Order: non-playoff teams by <b>lowest max PF</b> (Tank Watch rules), then playoff teams by projected finish from current standings. Traded picks from Sleeper. Board: consensus of DraftSharks + Dynasty Nerds SF, <b>as of Oct 2026</b>. Changes every week; nobody hold us to this.</div>
    ${picks.map((p,k)=>`${k===0||k===12?`<h3>ROUND ${p.r}</h3>`:''}<article class="dp${k===0?' first':''}"><div class="dn">${p.r}.${String(p.n).padStart(2,'0')}</div><div class="db"><div class="dpp">${esc(BOARD27[k][0])} <small>${BOARD27[k][1]} · ${esc(BOARD27[k][2])}</small></div><div class="dt"><a href="#team/${p.o.rid}">${esc(p.o.team)}</a>${p.o.rid!==p.orig.rid?` <small>(via ${esc(p.orig.team)})</small>`:''}</div><div class="rl">${line(p,k)}</div>${k===0?photo('draft','THE 1.01. THE SQUAD SAW THIS COMING.'):''}</div></article>`).join('')}</section>`};
+// ---- THE TRAINER'S ROOM (Power tab, lazy): live Injury Report + Bye Week Hell. ALL-TIME INJURY GODS lives on History. ----
+// 2026 NFL bye weeks, from the NFL's official schedule release (https://www.nfl.com/_amp/2026-nfl-schedule-release-every-team-bye-week),
+// cross-checked with FOX Sports' 2026 bye list. No byes in weeks 1-4, 12, 15-18. Keys are Sleeper team abbreviations.
+const BYE26={CAR:5,KC:5,CIN:6,DET:6,MIA:6,MIN:6,BUF:7,JAX:7,LAC:7,WAS:7,HOU:8,NO:8,NYG:8,SF:8,PIT:9,TEN:9,CHI:10,DEN:10,PHI:10,TB:10,ATL:11,CLE:11,GB:11,LAR:11,NE:11,SEA:11,BAL:13,IND:13,LV:13,NYJ:13,ARI:14,DAL:14};
+const BWH={top:["{T} has {n} starters on bye and a GM who forgot what a calendar is. ~{p} pts in sweatpants this week.","Bye week hell, starring {T}. ~{p} pts sitting on a couch. Start your backup kicker, maybe.","{T} built a roster where everybody takes the same week off. That's not strategy, that's a group chat."],
+ up:["{T}: week {w} is a funeral. {n} starters out, ~{p} pts gone. Plan now or cry later."]};
+function likelyStarters(slots,pids,avg,P){const left=new Set(pids),out=new Set(),order=slots.map(s=>({s,e:ELIG[s]||[s]})).sort((a,b)=>a.e.length-b.e.length);
+  for(const o of order){let best=null,bp=-1;for(const id of left){const p=P[id];const v=avg(id);if(p&&p.p.some(x=>o.e.includes(x))&&v>bp){bp=v;best=id}}if(best){left.delete(best);out.add(best)}}return out}
+function godsHTML(){return`<section class="panel"><h2>⚰️ MOST SCREWED BY THE INJURY GODS</h2><div class="hint"><b>Estimate</b> based on scoring gaps, not official injury reports: a regular starter (3+ starts in the prior 4 weeks, 10+ pts avg) who suddenly vanishes from the lineup for 2+ weeks (or starts and scores 0) counts as hurt. Points lost = weeks missed × his prior average. Trades and drops are excluded; byes and benchings can sneak in.</div><div id="injg">${SPIN('Counting the bodies since 2021…')}</div></section>`}
+async function fillGods(ng,S,T){const r=(arr,key,x)=>pickOf(arr,key).replace(/\{(\w+)\}/g,(m,k)=>x[k]!=null?`<b>${esc(x[k])}</b>`:m);
+  const k='sn:igods1',sig=S.map(s=>s.season+':'+s.last).join(',');let G=LS.get(k);if(!G||G.sig!==sig){G={sig,...injuryGods(S,T)};LS.set(k,G)}
+  const ids=G.blows.map(b=>b.pid).filter(p=>!PL[p]);if(ids.length)Object.assign(PL,await playersFor(ids));
+  ng.innerHTML=G.board.length?`<h3>ALL-TIME (BY MANAGER)</h3><ol class="rec ig">${G.board.map((a,i)=>`<li><div><b>~${int(a.p)}</b> pts lost · ${esc(a.name)} <small>${a.w} starter-weeks · ${a.n} injuries</small>${i<3?`<div class="rl">${r([IGR.tm[(i+G.sig.length)%IGR.tm.length]],'ig'+a.uid,{T:a.name,w:a.w,p:int(a.p)})}</div>`:''}</div></li>`).join('')}</ol>
+    ${G.seasons.length?`<h3>WORST SINGLE SEASON</h3><ol class="rec ig">${G.seasons.map((x,i)=>`<li><div><b>~${int(x.p)}</b> pts · ${esc(x.name)} <small>${x.season} · ${x.w} starter-weeks</small>${i===0?`<div class="rl">${r(IGR.season,'igs'+x.uid+x.season,{T:x.name,s:x.season,p:int(x.p)})}</div>`:''}</div></li>`).join('')}</ol>`:''}
+    ${G.blows.length?`<h3>WORST SINGLE INJURY BLOW</h3><ol class="rec ig">${G.blows.slice(0,5).map((x,i)=>`<li><div><b>~${int(x.p)}</b> pts · ${pn(x.pid)} <small>${esc(x.name)} · ${x.season} wk ${x.w}${x.lost>1?'–'+(x.w+x.lost-1):''} · ${x.lost} wk × ${fmt(x.avg)}</small>${i===0?`<div class="rl">${r(IGR.blow,'igb'+x.pid+x.season,{T:x.name,P:(PL[x.pid]||{}).n||'Player '+x.pid,w:x.lost,p:int(x.p)})}</div>`:''}</div></li>`).join('')}</ol>`:''}`
+    :'<div class="hint">No clear injury gaps found. Either everyone is healthy or everyone is lying.</div>'}
+function trainerHTML(){return`<section class="panel trainer"><h2>🩹 THE TRAINER'S ROOM</h2><div class="hint">Who's in street clothes this week: Sleeper injury tags (Out, IR, PUP, Doubtful, Questionable) plus NFL byes. Production = each player's average this season (or a dynasty-value guess if he hasn't scored). Likely starters (best lineup by average) count full, bench guys 25%. Injury weights: Out/IR/PUP 100%, Doubtful 75%, Questionable 35%.</div><div id="trn">${SPIN('Checking the training room…')}</div></section>`}
+async function fillTrainer(nd){const {lg,T,state}=await current();const r=(arr,key,x)=>pickOf(arr,key).replace(/\{(\w+)\}/g,(m,k)=>x[k]!=null?`<b>${esc(x[k])}</b>`:m);
+  const wk=Math.max(1,+(state&&(state.display_week||state.week))||1),last=+lg.settings.last_scored_leg||0,slots=(lg.roster_positions||[]).filter(s=>!['BN','IR','TAXI'].includes(s));
+  const ros=[...new Set(Object.values(T).flatMap(t=>t.players||[]))];
+  const [IN,V,P,M]=await Promise.all([injuries(ros),values().catch(()=>({p:{}})),playersFor(ros),pool(Array.from({length:last},(_,k)=>()=>jc('league/'+LEAGUE+'/matchups/'+(k+1)).catch(()=>[])),8)]);
+  const IM=IN.m,TM=IN.tm||{},A={};M.forEach(w=>w.forEach(m=>{const pp=m.players_points||{};for(const pid in pp){const v=+pp[pid]||0;if(v>0){const a=A[pid]=A[pid]||[0,0];a[0]+=v;a[1]++}}}));
+  const avg=p=>A[p]?A[p][0]/A[p][1]:Math.min(16,(V.p[p]||0)/450),est=p=>!A[p],team=p=>TM[p]||(P[p]||{}).t||'',nm=p=>(P[p]||{}).n||'Player '+p;
+  const lastWk=Math.max(...Object.values(BYE26)),weeks=[];for(let w=wk+1;w<=lastWk;w++)if(Object.values(BYE26).includes(w))weeks.push(w);
+  const rows=Object.values(T).map(t=>{const ls=likelyStarters(slots,t.players||[],avg,P),wt=p=>ls.has(p)?1:0.25;
+    const bye=(t.players||[]).filter(p=>BYE26[team(p)]===wk).map(p=>({p,s:ls.has(p),x:avg(p)*wt(p)})).sort((a,b)=>b.x-a.x);
+    const hurt=(t.players||[]).filter(p=>IM[p]&&BYE26[team(p)]!==wk).map(p=>({p,i:IM[p],s:ls.has(p),x:avg(p)*INJW[IM[p][0]]*wt(p)})).sort((a,b)=>b.x-a.x);
+    const fut=weeks.map(w=>{const o=[...ls].filter(p=>BYE26[team(p)]===w);return{w,n:o.length,pts:o.reduce((a,p)=>a+avg(p),0),o}});const worst=fut.slice().sort((a,b)=>b.pts-a.pts)[0];
+    return{t,bye,hurt,bx:bye.reduce((a,b)=>a+b.x,0),ix:hurt.reduce((a,b)=>a+b.x,0),fut,worst}}).map(o=>({...o,x:o.bx+o.ix})).sort((a,b)=>b.x-a.x);
+  const pill=s=>`<span class="pill${s==='Questionable'?'':' red'}">${esc(s)}</span>`,ln=(h,tag2)=>`<div class="ip">${h.s?'⭐ ':''}<b>${esc(nm(h.p))}</b> ${tag2} <small>${fmt(avg(h.p))}${est(h.p)?'*':''}/wk</small></div>`;
+  const w0=rows[0],maxPts=Math.max(1,...rows.flatMap(o=>o.fut.map(f=>f.pts)));
+  const heat=weeks.length?`<div class="tw"><table class="heat"><thead><tr><th>TEAM</th>${weeks.map(w=>`<th>${w}</th>`).join('')}</tr></thead><tbody>${rows.slice().sort((a,b)=>(b.worst?b.worst.pts:0)-(a.worst?a.worst.pts:0)).map(o=>`<tr><td class="tm">${esc(o.t.team)}</td>${o.fut.map(f=>`<td style="background:rgba(227,38,46,${(f.pts/maxPts*0.85).toFixed(2)})" title="${f.n} starters, ${fmt(f.pts)} pts">${f.n||''}</td>`).join('')}</tr>`).join('')}</tbody></table></div><div class="hint">Likely starters on bye per remaining week; redder = more points out.</div>`:'';
+  nd.innerHTML=`<h3>THIS WEEK (WEEK ${wk}): POINTS SIDELINED</h3><ol class="rec inj">${rows.map((o,i)=>`<li><div class="ih"><b>${fmt(o.x)}</b> pts sidelined · <span>${esc(o.t.team)}</span><small class="sub">${fmt(o.bx)} on bye · ${fmt(o.ix)} hurt</small></div>
+    ${o.bye.length||o.hurt.length?`<div class="ipl">${o.bye.slice(0,4).map(h=>ln(h,'<span class="pill bye">BYE</span>')).join('')}${o.hurt.slice(0,4).map(h=>ln(h,pill(h.i[0])+' '+esc(h.i[1]||''))).join('')}${o.bye.length+o.hurt.length>8||o.bye.length>4||o.hurt.length>4?`<div class="ip"><small>+${Math.max(0,o.bye.length-4)+Math.max(0,o.hurt.length-4)} more on the trainer's table</small></div>`:''}</div>`:'<div class="ip"><small>Fully healthy and nobody on bye. No excuses.</small></div>'}
+    ${i===0&&o.x>0?`<div class="rl">${r(o.bye.filter(b=>b.s).length?BWH.top:IRB.top,'bw'+o.t.rid+wk,{T:o.t.team,n:o.bye.filter(b=>b.s).length||o.hurt.length,p:fmt(o.x)})}</div>`:''}</li>`).join('')}</ol>
+    <div class="hint">⭐ = likely starter. * = hasn't scored this season, guessed from dynasty value.</div>
+    <h3>🔥 BYE WEEK HELL: WORST WEEK AHEAD</h3>${weeks.length?`<ol class="rec ig">${rows.filter(o=>o.worst).sort((a,b)=>b.worst.pts-a.worst.pts).map((o,i)=>`<li><div><b>Week ${o.worst.w}</b>: ${o.worst.n} starter${o.worst.n===1?'':'s'} out, ~${int(o.worst.pts)} pts · ${esc(o.t.team)}<small>${o.worst.o.map(p=>esc(nm(p))).join(', ')||'nobody'}</small>${i===0&&o.worst.n?`<div class="rl">${r(BWH.up,'bu'+o.t.rid+wk,{T:o.t.team,w:o.worst.w,n:o.worst.n,p:int(o.worst.pts)})}</div>`:''}</div></li>`).join('')}</ol>${heat}`:'<div class="hint">No byes left this season. Every excuse from here on is a lie.</div>'}`;
+  return w0}
+{const _pw=R.power;R.power=async el=>{await _pw(el);el.insertAdjacentHTML('beforeend',trainerHTML());const n=el.querySelector('#trn');
+  setTimeout(()=>fillTrainer(n).catch(e=>{n.innerHTML=`<div class="hint">The trainer's room is locked (${esc(e.message||e)}). Try again in a bit.</div>`}),0)};
+ const _hi=R.history;R.history=async el=>{await _hi(el);el.insertAdjacentHTML('beforeend',godsHTML());const n=el.querySelector('#injg');
+  Promise.all([all(),current()]).then(([S,c])=>fillGods(n,S,c.T)).catch(e=>{n.innerHTML=`<div class="hint">Sleeper fumbled the injury history (${esc(e.message||e)}).</div>`})}}
 // ---- nav: tabs grouped by use (this week · rosters & deals · legacy · fun), home cards in the same order ----
 const NAVG=[['home','recap','power','race','tank'],['teams','fleece','trades','draft'],['history','records','shame'],['arcade']];
 {const by=Object.fromEntries(TABS.map(t=>[t[0],t])),seen=new Set(NAVG.flat()),groups=NAVG.map(g=>g.filter(k=>by[k]).map(k=>by[k]));const extra=TABS.filter(t=>!seen.has(t[0]));if(extra.length)groups[groups.length-1].push(...extra);
