@@ -157,9 +157,29 @@ async function headlines(T,lg){const last=+lg.settings.last_scored_leg||0,out=[]
     const jt=Object.values(T).find(t=>t.joe);if(jt)out.push(v(P(HB.joe),{J,n:jt.w}));
     for(const t of Object.values(T)){const m=/^(\d+)([WL])$/.exec(t.streak);if(m&&+m[1]>=3)out.push(v(HB.streak[m[2]==='W'?0:1],{T:t.team,n:m[1]}))}}
   return out.length?out:['Welcome to SHADYNASTY. Where rebuilds go to die.']}
+const shareBtn=()=>'';   // share buttons arrive in a later commit
+// ---- WEEKLY AWARDS (top of Recap): computed from that week's Sleeper matchups ----
+const AWR={owed:["{T} put up {p}. Lowest in the league. Lace up the shoe, the beer is owed.","{p} points. {T} owes a shoey and an apology to everyone who watched.","{T} scored {p}. The shoe is warm and waiting."],
+ bench:["{T} left {b} points on the bench. The lineup was set by a golden retriever.","{b} bench points. {T} had the answers and turned in a blank test.","{T} benched {b} points. Sit-start advice: try starting the good ones."],
+ robbed:["{T} dropped {p} and still lost. Call the league office. Call your mom.","{p} points and an L. {T} got mugged in broad daylight.","{T} scored {p} and lost. The fantasy gods are just mean sometimes."],
+ lucky:["{T} won with {p}. That's not a win, that's a clerical error.","{p} points and a W. {T} should buy a lottery ticket immediately.","{T} scored {p} and won anyway. Horseshoe confirmed."],
+ boom:["{T} hung {p}. Absolute bodybag week.","{p} points. {T} was cooking with gas.","{T} went for {p}. Somebody check his lineup for PEDs."],
+ heart:["{T} lost by {m}. One kneel-down from glory.","Lost by {m}. {T} will be thinking about that one in the shower all week."],
+ bag:["{T} won by {m}. That wasn't a matchup, it was a hate crime.","{m}-point margin. {T} ran it up and didn't apologize."]};
+async function weeklyAwards(lg,T,week){const M=await jc('league/'+LEAGUE+'/matchups/'+week).catch(()=>[]);if(!M.length)return'<div class="hint">No scores for this week yet.</div>';
+  const slots=(lg.roster_positions||[]).filter(s=>!['BN','IR','TAXI'].includes(s));const ids=new Set();M.forEach(m=>(m.players||[]).forEach(p=>ids.add(p)));const P=await playersFor([...ids]);
+  const r=rng('aw'+week),pk=a=>a[Math.floor(r()*a.length)];
+  const X=M.filter(m=>T[m.roster_id]).map(m=>{const o=m.matchup_id!=null&&M.find(x=>x.matchup_id===m.matchup_id&&x.roster_id!==m.roster_id);const pts=+m.points||0;
+    return{t:T[m.roster_id],pts,opp:o?+o.points||0:null,bench:Math.max(0,optimal(slots,m.players||[],m.players_points||{},P)-pts)}});
+  const W=X.filter(x=>x.opp!=null&&x.pts>x.opp),L=X.filter(x=>x.opp!=null&&x.pts<x.opp),by=(a,f)=>a.length?a.reduce((b,x)=>f(x)>f(b)?x:b):null;
+  const A=[['owed','👟🍺','SHOEY OWED',by(X,x=>-x.pts),x=>fmt(x.pts)+' pts'],['bench','🪑','BENCH WARMER',by(X,x=>x.bench),x=>fmt(x.bench)+' left on bench'],['robbed','🚨','ROBBED',by(L,x=>x.pts),x=>fmt(x.pts)+' in a loss'],
+    ['lucky','🍀','LUCKY BASTARD',by(W,x=>-x.pts),x=>fmt(x.pts)+' in a win'],['boom','💥','BOOM',by(X,x=>x.pts),x=>fmt(x.pts)+' pts'],['heart','💔','HEARTBREAKER',by(L,x=>-(x.opp-x.pts)),x=>'lost by '+fmt(x.opp-x.pts)],['bag','⚰️','BODYBAG',by(W,x=>x.pts-x.opp),x=>'won by '+fmt(x.pts-x.opp)]];
+  return'<div class="awg">'+A.filter(a=>a[3]).map(([k,ic,nm,x,st])=>{const line=pk(AWR[k]).replace(/\{T\}/g,x.t.team).replace(/\{p\}/g,fmt(x.pts)).replace(/\{b\}/g,fmt(x.bench)).replace(/\{m\}/g,fmt(Math.abs((x.opp||0)-x.pts)));
+    return`<div class="aw aw-${k}${x.t.wz?' wz':''}"><div class="awh"><span class="awi">${ic}</span><b>${nm}</b></div><a class="awt" href="#team/${x.t.rid}">${esc(x.t.team)}</a>${tag(x.t)}<div class="aws">${st(x)}</div><p class="awr">${esc(line)}</p>${shareBtn('Wk '+week+' '+nm+': '+line,'#recap/'+week)}</div>`}).join('')+'</div>'}
 R.recap=async(el,arg)=>{const {lg,T}=await current();const last=+lg.settings.last_scored_leg||0;if(!last){el.innerHTML='<section class="panel"><h2>📰 RECAP</h2><div class="hint">Recaps start after week 1.</div></section>';return}
   const week=Math.min(last,Math.max(1,+arg||last));const rows=Object.values(T).map(t=>({rid:t.rid,team:t.team,joe:t.joe,weasel:t.wz}));
-  el.innerHTML=`<section class="panel" id="recap"><h2>📰 WEEK ${week} RECAP</h2><div class="weeks">${Array.from({length:last},(_,i)=>`<a class="wk${i+1===week?' on':''}" href="#recap/${i+1}">WK ${i+1}</a>`).join('')}</div><div id="rb">${SPIN('Writing the roasts…')}</div></section>`;
+  el.innerHTML=`<section class="panel awp" id="awards"><h2>🏅 WEEK ${week} AWARDS</h2><div id="awb">${SPIN('Engraving the trophies…')}</div></section><section class="panel" id="recap"><h2>📰 WEEK ${week} RECAP</h2><div class="weeks">${Array.from({length:last},(_,i)=>`<a class="wk${i+1===week?' on':''}" href="#recap/${i+1}">WK ${i+1}</a>`).join('')}</div><div id="rb">${SPIN('Writing the roasts…')}</div></section>`;
+  const awb=el.querySelector('#awb');weeklyAwards(lg,T,week).then(h=>{awb.innerHTML=h}).catch(()=>{awb.innerHTML='<div class="hint">Awards unavailable right now.</div>'});
   const Dd=await recapData(lg,rows,week);PL=Object.assign(PL,await playersFor([]));el.querySelector('#rb').innerHTML=renderRecap(lg,rows,Dd).replace(/👟🍺/,SHOEY('sm'))};
 R.power=async el=>{const {lg,T,tp}=await current();const last=+lg.settings.last_scored_leg||0;
   const [M,V]=await Promise.all([Promise.all(Array.from({length:last},(_,k)=>jc('league/'+LEAGUE+'/matchups/'+(k+1)))),values()]);
