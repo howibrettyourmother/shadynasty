@@ -780,7 +780,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 // Trades: Waiver Wire Wins next to Worst Drops (side by side on desktop), then Trade History, then Tendencies
 {const _trd=R.trades;R.trades=async(el,arg)=>{await _trd(el,arg);const [S,c]=await Promise.all([all(),current()]);const d=el.querySelector('section.panel');
   const pair=document.createElement('div');pair.className='pair';pair.innerHTML=wwPanel(S,c.T);if(d){d.parentNode.insertBefore(pair,d);pair.appendChild(d)}else el.insertBefore(pair,el.firstChild);
-  el.insertAdjacentHTML('beforeend',habitsPanel(S,c.T,c.lg))}}
+  const hp=habitsPanel(S,c.T,c.lg);if(pair.parentNode===el)pair.insertAdjacentHTML('afterend',hp);else el.insertAdjacentHTML('beforeend',hp)}}
 // Records: the old inline matrix becomes a full Head-to-Head Grid panel
 {const _rec=R.records;R.records=async el=>{await _rec(el);const [S,c]=await Promise.all([all(),current()]);el.querySelectorAll('.h2h').forEach(x=>{const h=x.previousElementSibling;if(h&&h.tagName==='H3')h.remove();x.remove()});el.insertAdjacentHTML('beforeend',h2hPanel(S,c.T))}}
 // ---- nav: tabs grouped by use (this week · rosters & deals · legacy · fun), home cards in the same order ----
