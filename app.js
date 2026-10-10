@@ -198,6 +198,27 @@ R.power=async el=>{const {lg,T,tp}=await current();const last=+lg.settings.last_
   <section class="panel" id="value"><h2>💰 DYNASTY TEAM VALUE</h2><div class="hint">Total FantasyCalc superflex value of every rostered player plus owned ${+lg.season+1}–${+lg.season+3} picks.</div>${ktcBtn}
   <div class="tw"><table><thead><tr><th>#</th><th>TEAM</th><th>PLAYERS</th><th>PICKS</th><th>TOTAL</th></tr></thead><tbody>${vr.map((t,i)=>`<tr class="${t.wz?'wz':''}"><td>${i+1}</td><td class="tm"><a href="#team/${t.rid}">${esc(t.team)}</a>${tag(t)}</td><td>${int(TV[t.rid].pv)}</td><td>${int(TV[t.rid].kv)}</td><td><b>${int(TV[t.rid].tot)}</b></td></tr>`).join('')}</tbody></table></div>${credit}</section>`};
 R.teams=async el=>{const {T}=await current();el.innerHTML=`<section class="panel"><h2>👥 TEAMS</h2><div class="tg">${Object.values(T).sort((a,b)=>a.team.localeCompare(b.team)).map(t=>`<a class="tc${t.wz?' wzc':''}" href="#team/${t.rid}">${t.av?`<img class="av" src="${esc(t.av)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:''}<span><b>${esc(t.team)}</b>${tag(t)}<br><small>@${esc(t.owner)} · ${t.w}-${t.l}</small></span></a>`).join('')}</div></section>`};
+// ---- MANAGER TRADING CARD (team pages) ----
+const MCR={good:["{T}: certified menace. Collect this card, then hide it from your league mates.","Rookie card energy. {T} is going to cost you a 1st in every trade talk.","{T} wins a lot and lets everyone hear about it. Mint condition ego."],
+ mid:["{T}: the .500 card everyone has three of. Still worth a stick of gum.","Holo-foil mediocrity. {T} is never great, never dead, always annoying.","{T} is the card you'd trade in a 3-for-1 and forget about."],
+ bad:["{T}: misprint. Factory defect. The card company issued an apology.","This card is worth less than the gum it came with. {T}, buddy.","{T}'s card comes pre-creased. Common, Series 'Rebuild', no resale value."]};
+function mgrCard(S,t,at,tr,ro,V){const rid=t.rid,g=at.w+at.l+at.t||1,pct=at.w/g;
+  const h={};games(S).forEach(gm=>{for(const [x,y] of [[gm.a,gm.b],[gm.b,gm.a]]){if(x.uid!==t.uid)continue;const r=h[y.uid]=h[y.uid]||{w:0,l:0};if(x.p>y.p)r.w++;else if(y.p>x.p)r.l++}});
+  const cur=Object.fromEntries(Object.values(D.cur.T).map(x=>[x.uid,x.team]));const L=Object.entries(h).filter(([u,r])=>r.w+r.l>=2&&cur[u]).map(([u,r])=>({...r,team:cur[u],pct:r.w/(r.w+r.l)}));
+  const nem=L.length?[...L].sort((a,b)=>a.pct-b.pct||b.l-a.l)[0]:null;
+  const td=tr.map(x=>{const me=x.sides.find(sd=>sd.rid===rid);const ot=x.sides.filter(sd=>sd!==me).sort((a,b)=>b.pts-a.pts)[0];return me&&ot?{x,me,ot,d:me.pts-ot.pts}:null}).filter(Boolean).sort((a,b)=>b.d-a.d);
+  const got=sd=>{const a=[...sd.players].sort((p,q)=>q.p-p.p).map(p=>pn(p.pid));sd.picks.forEach(k=>a.push(k.who?pn(k.who):k.s+' R'+k.r));return a.slice(0,2).join(' + ')||'nothing'};
+  const best=td.length&&td[0].d>0?td[0]:null,worst=td.length&&td[td.length-1].d<0?td[td.length-1]:null,top=ro[0];
+  const tier=pct>=0.58?'good':pct>=0.45?'mid':'bad',line=pickOf(MCR[tier],'mc'+t.uid).replace(/\{T\}/g,t.team);
+  const rarity=t.wz?'COMMISH EDITION':at.ttl?'🏆 '+at.ttl+'x CHAMP':pct>=0.58?'RARE':pct>=0.45?'UNCOMMON':'COMMON';
+  return`<div class="mcard${t.wz?' wz':''}"><div class="mc-in"><div class="mc-top"><img class="mc-bg" src="${secSrc('teams',720)}" alt="" loading="lazy" decoding="async">${t.av?`<img class="mc-av" src="${esc(t.av)}" alt="" referrerpolicy="no-referrer">`:'<span class="mc-av mc-ph">🏈</span>'}<span class="mc-rar">${rarity}</span><span class="mc-no">#${String(rid).padStart(2,'0')}</span></div>
+   <div class="mc-nm">${esc(t.team)}</div><div class="mc-ow">@${esc(t.owner)} · SHADYNASTY ${esc(D.cur.lg.season)}</div>
+   <div class="mc-st"><div><b>${at.w}-${at.l}${at.t?'-'+at.t:''}</b><span>ALL-TIME</span></div><div><b>${at.po}</b><span>PLAYOFF TRIPS</span></div><div><b>${Math.round(pct*1000)/10}%</b><span>WIN PCT</span></div></div>
+   <dl class="mc-dl"><dt>NEMESIS</dt><dd>${nem?`${esc(nem.team)} <small>(${nem.w}-${nem.l})</small>`:'None yet'}</dd>
+   <dt>TOP PLAYER</dt><dd>${top?pn(top)+` <small>${int(V.p[top]||0)}</small>`:'–'}</dd>
+   <dt>BEST TRADE</dt><dd>${best?`Got ${got(best.me)} <small>${best.x.season}, +${fmt(best.d)}</small>`:'Never won one'}</dd>
+   <dt>WORST TRADE</dt><dd>${worst?`Got ${got(worst.me)} <small>${worst.x.season}, ${fmt(worst.d)}</small>`:'Never got fleeced. Yet.'}</dd></dl>
+   <p class="mc-r">${esc(line)}</p>${shareBtn(t.team+' trading card: '+line,'#team/'+rid)}</div></div>`}
 R.team=async(el,rid)=>{rid=+rid;const {lg,T,tp}=await current();const t=T[rid];if(!t){location.hash='#teams';return}
   el.innerHTML=`<section class="panel">${SPIN()}</section>`;const [S,V]=await Promise.all([all(),values()]);const TV=teamValue(T,V,tp,lg)[rid];
   const pos=['QB','RB','WR','TE','K','DEF'];const ro=[...t.players].sort((a,b)=>(V.p[b]||0)-(V.p[a]||0));
@@ -205,6 +226,7 @@ R.team=async(el,rid)=>{rid=+rid;const {lg,T,tp}=await current();const t=T[rid];i
   const tr=tradeList(S,T,V).filter(x=>x.sides.some(sd=>sd.rid===rid));
   el.innerHTML=`<section class="panel"><div class="th">${t.av?`<img class="av big" src="${esc(t.av)}" alt="" referrerpolicy="no-referrer">`:''}<div><h2>${esc(t.team)}</h2><div class="hint">@${esc(t.owner)}${tag(t)}</div></div></div>
    <div class="stats"><div><b>${t.w}-${t.l}${t.t?'-'+t.t:''}</b><span>${lg.season} record</span></div><div><b>${fmt(t.pf)}</b><span>PF</span></div><div><b>${at.w}-${at.l}</b><span>all-time (reg. season)</span></div><div><b>${at.po}</b><span>playoff trips</span></div><div><b>${at.ttl}</b><span>titles</span></div><div><b>${int(TV.tot)}</b><span>dynasty value</span></div></div>
+   ${mgrCard(S,t,at,tr,ro,V)}
    ${rivals(S,t)}
    <h3>ROSTER</h3><div class="tw"><table class="mini"><thead><tr><th>PLAYER</th><th>POS</th><th>NFL</th><th>VALUE</th></tr></thead><tbody>${ro.map(p=>`<tr class="${t.starters.includes(p)?'st':''}"><td>${pn(p)}</td><td>${esc(((PL[p]||{}).p||[])[0]||'')}</td><td>${esc((PL[p]||{}).t||'')}</td><td>${V.p[p]?int(V.p[p]):'–'}</td></tr>`).join('')}</tbody></table></div><div class="hint">Bold = current starters.</div>
    <h3>DRAFT PICKS OWNED</h3><div class="chips">${TV.picks.sort((a,b)=>a.s-b.s||a.r-b.r).map(p=>`<span class="chip">${p.s} R${p.r}${p.o!==rid?` <small>via ${esc(T[p.o].team)}</small>`:''} · ${int(p.v)}</span>`).join('')||'None. Bold.'}</div>
