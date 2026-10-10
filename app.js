@@ -37,7 +37,7 @@ async function values(){const k='sn:fc3';const c=LS.get(k);if(c&&Date.now()-c.at
 const ORD=['','1st','2nd','3rd','4th','5th'];
 function pickVal(V,season,round){return V.pk[season+' '+ORD[round]]||V.pk[season+' '+ORD[round]+' (Mid)']||(V.pk[(+season-1)+' '+ORD[round]]||0)*0.9||0}
 // ---------------- data model ----------------
-const D={};try{for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&(k.indexOf('sn:s5:')===0||k.indexOf('sn:s6:')===0||k.indexOf('sn:s7:')===0))localStorage.removeItem(k)}}catch(e){}
+const D={};try{for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&(k.indexOf('sn:s5:')===0||k.indexOf('sn:s6:')===0||k.indexOf('sn:s7:')===0||k.indexOf('sn:s8:')===0))localStorage.removeItem(k)}}catch(e){}
 async function chain(){if(D.chain)return D.chain;const cache=LS.get('sn:chain')||{},out=[];let id=LEAGUE;
   while(id&&id!=='0'){let lg=cache[id];if(!lg||lg.status!=='complete'){lg=await j('league/'+id);if(lg.status==='complete')cache[id]=lg}out.push(lg);id=lg.previous_league_id}
   LS.set('sn:chain',cache);return D.chain=out}
@@ -48,7 +48,7 @@ function teamsOf(users,rosters){const U=Object.fromEntries(users.map(u=>[u.user_
       joe:/^joebags85$/i.test(un),wz:r.owner_id===BRETT,players:r.players||[],starters:r.starters||[],streak:(r.metadata&&r.metadata.streak)||''}}
   return T}
 // compact season summary; completed seasons are cached forever in localStorage
-async function season(lg){const done=lg.status==='complete',id=lg.league_id,key='sn:s8:'+id;if(done){const c=LS.get(key);if(c)return c}
+async function season(lg){const done=lg.status==='complete',id=lg.league_id,key='sn:s9:'+id;if(done){const c=LS.get(key);if(c)return c}
   const st=lg.settings||{},last=+st.last_scored_leg||0,pws=+st.playoff_week_start||15,leg=done?18:Math.max(1,+(D.state&&D.state.leg)||last+1);
   const g=done?jc:j;
   const [users,rosters,wb,drafts]=await Promise.all([g('league/'+id+'/users'),g('league/'+id+'/rosters'),g('league/'+id+'/winners_bracket').catch(()=>[]),jc('league/'+id+'/drafts').catch(()=>[])]);
@@ -57,7 +57,7 @@ async function season(lg){const done=lg.status==='complete',id=lg.league_id,key=
   // several drafts can exist per season (mocks, 1-round extras): use the newest multi-round one that actually has picks
   const cands=(drafts||[]).filter(d=>d.status==='complete'&&String(d.season)===String(lg.season)&&(!d.settings||+d.settings.rounds>1)).sort((a,b)=>(b.start_time||0)-(a.start_time||0));
   let picks={};for(const dr of cands){try{const [dd,dp]=await Promise.all([jc('draft/'+dr.draft_id),jc('draft/'+dr.draft_id+'/picks')]);if(!dp||!dp.length)continue;const s2r=dd.slot_to_roster_id||{};
-    for(const p of dp){const o=s2r[String(p.draft_slot)];if(o!=null)picks[lg.season+'|'+p.round+'|'+o]=[p.player_id,p.roster_id]}break}catch(e){}}
+    const nT=Object.keys(s2r).length||12;for(const p of dp){const o=s2r[String(p.draft_slot)];if(o!=null)picks[lg.season+'|'+p.round+'|'+o]=[p.player_id,p.roster_id,((+p.pick_no||1)-1)%nT+1]}break}catch(e){}}
   const ids=new Set();M.forEach(w=>w.forEach(m=>(m.players||[]).forEach(p=>ids.add(p))));const P=await playersFor([...ids]);
   const slots=(lg.roster_positions||[]).filter(s=>!['BN','IR','TAXI'].includes(s));
   const wk=M.map(w=>w.map(m=>{const pp=m.players_points||{};return[m.roster_id,m.matchup_id,+m.points||0,Math.round(optimal(slots,m.players||[],pp,P)*100)/100]}));
@@ -210,7 +210,7 @@ function mgrCard(S,t,at,tr,ro,V){const rid=t.rid,g=at.w+at.l+at.t||1,pct=at.w/g;
   const h={};games(S).forEach(gm=>{for(const [x,y] of [[gm.a,gm.b],[gm.b,gm.a]]){if(x.uid!==t.uid)continue;const r=h[y.uid]=h[y.uid]||{w:0,l:0};if(x.p>y.p)r.w++;else if(y.p>x.p)r.l++}});
   const cur=Object.fromEntries(Object.values(D.cur.T).map(x=>[x.uid,x.team]));const L=Object.entries(h).filter(([u,r])=>r.w+r.l>=2&&cur[u]).map(([u,r])=>({...r,team:cur[u],pct:r.w/(r.w+r.l)}));
   const nem=L.length?[...L].sort((a,b)=>a.pct-b.pct||b.l-a.l)[0]:null;
-  const td=tr.map(x=>{const me=x.sides.find(sd=>sd.rid===rid);const ot=x.sides.filter(sd=>sd!==me).sort((a,b)=>b.pts-a.pts)[0];return me&&ot?{x,me,ot,d:me.pts-ot.pts}:null}).filter(Boolean).sort((a,b)=>b.d-a.d);
+  const td=tr.map(x=>{const me=x.sides.find(sd=>sd.rid===rid);const ot=x.sides.filter(sd=>sd!==me).sort((a,b)=>b.score-a.score)[0];return me&&ot?{x,me,ot,d:me.score-ot.score}:null}).filter(Boolean).sort((a,b)=>b.d-a.d);
   const got=sd=>{const a=[...sd.players].sort((p,q)=>q.p-p.p).map(p=>pn(p.pid));sd.picks.forEach(k=>a.push(k.who?pn(k.who):k.s+' R'+k.r));return a.slice(0,2).join(' + ')||'nothing'};
   const best=td.length&&td[0].d>0?td[0]:null,worst=td.length&&td[td.length-1].d<0?td[td.length-1]:null,top=ro[0];
   const tier=pct>=0.58?'good':pct>=0.45?'mid':'bad',line=pickOf(MCR[tier],'mc'+t.uid).replace(/\{T\}/g,t.team);
@@ -220,8 +220,8 @@ function mgrCard(S,t,at,tr,ro,V){const rid=t.rid,g=at.w+at.l+at.t||1,pct=at.w/g;
    <div class="mc-st"><div><b>${at.w}-${at.l}${at.t?'-'+at.t:''}</b><span>ALL-TIME</span></div><div><b>${at.po}</b><span>PLAYOFF TRIPS</span></div><div><b>${Math.round(pct*1000)/10}%</b><span>WIN PCT</span></div></div>
    <dl class="mc-dl"><dt>NEMESIS</dt><dd>${nem?`${esc(nem.team)} <small>(${nem.w}-${nem.l})</small>`:'None yet'}</dd>
    <dt>TOP PLAYER</dt><dd>${top?pn(top)+` <small>${int(V.p[top]||0)}</small>`:'–'}</dd>
-   <dt>BEST TRADE</dt><dd>${best?`Got ${got(best.me)} <small>${best.x.season}, +${fmt(best.d)}</small>`:'Never won one'}</dd>
-   <dt>WORST TRADE</dt><dd>${worst?`Got ${got(worst.me)} <small>${worst.x.season}, ${fmt(worst.d)}</small>`:'Never got fleeced. Yet.'}</dd></dl>
+   <dt>BEST TRADE</dt><dd>${best?`Got ${got(best.me)} from ${esc(best.ot.team)} <small>${best.x.season}, won by ${int(best.d)}</small>`:'Never won one'}</dd>
+   <dt>WORST TRADE</dt><dd>${worst?`Got ${got(worst.me)} from ${esc(worst.ot.team)} <small>${worst.x.season}, fleeced by ${int(-worst.d)}</small>`:'Never got fleeced. Yet.'}</dd></dl>
    <p class="mc-r">${esc(line)}</p></div></div>`}
 R.team=async(el,rid)=>{rid=+rid;const {lg,T,tp}=await current();const t=T[rid];if(!t){location.hash='#teams';return}
   el.innerHTML=`<section class="panel">${SPIN()}</section>`;const [S,V]=await Promise.all([all(),values()]);const TV=teamValue(T,V,tp,lg)[rid];
@@ -236,20 +236,38 @@ R.team=async(el,rid)=>{rid=+rid;const {lg,T,tp}=await current();const t=T[rid];i
    <h3>DRAFT PICKS OWNED</h3><div class="chips">${TV.picks.sort((a,b)=>a.s-b.s||a.r-b.r).map(p=>`<span class="chip">${p.s} R${p.r}${p.o!==rid?` <small>via ${esc(T[p.o].team)}</small>`:''} · ${int(p.v)}</span>`).join('')||'None. Bold.'}</div>
    <h3>SEASON BY SEASON</h3><div class="tw"><table class="mini"><tbody>${at.seasons.map(s=>`<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td></tr>`).join('')}</tbody></table></div>
    <h3>TRADES (${tr.length})</h3>${tr.length>8?fBar('tt',{teams:[...new Map(tr.flatMap(x=>x.sides).filter(sd=>sd.rid!==rid).map(sd=>[String(sd.rid),(T[sd.rid]||{}).team||sd.team])).entries()].sort((a,b)=>a[1].localeCompare(b[1])),teamLabel:'Trade partner',teamAll:'All partners',seasons:seasonsOf(tr),sorts:TSORT,toggles:TTOG,meta:tradeMeta(tr),cmp:TCMP,noun:'trade',none:'No trades match.'}):''}<div data-fl="tt">${tr.map((t,i)=>withI(tradeCard(t),i)).join('')}</div>${tr.length?'':'<div class="hint">Never traded. Commitment or cowardice?</div>'}${credit}</section>`};
-// trades: who's winning = starter points for the new team since the deal (+ points by players drafted with acquired picks); also current value
-function tradeList(S,T,V){const bySeason=Object.fromEntries(S.map(s=>[s.season,s])),out=[];
-  const ptsFor=(rid,pid,season,leg)=>{let t=0;for(const s of S){if(+s.season<+season||!s.sp)continue;const a=(s.sp[rid]||{})[pid];if(a)for(const [w,p] of a)if(+s.season>+season||w>=leg)t+=p}return t};
+// ---- trade grading: ONE score everywhere (trade cards, team cards, Trades, Shame, History) ----
+// side score = starter pts the new team got out of the deal + value still held ÷ TRV (so 1,000 FantasyCalc value ≈ 100 pts, about half a season from a solid starter).
+//  - points: starts for the receiving roster only (drafted picks: the player's starts for the team that made the pick), capped at PCAP per player per season
+//  - value: today's FantasyCalc value, but only while that team still has the player. Traded away or cut = 0 from then on (the next trade's receiver gets it), so a value is never counted twice
+//  - picks: the drafted player counts only for the team that actually made the pick; a pick flipped before the draft counts for the flipper as a pick of that round
+//    (today's FantasyCalc price, using the Early/Mid/Late tier of the slot it ended up being) and stops there
+const TRV=10,PCAP=200,TMIN=20,TIER=n=>n<=4?'Early':n<=8?'Mid':'Late';
+const TRADE_HINT=`Score = starter points the new team got out of the deal + FantasyCalc value they still hold ÷ ${TRV} (1,000 value ≈ 100 pts). Points max out at ${PCAP} per player per season so a 5-year starter doesn't bury a stud rookie. Traded him away or cut him? His value stops counting for you. Flipped a pick? You get credit for the pick, not the guy somebody else drafted with it.`;
+function tradeList(S,T,V){const bySeason=Object.fromEntries(S.map(s=>[s.season,s])),out=[],tp=(D.cur&&D.cur.tp)||[],nextYr=(+(((D.cur||{}).lg||{}).season)||new Date().getFullYear())+1;
+  const ptsFor=(rid,pid,season,leg)=>{let t=0;for(const s of S){if(+s.season<+season||!s.sp)continue;const a=(s.sp[rid]||{})[pid];let y=0;if(a)for(const [w,p] of a)if(+s.season>+season||w>=leg)y+=p;t+=Math.min(y,PCAP)}return t};
   const nm=(s,rid)=>{const x=(bySeason[s]||{}).teams;return x&&x[rid]?x[rid].team:(T[rid]||{}).team||'Team '+rid};
-  for(const s of S)for(const tr of s.trades){const sides=tr.rids.map(rid=>({rid,team:nm(s.season,rid),cur:(T[rid]||{}).team,players:[],picks:[],pts:0,val:0}));const sd=r=>sides.find(x=>x.rid===r);
-    for(const [pid,rid] of Object.entries(tr.adds)){const x=sd(rid);if(!x)continue;const p=ptsFor(rid,pid,s.season,tr.leg);x.players.push({pid,p});x.pts+=p;x.val+=V.p[pid]||0}
-    for(const pk of tr.picks){const x=sd(pk.to);if(!x)continue;const d=(bySeason[pk.s]||{}).picks;const got=d&&d[pk.s+'|'+pk.r+'|'+pk.o];let p=0,v=0,who=null;
-      if(got){who=got[0];p=ptsFor(pk.to,who,pk.s,1);v=V.p[who]||0}else v=pickVal(V,pk.s,pk.r);x.picks.push({...pk,who,p,orig:nm(s.season,pk.o)});x.pts+=p;x.val+=v}
-    const srt=[...sides].sort((a,b)=>b.pts-a.pts);out.push({...tr,sides,gap:sides.length>1?srt[0].pts-srt[1].pts:0,win:srt[0],lose:srt[1]})}
+  const lastMove={},pickMoves={},dropAt={};
+  for(const s of S){for(const tr of s.trades){for(const pid in tr.adds)lastMove[pid]=Math.max(lastMove[pid]||0,tr.at||0);for(const pk of tr.picks){const k=pk.s+'|'+pk.r+'|'+pk.o;(pickMoves[k]=pickMoves[k]||[]).push(tr.at||0)}}
+    for(const d of s.drops||[]){const k=d.pid+'|'+d.rid;dropAt[k]=Math.max(dropAt[k]||0,d.at||0)}}
+  // still on that roster today, not moved by a later trade, not cut since `at`
+  const holds=(rid,pid,at)=>{const t=T[rid];return!!t&&t.players.includes(pid)&&(lastMove[pid]||0)<=at&&!((dropAt[pid+'|'+rid]||0)>at)};
+  for(const s of S)for(const tr of s.trades){const at=tr.at||0,sides=tr.rids.map(rid=>({rid,team:nm(s.season,rid),cur:(T[rid]||{}).team,players:[],picks:[],pts:0,val:0,score:0}));const sd=r=>sides.find(x=>x.rid===r);
+    for(const [pid,rid] of Object.entries(tr.adds)){const x=sd(rid);if(!x)continue;const p=ptsFor(rid,pid,s.season,tr.leg),kept=holds(rid,pid,at),v=kept?V.p[pid]||0:0;x.players.push({pid,p,v,gone:!kept});x.pts+=p;x.val+=v}
+    for(const pk of tr.picks){const x=sd(pk.to);if(!x)continue;const k=pk.s+'|'+pk.r+'|'+pk.o,d=(bySeason[pk.s]||{}).picks,got=d&&d[k],flip=(pickMoves[k]||[]).some(a=>a>at);let p=0,v=0,who=null,tier='';
+      if(flip){tier=got&&got[2]?TIER(got[2]):'';v=(tier&&V.pk[nextYr+' '+ORD[pk.r]+' ('+tier+')'])||pickVal(V,nextYr,pk.r)}
+      else if(got){if(+got[1]===+pk.to){who=got[0];p=ptsFor(pk.to,who,pk.s,1);v=holds(pk.to,who,0)?V.p[who]||0:0}}
+      else{const o=tp.find(z=>+z.season===+pk.s&&+z.round===+pk.r&&+z.roster_id===+pk.o);if(+(o?o.owner_id:pk.o)===+pk.to)v=pickVal(V,pk.s,pk.r)}
+      x.picks.push({...pk,who,p,v,flip,tier,orig:nm(s.season,pk.o)});x.pts+=p;x.val+=v}
+    sides.forEach(x=>x.score=x.pts+x.val/TRV);const srt=[...sides].sort((a,b)=>b.score-a.score),tot=sides.reduce((a,x)=>a+x.score,0),gap=sides.length>1?srt[0].score-srt[1].score:0;
+    out.push({...tr,sides,gap,margin:gap,share:gap/Math.max(1,tot),win:srt[0],lose:srt[sides.length-1],cw:srt[0],cl:srt[sides.length-1]})}
   return out.sort((a,b)=>b.at-a.at)}
-function tradeCard(t,mode,rank){const lop=t.gap>=100,ev=t.gap<15;const line=t.sides.length===2?(mode?pickOf(mode==='fl'?TB.fleece:TB.dis,t.id):lop?pickOf(TB.lop,t.id):ev?pickOf(TB.even,t.id):'').replace(/\{(\w+)\}/g,(m,k)=>`<b>${esc({W:(t.cw||t.win).team,L:(t.cl||t.lose).team,d:fmt(t.gap),c:int(t.margin||0)}[k])}</b>`):'';
-  const vw=[...t.sides].sort((a,b)=>b.val-a.val)[0];
-  return`<article class="trade${lop?' lop':''}"><div class="tdh">${rank?`<span class="rank">#${rank}</span>`:''}${t.season} · WEEK ${t.leg}${mode?` · margin ${int(t.margin)}`:''}${lop?' · <span class="pill red">LOPSIDED</span>':''}</div>${t.sides.map(sd=>`<div class="tside${sd===t.win&&t.gap>0?' win':''}"><div class="tn">${esc(sd.team)} got</div><ul>${(sd.players.map(p=>`<li>${pn(p.pid)} <small>${fmt(p.p)} pts</small></li>`).join('')+sd.picks.map(p=>`<li>${p.s} R${p.r} pick <small>(${esc(p.orig)}’s)</small>${p.who?` → ${pn(p.who)} <small>${fmt(p.p)} pts</small>`:' <small>not drafted yet</small>'}</li>`).join(''))||'<li><small>nothing</small></li>'}</ul><div class="tsc">${fmt(sd.pts)} pts for them since · value now ${int(sd.val)}</div></div>`).join('')}
-   <div class="tv">Winning on points: <b>${esc(t.win.team)}</b>${t.sides.length>1?` (+${fmt(t.gap)})`:''} · on current value: <b>${esc(vw.team)}</b></div>${line?`<div class="rl">${line}</div>`:''}</article>`}
+function tradeCard(t,mode,rank){const two=t.sides.length===2,lop=two&&t.gap>=150,ev=t.gap<20,W=t.win,Lz=t.lose;
+  const line=two?(mode?pickOf(mode==='fl'?TB.fleece:TB.dis,t.id):lop?pickOf(TB.lop,t.id):ev?pickOf(TB.even,t.id):'').replace(/\{(\w+)\}/g,(m,k)=>`<b>${esc({W:W.team,L:Lz.team,d:int(t.gap),c:int(t.margin||0)}[k])}</b>`):'';
+  const res=!two||t.gap<1?'Dead even so far.':mode==='dis'?`😬 <b>${esc(Lz.team)}</b> got fleeced. Winner: <b>${esc(W.team)}</b> (by ${int(t.gap)})`:`Winner: <b>${esc(W.team)}</b> (by ${int(t.gap)})${t.gap>=150?` · <b>${esc(Lz.team)}</b> got fleeced`:''}`;
+  const pv=p=>p.flip?` <small>flipped · counted as a${p.tier==='Early'?'n':''} ${p.tier?p.tier.toLowerCase()+' ':''}${ORD[p.r]} (${int(p.v)})</small>`:p.who?` → ${pn(p.who)} <small>${fmt(p.p)} pts${p.v?' · '+int(p.v):' · gone'}</small>`:` <small>${p.v?'not drafted yet · '+int(p.v):'pick'}</small>`;
+  return`<article class="trade${lop?' lop':''}"><div class="tdh">${rank?`<span class="rank">#${rank}</span>`:''}${t.season} · WEEK ${t.leg}${mode?` · margin ${int(t.margin)}`:''}${lop?' · <span class="pill red">LOPSIDED</span>':''}</div>${t.sides.map(sd=>`<div class="tside${sd===W&&t.gap>=1?' win':''}"><div class="tn">${esc(sd.team)} got</div><ul>${(sd.players.map(p=>`<li>${pn(p.pid)} <small>${fmt(p.p)} pts${p.gone?' · gone':p.v?' · '+int(p.v):''}</small></li>`).join('')+sd.picks.map(p=>`<li>${p.s} R${p.r} pick <small>(${esc(p.orig)}${/s$/i.test(p.orig)?'’':'’s'})</small>${pv(p)}</li>`).join(''))||'<li><small>nothing</small></li>'}</ul><div class="tsc">${fmt(sd.pts)} pts + ${int(sd.val)} value ÷ ${TRV} = <b>${int(sd.score)}</b></div></div>`).join('')}
+   <div class="tv">${res}</div>${line?`<div class="rl">${line}</div>`:''}</article>`}
 // ---- shared list filter (Trade History, team-page trades, Waiver Wire Wins, Worst Drops, Fleece Factory) ----
 // fBar(id,o) renders the bar + registers metadata; the list container is <div data-fl="id"> whose children carry data-i.
 // fAuto(root) wires every registered bar found under root (called from R.after once the page is in #view). Pure client-side.
@@ -277,13 +295,13 @@ function fAuto(root){(root||document).querySelectorAll('[data-tf]').forEach(bar=
 const withI=(html,i)=>html.replace(/^(\s*<article)/,'$1 data-i="'+i+'"');
 function tradeMeta(L){return L.map(t=>{const sides=t.sides,assets=sides.reduce((a,x)=>a+x.players.length+x.picks.length,0),vs=sides.map(x=>x.val).sort((a,b)=>b-a);
   const txt=sides.map(x=>[x.team,x.cur||'',...x.players.map(p=>(PL[p.pid]||{}).n||''),...x.picks.map(p=>`${p.s} R${p.r} ${p.s} round ${p.r} pick ${p.who?(PL[p.who]||{}).n||'':''}`)].join(' ')).join(' ').toLowerCase();
-  return{rids:sides.map(x=>String(x.rid)),s:String(t.season),txt,f:{pk:sides.some(x=>x.picks.length),bb:assets>=3},at:t.at||0,lop:(t.gap||0)+(vs.length>1?(vs[0]-vs[1])/100:0)}})}
+  return{rids:sides.map(x=>String(x.rid)),s:String(t.season),txt,f:{pk:sides.some(x=>x.picks.length),bb:assets>=3},at:t.at||0,lop:(t.margin||0)*(t.share||0)}})}
 const TCMP={new:(a,b)=>b.at-a.at,old:(a,b)=>a.at-b.at,lop:(a,b)=>b.lop-a.lop},TSORT=[['new','Newest'],['old','Oldest'],['lop','Most lopsided']],TTOG=[['pk','🎟️ Involves picks'],['bb','💥 Blockbusters (3+)']];
 const seasonsOf=L=>[...new Set(L.map(x=>String(x.season)))].sort((a,b)=>b-a);
 R.trades=async (el,arg)=>{el.innerHTML=`<section class="panel">${SPIN('Digging up every trade since 2021…')}</section>`;const [S,V]=await Promise.all([all(),values()]);const {T}=await current();const L=tradeList(S,T,V);
   const Q=Object.fromEntries(new URLSearchParams(arg||'')),seasons=[...new Set(S.map(x=>String(x.season)).concat(L.map(t=>String(t.season))))].sort((a,b)=>b-a),rids=Object.keys(T).sort((a,b)=>T[a].team.localeCompare(T[b].team));
   const opt=(v,l,cur)=>`<option value="${esc(v)}"${String(cur||'')===String(v)?' selected':''}>${esc(l)}</option>`;
-  el.innerHTML=dropsPanel(S,V)+`<section class="panel"><h2>🔁 TRADE HISTORY (${L.length})</h2>${banner('trades')}<div class="hint">“Winning” = points the acquired players scored <b>as starters for their new team</b> since the deal (picks count the player drafted with them), plus who holds more FantasyCalc superflex value today.</div>
+  el.innerHTML=dropsPanel(S,V)+`<section class="panel"><h2>🔁 TRADE HISTORY (${L.length})</h2>${banner('trades')}<div class="hint">${TRADE_HINT}</div>
   ${fBar('th',{teams:rids.map(r=>[r,T[r].team]),seasons,sorts:TSORT,toggles:TTOG,Q,meta:tradeMeta(L),cmp:TCMP,noun:'trade',none:'No trades match. This league is more cowardly than we thought.',onState:st=>{const qs=Object.entries(st).filter(([k,v])=>v&&!(k==='sort'&&v==='new')).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');try{history.replaceState(null,'','#trades'+(qs?'/'+qs:''))}catch(e){}}})}
   <div id="tl" data-fl="th">${L.map((t,i)=>withI(tradeCard(t),i)).join('')}</div>${credit}</section>`};
 R.history=async el=>{el.innerHTML=`<section class="panel">${SPIN('Rewinding the tape…')}</section>`;const [S,V]=await Promise.all([all(),values()]);const {T}=await current();const TL=tradeList(S,T,V),DL=dropsList(S,V);
@@ -326,7 +344,7 @@ R.shame=async el=>{el.innerHTML=`<section class="panel">${SPIN('Pouring the shoe
    <h3>LOWEST SCORES EVER</h3><ol class="rec sh">${lo.map((x,i)=>`<li>${badge}<div><b>${fmt(x.p)}</b> ${esc(x.team)}${tag(x)} vs ${esc(x.opp.team)} <small>${x.s} wk ${x.week}</small>${cap('lo'+i+x.s+x.week)}</div></li>`).join('')}</ol>
    <h3>WORST BLOWOUT LOSSES</h3><ol class="rec sh">${bl.map((x,i)=>`<li>${badge}<div><b>-${fmt(x.w.p-x.l.p)}</b> ${esc(x.l.team)}${tag(x.l)} got buried by ${esc(x.w.team)} <small>${x.g.s} wk ${x.g.week}</small>${cap('bl'+i+x.g.s)}</div></li>`).join('')}</ol>
    <h3>BIGGEST BENCH BLUNDERS</h3><ol class="rec sh">${bench.map((x,i)=>`<li>${badge}<div><b>${fmt(x.d)}</b> pts left on the bench by ${esc(x.team)}${tag(x)} <small>${x.s} wk ${x.week} · scored ${fmt(x.p)}, could have had ${fmt(x.o)}${x.opp.p>x.p&&x.opp.p<x.o?' and WON':''}</small></div></li>`).join('')}</ol>
-   <h3>WORST TRADES OF ALL TIME</h3>${ugly.map((t,i)=>tradeCard(t,'dis',i+1)).join('')}
+   <h3>WORST TRADES OF ALL TIME</h3><div class="hint">Most lopsided deals ever, named after the manager who got fleeced. ${TRADE_HINT}</div>${ugly.map((t,i)=>tradeCard(t,'dis',i+1)).join('')}
    <h3>WORST DROPS OF ALL TIME</h3>${dropsList(S,V).slice(0,5).map((d,i)=>dropItem(d,i)).join('')}<div class="hint"><a href="#trades">Full list with filters on Trades →</a></div>
    <h3>LAST-PLACE FINISHES</h3><ol class="rec sh">${lasts.map(x=>`<li>${badge}<div><b>${x.s}</b> ${esc(x.t.team)}${tag(x.t)} <small>@${esc(x.t.owner)} · ${x.t.w}-${x.t.l}</small></div></li>`).join('')}</ol></section>`};
 R.arcade=async el=>{const MO='https://morehouse-scores.brettwilson08.workers.dev/scores?board=main&mode=all&limit=5',SC='https://shoey-chug-scores.brettwilson08.workers.dev/scores?board=main&limit=5';
@@ -514,13 +532,13 @@ TB.fleece=["{W} robbed {L} blind. Margin {c}. Somebody check {L}'s phone for mal
 TB.dis=["{L} gave away the farm and got a coupon. Margin {c}.","{L} hit 'accept' and the whole league heard a flush.","This is the trade {L} lies about at the bar.","{L} traded like it was 2 a.m. and the waiver wire was closed forever.","Somewhere {W} is still laughing about this one. {L} isn't.","{L} should have their trade button taken away. Permanently."];
 const DB=["{T} dropped {P} in {s}. {P} went on to score {pts} for other teams. Brilliant.","{T} cut {P}. {P} said thanks and dropped {pts} for somebody else.","{T} released {P} into the wild. The wild scored {pts}.","{P} after leaving {T}: {pts} points and a FantasyCalc value of {v}. Oops.","{T} needed a roster spot for a kicker, apparently. Bye, {P}.","{T} dropped {P}. Every other manager in the league said a little prayer of thanks."];
 const DBJ=["Joe dropped {P}. Of course he did. {pts} points later, the rebuild continues.","Joe cut {P} to make room for… nobody knows. {P}: {pts} points elsewhere. Year 6 starts now.","Peak Joe: dropping {P}, who then scored {pts} for other people."];
-function rankTrades(L){const two=L.filter(t=>t.sides.length===2).map(t=>{const sc=t.sides.map(s=>s.pts+s.val/25),w=sc[0]>=sc[1]?0:1;
-    return{...t,cw:t.sides[w],cl:t.sides[1-w],margin:Math.abs(sc[0]-sc[1]),share:Math.abs(sc[0]-sc[1])/Math.max(1,sc[0]+sc[1])}});
-  const best=[...two].sort((a,b)=>b.margin-a.margin).slice(0,5),ids=new Set(best.map(t=>t.id));
-  const worst=[...two].filter(t=>!ids.has(t.id)&&t.margin>50).sort((a,b)=>b.margin*b.share-a.margin*a.share).slice(0,5);return{best,worst}}
+// worst = most lopsided (margin × share of the combined score), named after the loser. best = biggest margin, named after the winner, never the #1 worst (no trade is both Best and Worst of a year).
+function rankTrades(L,n){n=n||5;const two=L.filter(t=>t.sides.length===2&&t.margin>=TMIN);
+  const worst=[...two].sort((a,b)=>b.margin*b.share-a.margin*a.share).slice(0,n),top=worst[0]&&worst[0].id;
+  const best=two.filter(t=>t.id!==top).sort((a,b)=>b.margin-a.margin).slice(0,n);return{best,worst}}
 function bestWorst(L){const {best,worst}=rankTrades(L);
-  return`<section class="panel"><h2>🏆 BEST &amp; WORST TRADES OF ALL TIME</h2><div class="hint">Margin = starter points gained for the new team since the deal + current FantasyCalc value ÷ 25 (so 2,500 value ≈ 100 points). <b>Fleeces</b> are the biggest margins; <b>disasters</b> are the most one-sided of the rest.</div>
-   <h3>TOP 5 FLEECES</h3>${best.map((t,i)=>tradeCard(t,'fl',i+1)).join('')}<h3>TOP 5 DISASTERS</h3>${worst.map((t,i)=>tradeCard(t,'dis',i+1)).join('')}</section>`}
+  return`<section class="panel"><h2>🏆 BEST &amp; WORST TRADES OF ALL TIME</h2><div class="hint">${TRADE_HINT}</div>
+   <h3>BIGGEST HAULS</h3>${best.map((t,i)=>tradeCard(t,'fl',i+1)).join('')}<h3>TOP 5 DISASTERS</h3>${worst.map((t,i)=>tradeCard(t,'dis',i+1)).join('')}</section>`}
 function dropsList(S,V){const by=Object.fromEntries(S.map(s=>[s.season,s])),best={};
   for(const s of S)for(const d of s.drops||[]){let pts=0,to={};for(const x of S){if(+x.season<+d.season||!x.sp)continue;for(const rid in x.sp){if(+rid===d.rid)continue;const a=x.sp[rid][d.pid];if(a)for(const [w,p] of a)if(+x.season>+d.season||w>d.leg){pts+=p;to[rid]=(to[rid]||0)+p}}}
     const v=V.p[d.pid]||0,score=pts+v/25;if(score<=0)continue;const t=s.teams[d.rid]||{},k=d.pid;
@@ -536,7 +554,7 @@ function dropsPanel(S,V){const L=dropsList(S,V).slice(0,30),cur=D.cur?D.cur.T:{}
   <div data-fl="wd">${L.map((d,i)=>withI(dropItem(d,i),i)).join('')}</div></section>`}
 
 // per-season best trade / worst trade / worst drop for the History tab
-function yearMoves(s,TL,DL){const {best,worst}=rankTrades(TL.filter(t=>t.season===s.season));const b=best[0],w=worst[0]||best[1],d=DL.find(x=>x.season===s.season);
+function yearMoves(s,TL,DL){const {best,worst}=rankTrades(TL.filter(t=>t.season===s.season));const b=best[0],w=worst[0],d=DL.find(x=>x.season===s.season);
   if(!b&&!d)return'';return`<div class="ym">${b?`<h3>BEST TRADE OF ${s.season}</h3>${tradeCard(b,'fl')}`:''}${w?`<h3>WORST TRADE OF ${s.season}</h3>${tradeCard(w,'dis')}`:''}${d?`<h3>WORST DROP OF ${s.season}</h3>${dropItem(d,0).replace(/<span class="rank">#1<\/span>/,'')}`:''}</div>`}
 
 R.tank=async el=>{el.innerHTML=`<section class="panel tankp"><h2>🚽 TANK WATCH</h2><div class="hint">The race to the bottom for the 1.01: lowest max PF among non-playoff teams picks first. Live from Sleeper. <a href="${TANK}" target="_blank" rel="noopener">Open full screen ↗</a></div></section>
