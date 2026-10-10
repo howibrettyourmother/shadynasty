@@ -137,7 +137,7 @@ R.home=async el=>{const {state,lg,T}=await current();const leg=+state.leg||1,las
   const hook=([h,i,t,v,l,c,raw])=>`<a class="hook ${c}" href="${h}"><span class="hk-t">${i} ${t}</span><span class="hk-v">${raw?v:esc(v)}</span><span class="hk-l">${l}</span></a>`;
   el.innerHTML=`<section class="hx"><img class="hx-i" src="img/sec/home-720.webp?v=3" srcset="img/sec/home-720.webp?v=3 720w, img/sec/home-1200.webp?v=3 1200w" sizes="(min-width:1000px) 1000px, 100vw" width="1200" height="675" alt="${esc(SECIMG.home.alt)}" fetchpriority="high" decoding="async">
    <div class="hc"><svg class="shoey hx-s" viewBox="0 0 120 96" aria-hidden="true"><use href="#shoey"/></svg><h1 class="hx-h">SHADYNASTY</h1><div class="hx-t">Est. 2021 · Dynasty. Degeneracy. Shoeys.</div>
-   <div class="hx-k"><div class="ticker" id="ticker" aria-live="polite">${H[0]||''}</div></div>
+   <div class="hx-k"><div class="ticker" id="ticker" aria-live="polite">${H[0]||''}</div>${shareBtn('','#home','#ticker')}</div>
    <div class="hx-c"><a href="#recap">📰 Week ${last||wk} roast</a><a href="#race">🏁 Playoff odds</a><a href="#shame">🍺 Hall of Shame</a></div></div></section>
   <section class="panel"><h2>🔥 THE BIG STORIES</h2><div class="hooks">${hk.map(hook).join('')}</div></section>
   <section class="panel"><h2>🗺️ PICK YOUR POISON</h2><div class="cards">${HOMECARDS.map(([h,i,n,t,im])=>`<a class="card" href="${h}"><span class="cth"><img src="img/th/${im}.webp?v=3" width="400" height="250" loading="lazy" decoding="async" alt="${esc((SECIMG[im]||{}).alt||'')}"><span class="ci">${i}</span></span><span class="cb"><b>${n}</b><small>${t}</small></span></a>`).join('')}</div></section>
@@ -157,7 +157,20 @@ async function headlines(T,lg){const last=+lg.settings.last_scored_leg||0,out=[]
     const jt=Object.values(T).find(t=>t.joe);if(jt)out.push(v(P(HB.joe),{J,n:jt.w}));
     for(const t of Object.values(T)){const m=/^(\d+)([WL])$/.exec(t.streak);if(m&&+m[1]>=3)out.push(v(HB.streak[m[2]==='W'?0:1],{T:t.team,n:m[1]}))}}
   return out.length?out:['Welcome to SHADYNASTY. Where rebuilds go to die.']}
-const shareBtn=()=>'';   // share buttons arrive in a later commit
+// ---- SHARE: copy a roast + deep link to the clipboard (Clipboard API -> execCommand -> manual-copy popup) ----
+function shareBtn(text,hash,src){return`<button class="shr" type="button" data-t="${esc(text||'')}" data-h="${esc(hash||'')}"${src?` data-src="${esc(src)}"`:''} aria-label="Copy this roast with a link">🔗 Share</button>`}
+function shareRls(root,hash,n){if(!root)return;[...root.querySelectorAll('.rl')].slice(0,n||99).forEach(x=>{if(x.querySelector('.shr'))return;x.insertAdjacentHTML('beforeend',' '+shareBtn(x.textContent.trim(),hash))})}
+function snack(msg){let t=document.getElementById('snack');if(!t){t=document.createElement('div');t.id='snack';t.setAttribute('role','status');document.body.appendChild(t)}t.textContent=msg;t.className='on';clearTimeout(t._h);t._h=setTimeout(()=>{t.className=''},1600)}
+function copyText(txt){return new Promise((res,rej)=>{const old=()=>{try{const ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(ta);
+    const rg=document.createRange();rg.selectNodeContents(ta);const sel=getSelection();sel.removeAllRanges();sel.addRange(rg);ta.setSelectionRange(0,txt.length);const ok=document.execCommand('copy');ta.remove();ok?res():rej()}catch(e){rej(e)}};
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(txt).then(res,old);else old()})}
+function sharePop(txt){let p=document.getElementById('sharepop');if(!p){p=document.createElement('div');p.id='sharepop';p.innerHTML='<div class="sp-b"><b>Copy this roast</b><textarea readonly></textarea><div class="sp-a"><button type="button" data-x>Done</button></div></div>';document.body.appendChild(p);
+    p.addEventListener('click',e=>{if(e.target===p||e.target.hasAttribute('data-x'))p.className=''})}
+  const ta=p.querySelector('textarea');ta.value=txt;p.className='on';setTimeout(()=>{ta.focus();ta.select()},30)}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.shr');if(!b)return;e.preventDefault();e.stopPropagation();
+  const src=b.getAttribute('data-src'),el=src&&document.querySelector(src),t=(el?el.textContent:b.getAttribute('data-t')||'').replace(/\s+/g,' ').trim();
+  const url=location.origin+location.pathname+(b.getAttribute('data-h')||location.hash),txt=t+' 🍺 SHADYNASTY: '+url;
+  copyText(txt).then(()=>snack('Copied!'),()=>sharePop(txt))},true);
 // ---- WEEKLY AWARDS (top of Recap): computed from that week's Sleeper matchups ----
 const AWR={owed:["{T} put up {p}. Lowest in the league. Lace up the shoe, the beer is owed.","{p} points. {T} owes a shoey and an apology to everyone who watched.","{T} scored {p}. The shoe is warm and waiting."],
  bench:["{T} left {b} points on the bench. The lineup was set by a golden retriever.","{b} bench points. {T} had the answers and turned in a blank test.","{T} benched {b} points. Sit-start advice: try starting the good ones."],
@@ -590,9 +603,9 @@ async function fillTrainer(nd){const {lg,T,state}=await current();const r=(arr,k
     <h3>🔥 BYE WEEK HELL: WORST WEEK AHEAD</h3>${weeks.length?`<ol class="rec ig">${rows.filter(o=>o.worst).sort((a,b)=>b.worst.pts-a.worst.pts).map((o,i)=>`<li><div><b>Week ${o.worst.w}</b>: ${o.worst.n} starter${o.worst.n===1?'':'s'} out, ~${int(o.worst.pts)} pts · ${esc(o.t.team)}<small>${o.worst.o.map(p=>esc(nm(p))).join(', ')||'nobody'}</small>${i===0&&o.worst.n?`<div class="rl">${r(BWH.up,'bu'+o.t.rid+wk,{T:o.t.team,w:o.worst.w,n:o.worst.n,p:int(o.worst.pts)})}</div>`:''}</div></li>`).join('')}</ol>${heat}`:'<div class="hint">No byes left this season. Every excuse from here on is a lie.</div>'}`;
   return w0}
 {const _pw=R.power;R.power=async el=>{await _pw(el);el.insertAdjacentHTML('beforeend',trainerHTML());const n=el.querySelector('#trn');
-  setTimeout(()=>fillTrainer(n).catch(e=>{n.innerHTML=`<div class="hint">The trainer's room is locked (${esc(e.message||e)}). Try again in a bit.</div>`}),0)};
+  setTimeout(()=>fillTrainer(n).then(()=>shareRls(n,'#power',2)).catch(e=>{n.innerHTML=`<div class="hint">The trainer's room is locked (${esc(e.message||e)}). Try again in a bit.</div>`}),0)};
  const _hi=R.history;R.history=async el=>{await _hi(el);el.insertAdjacentHTML('beforeend',godsHTML());const n=el.querySelector('#injg');
-  Promise.all([all(),current()]).then(([S,c])=>fillGods(n,S,c.T)).catch(e=>{n.innerHTML=`<div class="hint">Sleeper fumbled the injury history (${esc(e.message||e)}).</div>`})}}
+  Promise.all([all(),current()]).then(([S,c])=>fillGods(n,S,c.T)).then(()=>shareRls(n,'#history')).catch(e=>{n.innerHTML=`<div class="hint">Sleeper fumbled the injury history (${esc(e.message||e)}).</div>`})}}
 // ---- nav: tabs grouped by use (this week · rosters & deals · legacy · fun), home cards in the same order ----
 const NAVG=[['home','recap','power','race','tank'],['teams','fleece','trades','draft'],['history','records','shame'],['arcade']];
 {const by=Object.fromEntries(TABS.map(t=>[t[0],t])),seen=new Set(NAVG.flat()),groups=NAVG.map(g=>g.filter(k=>by[k]).map(k=>by[k]));const extra=TABS.filter(t=>!seen.has(t[0]));if(extra.length)groups[groups.length-1].push(...extra);
