@@ -326,6 +326,54 @@ R.race=async el=>{const {lg,T}=await current();const last=+lg.settings.last_scor
   <section class="panel"><h2>🍀 LUCK &amp; CONSISTENCY</h2><div class="hint"><b>Luck</b> = actual wins minus all-play expected wins. <b>Schedule</b> = points against vs league average (positive = soft schedule). <b>Bench</b> = season points left on the bench. <b>Style</b> from week-to-week swing.</div>
    <div class="tw"><table><thead><tr><th>#</th><th>TEAM</th><th>LUCK</th><th>SCHED</th><th>BENCH</th><th class="hs">STYLE</th></tr></thead><tbody>${lk.map((x,i)=>`<tr class="${x.t.wz?'wz':''}"><td>${i+1}</td><td class="tm">${esc(x.t.team)}${tag(x.t)}<span class="ow">${x.luck>1?'Horseshoe up somewhere.':x.luck<-1?'Robbed weekly. Pour one out.':'Gets what they deserve.'}</span></td><td class="${x.luck>0?'up':'dn'}">${x.luck>0?'+':''}${x.luck.toFixed(1)}</td><td>${x.sched>0?'+':''}${fmt(x.sched)}</td><td>${fmt(x.bench)}</td><td class="hs">${boom(x)}</td></tr>`).join('')}</tbody></table></div></section>`};
 TABS.splice(3,0,['race','🏁','RACE']);$('#tabs').innerHTML=TABS.map(([k,i,n])=>`<a href="#${k}" data-k="${k}"><span>${i}</span>${n}</a>`).join('');
+// ---- INJURIES (Race tab): live Injury Report from Sleeper players/nfl (slim injured-only cache, 12h) + all-time "Most Screwed by the Injury Gods" estimate ----
+const INJW={Out:1,IR:1,PUP:1,Doubtful:0.75,Questionable:0.35};
+async function injuries(){const k='sn:inj';const c=LS.get(k);if(c&&Date.now()-c.at<12*36e5)return c.m;
+  const all=await fetch(API+'players/nfl').then(r=>{if(!r.ok)throw new Error('players '+r.status);return r.json()});const m={};
+  for(const i in all){const p=all[i],s=p&&p.injury_status;if(!s||!INJW[s])continue;m[i]=[s,p.injury_body_part||'',p.full_name||((p.first_name||'')+' '+(p.last_name||'')).trim(),p.position||'',p.team||'FA']}
+  LS.set(k,{at:Date.now(),m});return m}
+const IRB={top:["{T} is basically fielding a MASH unit. {n} guys down, about {p} pts a week watching from a stretcher.","{T}'s training room has more talent than their starting lineup right now.","The injury gods picked {T} this week. {p} pts a week in street clothes."],
+ mid:["{T} is limping, not dead. Yet.","{T} has a couple guys on the injury report and a GM who will blame them for everything."],
+ none:["Fully healthy. {T} has no excuses left. None."]};
+const IGR={tm:["{T}: {w} starter-weeks lost, ~{p} pts gone. Somebody check the trainer's credentials.","{T} has spent more time in the injury tent than the playoffs.","{T} has buried more starters than a 1990s Raiders GM.","Injury gods have {T} on speed dial. ~{p} pts gone up in smoke."],
+ season:["{T} in {s}: ~{p} pts lost to the tent. That season never stood a chance.","{s} {T}: not a fantasy team, a waiting room."],
+ blow:["{P} went down for {w} week(s) and took ~{p} of {T}'s points with him.","Losing {P} cost {T} about {p} points. The sound you hear is a grown man crying.","{T} drafted {P} and the injury gods said 'lol no'."]};
+function injuryGods(S,T){const out={by:{},seasons:[],blows:[]},uidName=Object.fromEntries(Object.values(T).map(t=>[t.uid,t.team]));
+  for(const s of S){if(!s.sp)continue;const reg=Math.min(s.last,(s.pws||15)-1);
+    const moved={};for(const t of s.trades||[])for(const [pid,rid] of Object.entries(t.adds||{}))for(const r of t.rids)if(String(r)!==String(rid))(moved[r+'|'+pid]=moved[r+'|'+pid]||[]).push(t.leg);
+    for(const d of s.drops||[])(moved[d.rid+'|'+d.pid]=moved[d.rid+'|'+d.pid]||[]).push(d.leg);
+    for(const rid in s.sp){const tm=s.teams[rid]||{},uid=tm.uid||'r'+rid,name=uidName[uid]||tm.team||'Team '+rid;let segP=0,segW=0;
+      for(const pid in s.sp[rid]){const wk={};for(const [w,p] of s.sp[rid][pid])wk[w]=p;const mv=moved[rid+'|'+pid]||[];
+        let w=5;while(w<=reg){const prior=[w-4,w-3,w-2,w-1].filter(x=>wk[x]>0);if(prior.length<3||!(wk[w]===undefined||wk[w]===0)){w++;continue}
+          const avg=prior.reduce((a,x)=>a+wk[x],0)/prior.length;if(avg<10){w++;continue}
+          let e=w;while(e<=reg&&!(wk[e]>0))e++;const lost=e-w,back=e<=reg;if(mv.some(l=>l>=w-1&&l<=e)){w=e+1;continue}   // traded or dropped: not an injury
+          const startedZero=wk[w]===0;if(lost<2&&!startedZero){w=e+1;continue}   // a single missing week is probably a bye
+          if(!back&&lost>8){w=e+1;continue}   // vanished for the rest of the year without a return: too ambiguous
+          const p=avg*lost,b={uid,name,season:s.season,pid,w,lost,p,avg};out.blows.push(b);segP+=p;segW+=lost;
+          const a=out.by[uid]=out.by[uid]||{uid,name,p:0,w:0,n:0};a.p+=p;a.w+=lost;a.n++;w=e+1}}
+      if(segP)out.seasons.push({uid,name,season:s.season,p:segP,w:segW})}}
+  out.board=Object.values(out.by).sort((a,b)=>b.p-a.p);out.seasons.sort((a,b)=>b.p-a.p);out.blows.sort((a,b)=>b.p-a.p);out.blows=out.blows.slice(0,10);out.seasons=out.seasons.slice(0,5);delete out.by;return out}
+const _race=R.race;R.race=async el=>{await _race(el);
+  el.insertAdjacentHTML('beforeend',`<section class="panel"><h2>🚑 INJURY REPORT</h2><div class="hint">Live from Sleeper's injury tags (Out, IR, PUP, Doubtful, Questionable). Sidelined = each injured rostered player's average points this season (or a value-based guess if he hasn't played), weighted by status, with starters counting full and bench guys 40%.</div><div id="injr">${SPIN('Checking the training room…')}</div></section>
+  <section class="panel"><h2>⚰️ MOST SCREWED BY THE INJURY GODS</h2><div class="hint"><b>Estimate</b> based on scoring gaps, not official injury reports: a regular starter (3+ starts in the prior 4 weeks, 10+ pts avg) who suddenly vanishes from the lineup for 2+ weeks (or starts and scores 0) counts as hurt. Points lost = weeks missed × his prior average. Trades and drops are excluded; byes and benchings can sneak in.</div><div id="injg">${SPIN('Counting the bodies since 2021…')}</div></section>`);
+  const nr=el.querySelector('#injr'),ng=el.querySelector('#injg');const {T,lg}=await current();
+  const r=(arr,key,x)=>pickOf(arr,key).replace(/\{(\w+)\}/g,(m,k)=>x[k]!=null?`<b>${esc(x[k])}</b>`:m);
+  (async()=>{const [IM,V]=await Promise.all([injuries(),values().catch(()=>({p:{}}))]);const last=+lg.settings.last_scored_leg||0;
+    const M=await pool(Array.from({length:last},(_,k)=>()=>jc('league/'+LEAGUE+'/matchups/'+(k+1)).catch(()=>[])),8);const avg={};
+    M.forEach(w=>w.forEach(m=>{const pp=m.players_points||{};for(const pid in pp){const v=+pp[pid]||0;if(v>0){const a=avg[pid]=avg[pid]||[0,0];a[0]+=v;a[1]++}}}));
+    const rows=Object.values(T).map(t=>{const st=new Set(t.starters||[]);const hurt=(t.players||[]).filter(p=>IM[p]).map(p=>{const a=avg[p],ppg=a?a[0]/a[1]:Math.min(18,(V.p[p]||0)/450),s=st.has(p);return{pid:p,i:IM[p],ppg,est:!a,s,x:ppg*INJW[IM[p][0]]*(s?1:0.4)}}).sort((a,b)=>b.x-a.x);
+      return{t,hurt,x:hurt.reduce((a,h)=>a+h.x,0)}}).sort((a,b)=>b.x-a.x);
+    nr.innerHTML=`<ol class="rec inj">${rows.map((o,i)=>`<li><div class="ih"><b>${fmt(o.x)}</b> pts/wk sidelined · <span>${esc(o.t.team)}</span>${tag(o.t)}</div>${o.hurt.length?`<div class="ipl">${o.hurt.slice(0,4).map(h=>`<div class="ip">${h.s?'⭐ ':''}<b>${esc(h.i[2])}</b> <span class="pill${h.i[0]==='Questionable'?'':' red'}">${esc(h.i[0])}</span> ${esc(h.i[1]||'')} <small>${fmt(h.ppg)}${h.est?'*':''}/wk</small></div>`).join('')}${o.hurt.length>4?`<div class="ip"><small>+${o.hurt.length-4} more on the trainer's table</small></div>`:''}</div>`:''}<div class="rl">${r(o.hurt.length?(i<3&&o.x>8?IRB.top:IRB.mid):IRB.none,'ir'+o.t.rid+last,{T:o.t.team,n:o.hurt.length,p:fmt(o.x)})}</div></li>`).join('')}</ol><div class="hint">⭐ = in the current starting lineup. * = hasn't scored this season, guessed from dynasty value.</div>`})()
+    .catch(e=>{nr.innerHTML=`<div class="hint">Sleeper's injury feed is napping (${esc(e.message||e)}). Try again in a bit.</div>`});
+  (async()=>{const S=await all();const k='sn:igods1',sig=S.map(s=>s.season+':'+s.last).join(',');let G=LS.get(k);
+    if(!G||G.sig!==sig){G={sig,...injuryGods(S,T)};LS.set(k,G)}
+    const ids=G.blows.map(b=>b.pid).filter(p=>!PL[p]);if(ids.length)Object.assign(PL,await playersFor(ids));
+    const b0=G.blows[0],s0=G.seasons[0];
+    ng.innerHTML=G.board.length?`<h3>ALL-TIME (BY MANAGER)</h3><ol class="rec ig">${G.board.map((a,i)=>`<li><div><b>~${int(a.p)}</b> pts lost · ${esc(a.name)} <small>${a.w} starter-weeks · ${a.n} injuries</small>${i<3?`<div class="rl">${r([IGR.tm[(i+G.sig.length)%IGR.tm.length]],'ig'+a.uid,{T:a.name,w:a.w,p:int(a.p)})}</div>`:''}</div></li>`).join('')}</ol>
+      ${s0?`<h3>WORST SINGLE SEASON</h3><ol class="rec ig">${G.seasons.map((x,i)=>`<li><div><b>~${int(x.p)}</b> pts · ${esc(x.name)} <small>${x.season} · ${x.w} starter-weeks</small>${i===0?`<div class="rl">${r(IGR.season,'igs'+x.uid+x.season,{T:x.name,s:x.season,p:int(x.p)})}</div>`:''}</div></li>`).join('')}</ol>`:''}
+      ${b0?`<h3>WORST SINGLE INJURY BLOW</h3><ol class="rec ig">${G.blows.slice(0,5).map((x,i)=>`<li><div><b>~${int(x.p)}</b> pts · ${pn(x.pid)} <small>${esc(x.name)} · ${x.season} wk ${x.w}${x.lost>1?'–'+(x.w+x.lost-1):''} · ${x.lost} wk × ${fmt(x.avg)}</small>${i===0?`<div class="rl">${r(IGR.blow,'igb'+x.pid+x.season,{T:x.name,P:(PL[x.pid]||{}).n||'Player '+x.pid,w:x.lost,p:int(x.p)})}</div>`:''}</div></li>`).join('')}</ol>`:''}`
+      :'<div class="hint">No clear injury gaps found. Either everyone is healthy or everyone is lying.</div>'})()
+    .catch(e=>{ng.innerHTML=`<div class="hint">History is still loading or Sleeper fumbled it (${esc(e.message||e)}).</div>`})};
 // all-time fun facts get added to the Home ticker once the history is loaded (instant when cached)
 R.after=k=>{if(k!=='home')return;const t=$('#ticker');if(t)t.classList.add('in');
   (all().then(S=>{const G=games(S),h={},nm={};G.forEach(g=>{for(const [x,y] of [[g.a,g.b],[g.b,g.a]]){nm[x.uid]=x.team;const k=x.uid+'|'+y.uid;h[k]=h[k]||[0,0];h[k][x.p>y.p?0:1]++}});
