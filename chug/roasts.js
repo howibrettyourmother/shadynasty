@@ -119,6 +119,21 @@ DNF:[
 "Beer 1, {T} 0. Sad as hell.",
 "Can't finish a beer, can't finish a season. Consistent, at least."
 ],
+OFFBEAT:[
+"{T} has worse rhythm than a holder on a botched field goal snap.",
+"The whole stadium was stomping in time and you were tapping like a false start every play.",
+"Off beat the entire shoey. You chug like your O-line pass blocks: late and confused.",
+"The beat was right there, {T}. You missed it like a wide-open receiver.",
+"Stomp, stomp, clap, and somehow {T} found the one count nobody was using.",
+"Your timing is as bad as your trade timing: always a week late.",
+"Zero rhythm. You'd jump offsides in a walkthrough."
+],
+ONBEAT:[
+"On beat the whole way. Shame your lineup decisions never had that kind of timing.",
+"{T} rode the stomp-clap like a pro. Rhythm of a drumline, roster of a JV squad.",
+"Locked into the beat. First thing {T} has timed right since the startup draft.",
+"Smooth chug, great rhythm, still a bum. The beat can't fix your RB room."
+],
 // Stiletto bank. Lines matching /Joe|rebuild|tank/i are only used for Joe's team.
 J:[
 "{T} chugging out of a glitter stiletto is still the best move this franchise made all year.",
