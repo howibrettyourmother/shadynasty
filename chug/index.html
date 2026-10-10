@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>SHADYNASTY SHOEY CHUG</title>
+<meta name="theme-color" content="#0a0604">
+<meta name="description" content="Chug a beer out of a shoe faster than the rest of the SHADYNASTY league. Mash to chug, don't spew.">
+<meta property="og:title" content="SHADYNASTY SHOEY CHUG">
+<meta property="og:description" content="Mash to chug. Don't spew. Beat the league. Top 10 times or eternal shame.">
+<meta property="og:type" content="website"><meta property="og:site_name" content="SHADYNASTY">
+<meta property="og:url" content="https://howibrettyourmother.github.io/shadynasty/chug/">
+<meta property="og:image" content="https://howibrettyourmother.github.io/shadynasty/chug/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://howibrettyourmother.github.io/shadynasty/chug/og.jpg">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Shoey Chug">
+<link rel="preload" href="img/shoe.webp" as="image">
+<style>
+@font-face{font-family:"AntonSC";src:url(anton.woff) format("woff");font-display:swap}
+:root{--gold:#ffc72c;--amber:#f5a300;--pink:#ff4fa8;--red:#ff3b3b;--ink:#fff7e6;--d:"AntonSC","Avenir Next Condensed","Arial Narrow",Impact,sans-serif;--vh:1vh;--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#0a0604;color:var(--ink);font:15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.scr{position:fixed;top:0;left:0;right:0;height:calc(var(--vh)*100);display:none;flex-direction:column;overflow:hidden}
+.scr.on{display:flex}
+.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.bg{position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 0,#3b2200 0,#0a0604 65%);z-index:-1}
+.btn{display:block;width:100%;min-height:56px;margin:0 0 10px;border-radius:14px;font:400 24px/1 var(--d);letter-spacing:.04em;text-transform:uppercase;color:#1a0f00;background:linear-gradient(180deg,#ffe07a,#f0a800);box-shadow:0 4px 0 #8a5a00,0 8px 22px rgba(255,170,0,.35);padding:12px 10px}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #8a5a00}
+.btn.alt{background:linear-gradient(180deg,#3a2c1a,#21170c);color:var(--gold);box-shadow:0 3px 0 #000;font-size:18px;min-height:48px;border:1px solid rgba(255,199,44,.3)}
+.btn.pink{background:linear-gradient(180deg,#ff8ccc,#e0207f);color:#fff;box-shadow:0 4px 0 #7a0c44}
+.row{display:flex}.row>*{flex:1}.row>*+*{margin-left:10px}
+.wrap{width:100%;max-width:520px;margin:0 auto;padding:0 16px}
+/* title */
+#title .hero{position:relative;width:100%;height:calc(var(--vh)*40);min-height:210px;overflow:hidden}
+#title .hero img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:52% 40%}
+#title .hero:after{content:"";position:absolute;left:0;right:0;bottom:0;height:60%;background:linear-gradient(0deg,#0a0604,rgba(10,6,4,0))}
+.logo{position:relative;z-index:2;text-align:center;margin-top:-92px}
+.logo .k{font:400 20px/1 var(--d);letter-spacing:.2em;color:var(--gold);text-shadow:0 2px 0 #000}
+.logo h1{margin:2px 0 0;font:400 clamp(58px,19vw,92px)/.9 var(--d);letter-spacing:.01em;color:#fff;text-shadow:0 4px 0 #b36b00,0 8px 24px rgba(0,0,0,.8);animation:wob 2.4s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:rotate(-2deg) scale(1)}50%{transform:rotate(2deg) scale(1.04)}}
+.tag{text-align:center;color:#ffdca0;font-size:14px;margin:8px 0 14px}
+.who{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;margin:0 0 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,199,44,.25);width:100%;text-align:left}
+.who b{font:400 20px/1.1 var(--d);letter-spacing:.03em;color:#fff;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:68vw}
+.who small{color:#c9a96a;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+.who span.ch{color:var(--gold);font:400 15px/1 var(--d);letter-spacing:.06em}
+.stl{display:flex;align-items:center;padding:4px 2px 12px;color:#ffb3da;font-size:14px}
+.stl input{width:22px;height:22px;margin:0 8px 0 0;accent-color:#ff4fa8}
+.note{color:#ffb3da;font-size:13.5px;padding:0 2px 12px;text-align:center}
+.foot{text-align:center;font-size:12px;color:#8b7a5c;padding:6px 0 calc(14px + var(--sb))}
+.foot a{color:#c9a96a}
+/* sheets */
+.sheet{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(6,3,0,.92);z-index:30;display:none;flex-direction:column;padding-top:calc(12px + var(--st))}
+.sheet.on{display:flex}
+.sheet h2{font:400 30px/1 var(--d);letter-spacing:.04em;color:var(--gold);margin:6px 0 12px;text-align:center}
+.teams button{display:block;width:100%;text-align:left;padding:13px 14px;margin:0 0 8px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);font:400 19px/1.15 var(--d);letter-spacing:.03em}
+.teams button small{display:block;font:12px/1.2 -apple-system,Arial,sans-serif;color:#b9a27a;letter-spacing:0;margin-top:3px}
+.teams button.me{border-color:var(--gold);background:rgba(255,199,44,.14)}
+.lbt{display:flex;margin:0 0 10px}.lbt button{flex:1;padding:10px 4px;font:400 15px/1 var(--d);letter-spacing:.05em;color:#c9a96a;border-bottom:3px solid transparent}.lbt button.on{color:#fff;border-color:var(--gold)}
+ol.lb{list-style:none;margin:0 0 12px;padding:0}
+ol.lb li{display:flex;align-items:center;padding:9px 10px;margin:0 0 6px;border-radius:10px;background:rgba(255,255,255,.05)}
+ol.lb li.me{background:rgba(255,199,44,.18);box-shadow:inset 0 0 0 1px var(--gold)}
+ol.lb .r{width:30px;font:400 20px/1 var(--d);color:var(--gold)}
+ol.lb .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+ol.lb .n small{font-weight:400;color:#b9a27a;margin-left:5px}
+ol.lb .t{font:400 22px/1 var(--d);font-variant-numeric:tabular-nums;margin-left:8px}
+.hint{color:#b9a27a;text-align:center;padding:14px 0;font-size:14px}
+/* game */
+#game{touch-action:none}
+#stage{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;will-change:transform}
+.hud{padding:calc(8px + var(--st)) 14px 6px;display:flex;align-items:flex-end;justify-content:space-between}
+.clock{font:400 54px/1 var(--d);font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 3px 0 #7a4a00;min-width:120px}
+.clock.hot{color:#ff6b6b;text-shadow:0 3px 0 #600}
+.hud .tm{text-align:right;max-width:55%}
+.hud .tm b{display:block;font:400 17px/1.1 var(--d);letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hud .tm small{color:#c9a96a;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.meter{margin:0 14px 8px;height:20px;border-radius:10px;background:rgba(255,255,255,.08);position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.12)}
+.meter i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#7dff9a,#ffe04a 55%,#ff3b3b);transition:none}
+.meter span{position:absolute;left:0;right:0;top:0;bottom:0;text-align:center;font:400 13px/20px var(--d);letter-spacing:.14em;color:#fff;text-shadow:0 1px 2px #000}
+.meter.dz{animation:buzz .12s linear infinite;border-color:#ff3b3b}
+@keyframes buzz{0%{transform:translateX(-2px)}50%{transform:translateX(2px)}100%{transform:translateX(-2px)}}
+.react{position:relative;margin:0 14px;height:calc(var(--vh)*24);min-height:140px;border-radius:14px;overflow:hidden;background:#140b04;box-shadow:0 6px 18px rgba(0,0,0,.5)}
+.react img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s}
+.react img.on{opacity:1}
+.cap{position:absolute;left:8px;bottom:8px;z-index:2;font:400 20px/1 var(--d);letter-spacing:.05em;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.65);color:var(--gold)}
+.cap.bad{color:#ff8a8a}.cap.gross{color:#9dff6b}
+.vessel{position:relative;flex:1;margin:10px 14px 0;border-radius:16px;overflow:hidden;background:#140b04;min-height:150px}
+.vessel img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:50% 45%;transform-origin:50% 60%}
+.vessel canvas{position:absolute;top:0;left:0;width:100%;height:100%}
+.pct{position:absolute;left:10px;top:10px;font:400 16px/1 var(--d);letter-spacing:.08em;background:rgba(0,0,0,.6);padding:6px 9px;border-radius:8px;z-index:2}
+.pad{margin:10px 14px calc(12px + var(--sb));height:calc(var(--vh)*13);min-height:74px;border-radius:18px;display:flex;align-items:center;justify-content:center;font:400 40px/1 var(--d);letter-spacing:.08em;color:#1a0f00;background:radial-gradient(ellipse at 50% 30%,#ffe9a0,#f0a000 70%);box-shadow:0 5px 0 #8a5a00,0 0 30px rgba(255,170,0,.4);animation:pulse 1s ease-in-out infinite}
+.pad.hit{transform:translateY(4px) scale(.98);box-shadow:0 1px 0 #8a5a00}
+.pad.lock{background:radial-gradient(ellipse at 50% 30%,#d6ffb0,#6fb800 70%);box-shadow:0 5px 0 #355a00;color:#0d2200}
+@keyframes pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.15)}}
+.count{position:absolute;left:0;right:0;top:34%;text-align:center;font:400 150px/1 var(--d);color:#fff;text-shadow:0 6px 0 #b36b00,0 0 40px rgba(255,180,0,.8);z-index:5;pointer-events:none;display:none}
+#fx{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:20}
+#flash{position:fixed;top:0;left:0;right:0;bottom:0;background:#ffcc33;opacity:0;pointer-events:none;z-index:19}
+/* end */
+#end .rimg{position:relative;width:100%;height:calc(var(--vh)*30);min-height:180px;overflow:hidden;flex:none}
+#end .rimg img{width:100%;height:100%;object-fit:cover;display:block}
+#end .rimg:after{content:"";position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(0deg,#0a0604,rgba(10,6,4,0))}
+.big{text-align:center;margin-top:-56px;position:relative;z-index:2}
+.big .lbl{font:400 18px/1 var(--d);letter-spacing:.16em;color:var(--gold)}
+.big .tt{font:400 84px/1 var(--d);color:#fff;text-shadow:0 5px 0 #b36b00;font-variant-numeric:tabular-nums}
+.big .tt.dnf{color:#ff6b6b;text-shadow:0 5px 0 #600}
+.rank{text-align:center;font:400 20px/1.2 var(--d);letter-spacing:.05em;color:#fff;margin:4px 0 10px;min-height:24px}
+.rank em{font-style:normal;color:var(--gold)}
+.stats{text-align:center;color:#c9a96a;font-size:13px;margin:-4px 0 10px}
+.roast{margin:0 0 14px;padding:14px 14px;border-radius:14px;background:rgba(255,255,255,.06);border-left:4px solid var(--red);font-size:17px;line-height:1.35;font-weight:600;color:#fff}
+.roast.j{border-color:var(--pink);background:rgba(255,79,168,.1)}
+.toast{position:fixed;left:50%;bottom:calc(30px + var(--sb));transform:translateX(-50%) translateY(140px);background:#111;color:#fff;border:1px solid var(--gold);padding:12px 16px;border-radius:12px;z-index:50;font-weight:700;transition:transform .25s;max-width:90%;text-align:center}
+.toast.on{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<section id="title" class="scr on">
+  <div class="scroll" style="flex:1">
+    <div class="hero"><img id="heroImg" src="img/shoe.webp" alt="A white sneaker overflowing with beer"></div>
+    <div class="logo"><div class="k">SHADYNASTY</div><h1>SHOEY<br>CHUG</h1></div>
+    <div class="wrap">
+      <p class="tag">Mash to chug. Too fast and you <b>SPEW</b>. 15 seconds or you're a disgrace.</p>
+      <button class="who" id="whoBtn"><span><small>Chugging for</small><b id="whoName">Pick your team</b></span><span class="ch">CHANGE ›</span></button>
+      <label class="stl" id="stlWrap"><input type="checkbox" id="stlBox">Drink from the glitter stiletto (extra shame)</label>
+      <div class="note" id="joeNote" style="display:none">👠 League rules: your team drinks from the stiletto.</div>
+      <button class="btn" id="goBtn">🍺 SHOEY UP</button>
+      <div class="row"><button class="btn alt" id="lbBtn">LEADERBOARD</button><button class="btn alt" id="howBtn">HOW TO</button></div>
+      <div class="foot"><a href="../#arcade" target="_self">← Back to SHADYNASTY Arcade</a></div>
+    </div>
+  </div>
+</section>
+
+<section id="game" class="scr">
+  <div id="stage">
+    <div class="hud"><div class="clock" id="clock">0.00</div><div class="tm"><small id="vesselLbl">Shoey</small><b id="gTeam"></b></div></div>
+    <div class="meter" id="meter"><i id="foamBar"></i><span id="foamTxt">FOAM</span></div>
+    <div class="react" id="react"><img id="rA" alt=""><img id="rB" alt=""><div class="cap" id="cap">GET READY</div></div>
+    <div class="vessel" id="vessel"><img id="vImg" src="img/shoe.webp" alt=""><canvas id="gauge"></canvas><div class="pct" id="pct">BEER 100%</div></div>
+    <div class="pad" id="pad">MASH TO CHUG</div>
+  </div>
+  <div class="count" id="count">3</div>
+</section>
+
+<section id="end" class="scr">
+  <div class="scroll" style="flex:1">
+    <div class="rimg"><img id="endImg" src="img/cheer.webp" alt=""></div>
+    <div class="big"><div class="lbl" id="endLbl">FINISHED IN</div><div class="tt" id="endTime">0.00</div></div>
+    <div class="wrap">
+      <div class="rank" id="endRank"></div>
+      <div class="stats" id="endStats"></div>
+      <div class="roast" id="endRoast"></div>
+      <button class="btn pink" id="shareBtn">💬 TALK SHIT IN THE CHAT</button>
+      <button class="btn" id="againBtn">🍺 ANOTHER SHOEY</button>
+      <div class="row"><button class="btn alt" id="endLbBtn">FULL BOARD</button><button class="btn alt" id="homeBtn">TITLE</button></div>
+      <h3 style="font:400 20px/1 var(--d);letter-spacing:.08em;color:var(--gold);margin:8px 0 10px">FASTEST CHUGS</h3>
+      <div id="endBoard"><div class="hint">Loading the board…</div></div>
+      <div class="foot"><a href="../#arcade" target="_self">← Back to SHADYNASTY Arcade</a></div>
+    </div>
+  </div>
+</section>
+
+<div class="sheet" id="teamSheet"><div class="wrap scroll" style="flex:1"><h2>WHO ARE YOU?</h2><div class="teams" id="teams"><div class="hint">Loading league teams…</div></div><button class="btn alt" data-close>CANCEL</button><div style="height:calc(20px + var(--sb))"></div></div></div>
+<div class="sheet" id="lbSheet"><div class="wrap scroll" style="flex:1"><h2>SHOEY BOARD</h2>
+  <div class="lbt" id="lbTabs"><button data-t="top" class="on">TOP 10</button><button data-t="teams">TEAM BESTS</button><button data-t="mine">MY TEAM</button></div>
+  <div id="lbBody"><div class="hint">Loading…</div></div><button class="btn alt" data-close>CLOSE</button><div style="height:calc(20px + var(--sb))"></div></div></div>
+<div class="sheet" id="howSheet"><div class="wrap scroll" style="flex:1"><h2>HOW TO SHOEY</h2>
+  <div class="roast" style="border-color:var(--gold);font-weight:500">
+  <p style="margin-top:0">1. Tap <b>SHOEY UP</b>. After 3-2-1, <b>mash anywhere</b> to chug. Every tap is a gulp.</p>
+  <p>2. Watch the <b>FOAM</b> meter. Mash too fast and it fills. Ease off and it settles. Low foam = bigger gulps.</p>
+  <p>3. Max the foam and you <b>SPEW</b>: +1.5s penalty, a mouthful of beer comes back, and the cheer squad is disgusted.</p>
+  <p style="margin-bottom:0">4. Drain it under 15 seconds or it's a DNF. Top 10 times make the board. Under 1.5s is cheating and gets tossed.</p></div>
+  <button class="btn" data-close>GOT IT</button><div style="height:calc(20px + var(--sb))"></div></div></div>
+<canvas id="fx"></canvas><div id="flash"></div><div class="toast" id="toast"></div>
+<script src="roasts.js?v=1"></script>
+<script src="game.js?v=1"></script>
+</body>
+</html>

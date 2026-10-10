@@ -96,7 +96,7 @@ const R={};
 const HOMECARDS=[['#recap','📰','RECAP','Who owes a shoey this week','recap'],['#power','⚡','POWER RANKINGS','A formula that hates your team','power'],['#race','🏁','PLAYOFF RACE','Your odds, simulated 3,000 times','race'],
  ['#tank','🚽','TANK WATCH','The race to be worst on purpose','tank'],['#draft','🎓','DRAFT ROOM','Mock 2027 rookie draft. The tank is on the clock.','draft'],['#teams','👥','TEAMS','Rosters, picks, rivals and receipts','teams'],['#fleece','🧶','FLEECE FACTORY','Trades you should send tonight','fleece'],
  ['#trades','🔁','TRADES & DROPS','Every deal and every dumb drop','trades'],['#history','🏛️','HISTORY','Champions and cautionary tales','history'],['#records','📕','RECORD BOOK','Highs, lows and who owns who','records'],
- ['#shame','🍺','HALL OF SHAME','Frame it. Never forget it.','shame'],['#arcade','🕹️','ARCADE','Mo Morehouse, mo problems','arcade']];
+ ['#shame','🍺','HALL OF SHAME','Frame it. Never forget it.','shame'],['#arcade','🕹️','ARCADE','Shoey Chug + Mo Problems','arcade']];
 // Per-section images: img/sec/<key>-{720,1200}.webp. Banners sit at the top of each page (Power/Draft/Shame show theirs inline with a caption instead).
 const SECIMG={home:{ok:1,alt:'Five cheerleaders in gold and black under stadium lights, one raising a shoey'},
  recap:{ok:1,alt:'Two fans at a sports bar laughing and pointing at a lopsided scoreboard',mood:'laugh'},
@@ -248,8 +248,11 @@ R.shame=async el=>{el.innerHTML=`<section class="panel">${SPIN('Pouring the shoe
    <h3>WORST DROPS OF ALL TIME</h3>${dropsList(S,V).slice(0,10).map((d,i)=>dropItem(d,i)).join('')}
    <h3>LAST-PLACE FINISHES</h3><ol class="rec sh">${lasts.map(x=>`<li>${badge}<div><b>${x.s}</b> ${esc(x.t.team)}${tag(x.t)} <small>@${esc(x.t.owner)} · ${x.t.w}-${x.t.l}</small></div></li>`).join('')}</ol></section>`};
 R.arcade=async el=>{el.innerHTML=`<section class="panel arcade"><h2>🕹️ ARCADE</h2>
+  <a class="gcard" href="chug/"><img src="img/th/chug.webp?v=1" width="400" height="250" loading="lazy" decoding="async" alt="A white sneaker overflowing with beer"><span><b>🍺 SHOEY CHUG <i>NEW</i></b><small>Mash to drain a beer out of a sneaker in under 15 seconds. Too fast and you spew on the cheer squad. One unlucky team drinks from the stiletto.</small></span></a>
+  <h3>FASTEST SHOEYS</h3><div id="sclb">${SPIN('Loading chug times…')}</div>
   <a class="big" href="${GAME}">🎮 MOREHOUSE MORE PROBLEMS<small>Survive Joe's rebuild. Canvas shooter, plays great on iPhone.</small></a>
   <h3>MO PROBLEMS LEADERBOARD</h3><div id="lb">${SPIN('Loading high scores…')}</div></section>`;
+  const scb=el.querySelector('#sclb');fetch('https://shoey-chug-scores.brettwilson08.workers.dev/scores?board=main&limit=5').then(r=>r.json()).then(d=>{const t=(d.top||[]).slice(0,5);scb.innerHTML=(t.length?`<ol class="rec">${t.map(x=>`<li><b>${(x.ms/1000).toFixed(2)}s</b> ${x.st?'👠 ':''}${esc(x.n)}</li>`).join('')}</ol>`:'<div class="hint">Nobody has chugged yet. Set the time to beat.</div>')+`<a class="ktc" href="chug/">CHUG AND BEAT IT →</a>`}).catch(()=>{scb.innerHTML=`<div class="hint">Chug board is napping. <a href="chug/">Open the game</a>.</div>`});
   try{const d=await fetch('https://morehouse-scores.brettwilson08.workers.dev/scores?board=main&mode=all&limit=10').then(r=>r.json());el.querySelector('#lb').innerHTML=`<ol class="rec">${(d.top||[]).slice(0,10).map(x=>`<li><b>${int(x.s)}</b> ${esc(x.n)}</li>`).join('')}</ol><a class="ktc" href="${GAME}">PLAY AND BEAT IT →</a>`}
   catch(e){el.querySelector('#lb').innerHTML=`<div class="hint">Leaderboard is napping. <a href="${GAME}">Open the game</a> to see it.</div>`}};
 // ---------------- router ----------------
