@@ -773,7 +773,9 @@ const NAVG=[['home','recap','power','race','tank'],['teams','fleece','trades','d
   const ord=NAVG.flat(),pos=h=>{const i=ord.indexOf(h.slice(1));return i<0?99:i};HOMECARDS.sort((a,b)=>pos(a[0])-pos(b[0]))}
 // ---- 🕹️ Modes (joke themes): tiny loader; modes.js + modes.css are fetched only if a mode is saved or the picker is opened ----
 var MODEV=1;function loadModes(){if(window.SNM)return Promise.resolve(window.SNM);if(!loadModes.p)loadModes.p=new Promise((res,rej)=>{const s=document.createElement('script');s.src='modes.js?v='+MODEV;s.onload=()=>res(window.SNM);s.onerror=e=>{loadModes.p=null;rej(e)};document.head.appendChild(s)});return loadModes.p}
-{const f=document.querySelector('.foot');if(f)f.insertAdjacentHTML('beforeend','<button type="button" class="mbtn" data-modes>🕹️ Modes</button>');const b=document.querySelector('.brand small');if(b)b.insertAdjacentHTML('afterend','<button type="button" class="mbtn mbtn-h" data-modes aria-label="Modes">🕹️</button>');
+// Feature flag: modes hidden for now. Flip MODES_ON to true (or visit with ?modes=1) to bring them back.
+var MODES_ON=false||/[?&]modes=1/.test(location.search);if(!MODES_ON){try{localStorage.removeItem('sn:mode')}catch(e){}}
+if(MODES_ON){const f=document.querySelector('.foot');if(f)f.insertAdjacentHTML('beforeend','<button type="button" class="mbtn" data-modes>🕹️ Modes</button>');const b=document.querySelector('.brand small');if(b)b.insertAdjacentHTML('afterend','<button type="button" class="mbtn mbtn-h" data-modes aria-label="Modes">🕹️</button>');
   document.addEventListener('click',e=>{const x=e.target.closest&&e.target.closest('[data-modes]');if(x)loadModes().then(M=>M.open())});
   let sm=null;try{sm=localStorage.getItem('sn:mode')}catch(e){}if(sm)loadModes().then(M=>M.set(sm,{boot:1})).catch(()=>{})}
 {const _am=R.after;R.after=k=>{if(_am)_am(k);if(window.SNM)SNM.page(k)}}
