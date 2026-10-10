@@ -37,7 +37,7 @@ async function values(){const k='sn:fc3';const c=LS.get(k);if(c&&Date.now()-c.at
 const ORD=['','1st','2nd','3rd','4th','5th'];
 function pickVal(V,season,round){return V.pk[season+' '+ORD[round]]||V.pk[season+' '+ORD[round]+' (Mid)']||(V.pk[(+season-1)+' '+ORD[round]]||0)*0.9||0}
 // ---------------- data model ----------------
-const D={};
+const D={};try{for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&(k.indexOf('sn:s5:')===0||k.indexOf('sn:s6:')===0||k.indexOf('sn:s7:')===0))localStorage.removeItem(k)}}catch(e){}
 async function chain(){if(D.chain)return D.chain;const cache=LS.get('sn:chain')||{},out=[];let id=LEAGUE;
   while(id&&id!=='0'){let lg=cache[id];if(!lg||lg.status!=='complete'){lg=await j('league/'+id);if(lg.status==='complete')cache[id]=lg}out.push(lg);id=lg.previous_league_id}
   LS.set('sn:chain',cache);return D.chain=out}
@@ -48,7 +48,7 @@ function teamsOf(users,rosters){const U=Object.fromEntries(users.map(u=>[u.user_
       joe:/^joebags85$/i.test(un),wz:r.owner_id===BRETT,players:r.players||[],starters:r.starters||[],streak:(r.metadata&&r.metadata.streak)||''}}
   return T}
 // compact season summary; completed seasons are cached forever in localStorage
-async function season(lg){const done=lg.status==='complete',id=lg.league_id,key='sn:s5:'+id;if(done){const c=LS.get(key);if(c)return c}
+async function season(lg){const done=lg.status==='complete',id=lg.league_id,key='sn:s8:'+id;if(done){const c=LS.get(key);if(c)return c}
   const st=lg.settings||{},last=+st.last_scored_leg||0,pws=+st.playoff_week_start||15,leg=done?18:Math.max(1,+(D.state&&D.state.leg)||last+1);
   const g=done?jc:j;
   const [users,rosters,wb,drafts]=await Promise.all([g('league/'+id+'/users'),g('league/'+id+'/rosters'),g('league/'+id+'/winners_bracket').catch(()=>[]),jc('league/'+id+'/drafts').catch(()=>[])]);
@@ -64,9 +64,10 @@ async function season(lg){const done=lg.status==='complete',id=lg.league_id,key=
   const sp={},top=M.map(()=>({}));M.forEach((w,wi)=>w.forEach(m=>{const s=(m.starters||[]),pts=m.starters_points||[];const R=sp[m.roster_id]=sp[m.roster_id]||{};
     let hi=null;s.forEach((pid,i)=>{if(!pid||pid==='0')return;const v=+pts[i]||0;(R[pid]=R[pid]||[]).push([wi+1,v]);if(!hi||v>hi[1])hi=[pid,v]});top[wi][m.roster_id]=hi}));
   const trades=[];TX.flat().filter(t=>t&&t.type==='trade'&&t.status==='complete').forEach(t=>trades.push({id:t.transaction_id,season:lg.season,leg:+t.leg||1,at:t.status_updated||t.created,rids:t.roster_ids||[],adds:t.adds||{},picks:(t.draft_picks||[]).map(p=>({s:p.season,r:p.round,o:p.roster_id,to:p.owner_id,from:p.previous_owner_id}))}));
+  const adds=[];TX.flat().filter(t=>t&&(t.type==='waiver'||t.type==='free_agent')&&t.status==='complete'&&t.adds).forEach(t=>{let fb=+(t.settings&&t.settings.waiver_bid)||0;for(const [pid,rid] of Object.entries(t.adds)){adds.push([pid,+rid,+t.leg||1,t.type==='waiver'?1:0,fb,t.status_updated||t.created||0]);fb=0}});
   const drops=[];TX.flat().filter(t=>t&&(t.type==='waiver'||t.type==='free_agent')&&t.status==='complete'&&t.drops).forEach(t=>{for(const [pid,rid] of Object.entries(t.drops))drops.push({pid,rid:+rid,season:lg.season,leg:+t.leg||1,at:t.status_updated||t.created})});
   const place={};let champ=null;for(const m of wb||[]){if(!m.p||!m.w)continue;place[m.w]=m.p;place[m.l]=m.p+1;if(m.p===1)champ=m.w}
-  const S={id,season:lg.season,done,last,pws,teams:teamsOf(users,rosters),wk,sp,top,trades,drops,picks,place,champ,name:lg.name};
+  const S={id,season:lg.season,done,last,pws,teams:teamsOf(users,rosters),wk,sp,top,trades,drops,adds,pob:(wb||[]).filter(m=>m.t1&&m.t2&&m.w&&(!m.p||m.p===1)).map(m=>[m.t1,m.t2,m.w]),picks,place,champ,name:lg.name};
   if(done&&!LS.set(key,S)){delete S.sp;LS.set(key,S);S.sp=sp}   // storage full: keep the rest, rebuild starter points next time
   return S}
 async function current(){if(D.cur)return D.cur;
@@ -113,7 +114,10 @@ const SECIMG={home:{ok:1,alt:'Five cheerleaders in gold and black under stadium 
  records:{ok:1,alt:'Cheerleaders amazed at a giant glowing scoreboard',mood:'swoon'},
  shame:{ok:1,alt:'Cheerleaders holding their noses at a moldy football and a burning dumpster',mood:'laugh'},
  arcade:{ok:1,alt:'Neon arcade cheerleaders playing retro football games, one with a shoey',mood:'swoon'},
- drops:{ok:1,alt:'Cheerleaders holding their noses at a jersey thrown in the trash',mood:'laugh'}};
+ drops:{ok:1,alt:'Cheerleaders holding their noses at a jersey thrown in the trash',mood:'laugh'},
+ waivers:{ok:0,alt:'Cheerleaders cheering a fan who pulled a gold football out of a bargain bin',mood:'swoon'},window:{ok:0,alt:'Fans watching a giant hourglass on the jumbotron',mood:'swoon'},
+ posgrid:{ok:0,alt:'Cheerleaders comparing a lineup chalkboard',mood:'swoon'},picks:{ok:0,alt:'A fan hoarding a pile of golden draft tickets while cheerleaders gasp',mood:'swoon'},
+ h2h:{ok:0,alt:'Two rival fan sections face to face with ring girls between them',mood:'swoon'},habits:{ok:0,alt:'Cheerleaders laughing at a manager glued to his phone',mood:'laugh'}};
 const secSrc=(k,w)=>`img/sec/${k}-${w}.webp?v=3`;
 const banner=(k,alt)=>{const x=SECIMG[k];return x&&x.ok?`<figure class="secb"><img src="${secSrc(k,720)}" srcset="${secSrc(k,720)} 720w, ${secSrc(k,1200)} 1200w" sizes="(min-width:1000px) 976px, 100vw" width="720" height="405" loading="lazy" decoding="async" alt="${esc(alt||x.alt||'')}"></figure>`:''};
 // captioned inline photo (used inside cards); kind = caption color ('laugh' red / 'swoon' pink), defaults to the image's mood
@@ -650,6 +654,101 @@ async function tbHall(T){const L=(await chain()).filter(l=>l.status==='complete'
 {const _dr=R.draft;R.draft=async el=>{const lb=await j('league/'+LEAGUE+'/losers_bracket').catch(()=>[]);const f=(lb||[]).find(m=>m.p===1&&m.w);D.tbChamp=f?f.w:null;return _dr(el)}}
 {const _h2=R.history;R.history=async el=>{await _h2(el);const c=await current();const box=document.createElement('div');el.appendChild(box);
   tbHall(c.T).then(h=>{box.innerHTML=h}).catch(()=>{})}}
+// ================= LEAGUE INTEL (final batch): waiver wins, window, positional strength, pick inventory, H2H grid, tendencies =================
+const abbr=n=>{const w=String(n||'?').replace(/[^A-Za-z0-9 ]/g,' ').trim().split(/\s+/).filter(Boolean);return(w.length>1?w.slice(0,3).map(x=>x[0]).join(''):(w[0]||'?').slice(0,3)).toUpperCase()};
+const POS4=['QB','RB','WR','TE'];
+// ---- 1) WAIVER WIRE WINS: starter points for the team that added him, until he was dropped or traded away ----
+function waiverWins(S){const ev={};   // pid -> sorted moves away from a roster: [season,leg,rid]
+  for(const s of S){for(const d of s.drops||[])(ev[d.pid]=ev[d.pid]||[]).push([+s.season,d.leg,d.rid]);
+    for(const t of s.trades||[])for(const [pid,to] of Object.entries(t.adds||{}))for(const r of t.rids)if(+r!==+to)(ev[pid]=ev[pid]||[]).push([+s.season,t.leg,+r])}
+  const out=[];for(const s of S)for(const [pid,rid,leg,wv,bid] of s.adds||[]){const end=(ev[pid]||[]).filter(e=>e[2]===rid&&(e[0]>+s.season||(e[0]===+s.season&&e[1]>=leg))).sort((a,b)=>a[0]-b[0]||a[1]-b[1])[0];
+    let pts=0,wks=0;for(const x of S){const yr=+x.season;if(yr<+s.season||!x.sp)continue;if(end&&yr>end[0])break;const a=(x.sp[rid]||{})[pid];if(!a)continue;
+      for(const [w,p] of a){if(yr===+s.season&&w<leg)continue;if(end&&yr===end[0]&&w>=end[1])continue;pts+=p;wks++}}
+    if(pts>0)out.push({pid,rid,season:s.season,leg,wv,bid,pts,wks,team:(s.teams[rid]||{}).team||'Team '+rid,uid:(s.teams[rid]||{}).uid})}
+  const best={};for(const x of out){const k=x.pid+'|'+x.rid;if(!best[k]||x.pts>best[k].pts)best[k]=x}return Object.values(best).sort((a,b)=>b.pts-a.pts)}
+const WWR=["{T} found {P} on the wire and got {pts} starter points out of him. Scouting department of one.","{P} cost {T} nothing but a click. {pts} points later, that's a heist.","{T} plucked {P} off the scrap heap. The rest of the league was asleep."];
+function wwItem(x,i,cur){const line=pickOf(WWR,'ww'+x.pid+x.rid).replace(/\{(\w+)\}/g,(m,k)=>`<b>${esc({T:cur||x.team,P:(PL[x.pid]||{}).n||'Player '+x.pid,pts:fmt(x.pts)}[k])}</b>`);
+  return`<article class="trade ww"><div class="tdh"><span class="rank">#${i+1}</span>${x.season} · WEEK ${x.leg} · ${x.wv?'waiver'+(x.bid?' $'+x.bid:''):'free agent'}</div><div class="tside"><div class="tn">${esc(cur||x.team)} added ${pn(x.pid)}</div>
+   <div class="tsc">${fmt(x.pts)} starter pts in ${x.wks} start${x.wks===1?'':'s'} for them</div></div>${i<3?`<div class="rl">${line}</div>`:''}</article>`}
+function wwPanel(S,T){const L=waiverWins(S),cs=String(S[S.length-1].season),now=L.filter(x=>String(x.season)===cs).slice(0,5),at=L.slice(0,8);const curN=Object.fromEntries(Object.values(T).map(t=>[t.uid,t.team]));
+  return`<section class="panel"><h2>🪄 WAIVER WIRE WINS</h2>${banner('waivers')}<div class="hint">Free-agent and waiver pickups ranked by points scored <b>as a starter for the team that added him</b>, until he was dropped or traded. The flip side of Worst Drops.</div>
+   <h3>THIS SEASON (${cs})</h3>${now.length?now.map((x,i)=>wwItem(x,i,curN[x.uid])).join(''):'<div class="hint">No pickup has started a game yet.</div>'}<h3>ALL-TIME</h3>${at.map((x,i)=>wwItem(x,i,curN[x.uid])).join('')}</section>`}
+// ---- 2) ROSTER AGE & WINDOW (value-weighted age vs total FantasyCalc value) ----
+const WNR={Contender:"Old, loaded and out of excuses. Ring or bust.",Fringe:"Young and dangerous. The window is opening; don't trade it shut.",Purgatory:"Old AND bad. The worst zip code in dynasty.",Rebuild:"Young, cheap and 'two years away'. Every year."};
+function windowData(T,V,tp,lg){const TV=teamValue(T,V,tp,lg),ts=Object.values(T).map(t=>{let vs=0,va=0;t.players.forEach(p=>{const v=V.p[p]||0,a=V.a[p];if(v&&a){vs+=v;va+=v*a}});return{t,age:vs?va/vs:0,val:TV[t.rid].pv,tot:TV[t.rid].tot}});
+  const med=a=>{const x=[...a].sort((p,q)=>p-q);return(x[(x.length-1)>>1]+x[x.length>>1])/2},mA=med(ts.map(x=>x.age)),mV=med(ts.map(x=>x.val));
+  ts.forEach(x=>x.z=x.val>=mV?(x.age>=mA?'Contender':'Fringe'):(x.age>=mA?'Purgatory':'Rebuild'));return{ts,mA,mV}}
+function windowPanel(W,S){const {ts,mA,mV}=W,W0=340,H0=250,pad=26,ax=ts.map(x=>x.age),vv=ts.map(x=>x.val),a0=Math.min(...ax)-0.3,a1=Math.max(...ax)+0.3,v0=Math.min(...vv)*0.92,v1=Math.max(...vv)*1.05;
+  const X=a=>pad+(a-a0)/(a1-a0)*(W0-pad-8),Y=v=>H0-pad-(v-v0)/(v1-v0)*(H0-pad-8),col={Contender:'#ffc72c',Fringe:'#7dff9a',Purgatory:'#ff8a8a',Rebuild:'#8fd3ff'};
+  const miss={};for(const s of S)if(s.done)for(const t of Object.values(s.teams))if(!s.place[t.rid])miss[t.uid]=(miss[t.uid]||0)+1;
+  const perp=ts.filter(x=>(x.z==='Rebuild'||x.z==='Purgatory')&&(miss[x.t.uid]||0)>=3).sort((a,b)=>(miss[b.t.uid]||0)-(miss[a.t.uid]||0));
+  const PR=["{T}: {n} straight-ish seasons of 'next year'. The rebuild has a rebuild.","{T} has missed the playoffs {n} times and is still 'accumulating assets'. For what, the heat death of the universe?","{T}'s window isn't closed. It was bricked over in {n} seasons of tanking."];
+  return`<section class="panel"><h2>⏳ ROSTER AGE &amp; WINDOW</h2>${banner('window')}<div class="hint">X = roster age weighted by FantasyCalc value (older to the right). Y = total player value. Lines split the league at the median, so the quadrants are relative: <b style="color:#ffc72c">Contender</b> (loaded, older), <b style="color:#7dff9a">Fringe</b> (loaded, young: window opening), <b style="color:#ff8a8a">Purgatory</b> (old and thin), <b style="color:#8fd3ff">Rebuild</b> (young and thin).</div>
+   <div class="wnd"><svg viewBox="0 0 ${W0} ${H0}" role="img" aria-label="Roster age vs value scatter"><line x1="${X(mA)}" y1="4" x2="${X(mA)}" y2="${H0-pad}" class="wq"/><line x1="${pad}" y1="${Y(mV)}" x2="${W0-6}" y2="${Y(mV)}" class="wq"/>
+    <text x="${W0-8}" y="14" text-anchor="end" class="wl">CONTENDER</text><text x="${pad+4}" y="14" class="wl">FRINGE</text><text x="${W0-8}" y="${H0-pad-6}" text-anchor="end" class="wl">PURGATORY</text><text x="${pad+4}" y="${H0-pad-6}" class="wl">REBUILD</text>
+    <text x="${W0/2}" y="${H0-6}" text-anchor="middle" class="wa">younger ← age → older</text><text x="10" y="${H0/2}" text-anchor="middle" class="wa" transform="rotate(-90 10 ${H0/2})">value</text>
+    ${(()=>{const L=[],pts=ts.map(x=>[X(x.age),Y(x.val)]);ts.forEach(x=>{const px=X(x.age),py=Y(x.val),w=abbr(x.t.team).length*5.5+2;const C=[[px,py-8,'middle'],[px,py+15,'middle'],[px+8,py+3,'start'],[px-8,py+3,'end'],[px,py-17,'middle'],[px+8,py-8,'start'],[px-8,py-8,'end']];
+     const box=c=>{const x0=c[2]==='middle'?c[0]-w/2:c[2]==='start'?c[0]:c[0]-w;return[x0,c[1]-8,x0+w,c[1]+1]},ov=(a,b)=>a[0]<b[2]&&b[0]<a[2]&&a[1]<b[3]&&b[1]<a[3];
+     let pick=C[0];for(const c of C){const b=box(c);if(!L.some(q=>ov(q,b))&&!pts.some(([qx,qy])=>ov([qx-5,qy-5,qx+5,qy+5],b))){pick=c;break}}L.push(box(pick));x.lb=pick});return''})()}${ts.map(x=>`<g><circle cx="${X(x.age).toFixed(1)}" cy="${Y(x.val).toFixed(1)}" r="5.5" fill="${col[x.z]}" stroke="#000" stroke-width="1"/><text x="${x.lb[0].toFixed(1)}" y="${x.lb[1].toFixed(1)}" text-anchor="${x.lb[2]}" class="wn">${esc(abbr(x.t.team))}</text></g>`).join('')}</svg></div>
+   <div class="tw"><table class="mini"><thead><tr><th>TEAM</th><th>ZONE</th><th>AGE</th><th>VALUE</th></tr></thead><tbody>${[...ts].sort((a,b)=>b.val-a.val).map(x=>`<tr class="${x.t.wz?'wz':''}"><td class="tm"><a href="#team/${x.t.rid}">${esc(x.t.team)}</a> <small class="mute">${esc(abbr(x.t.team))}</small></td><td style="color:${col[x.z]}">${x.z}</td><td>${x.age.toFixed(1)}</td><td>${int(x.val)}</td></tr>`).join('')}</tbody></table></div>
+   ${perp.length?`<h3>PERPETUAL REBUILDERS</h3>${perp.slice(0,3).map(x=>`<div class="rl">${esc(pickOf(PR,'pr'+x.t.uid).replace(/\{T\}/g,x.t.team).replace(/\{n\}/g,miss[x.t.uid]))}</div>`).join('')}`:''}
+   <div class="hint">${Object.keys(WNR).map(z=>`<b style="color:${col[z]}">${z}:</b> ${WNR[z]}`).join(' ')}</div></section>`}
+// ---- 3) POSITIONAL STRENGTH (value by position, ranked 1-12) ----
+function posData(T,V,P){const ts=Object.values(T),m={};ts.forEach(t=>{m[t.rid]={QB:0,RB:0,WR:0,TE:0};t.players.forEach(p=>{const pos=((P[p]||{}).p||[])[0];if(m[t.rid][pos]!=null)m[t.rid][pos]+=V.p[p]||0})});
+  const rk={};POS4.forEach(pos=>{[...ts].sort((a,b)=>m[b.rid][pos]-m[a.rid][pos]).forEach((t,i)=>{(rk[t.rid]=rk[t.rid]||{})[pos]=i+1})});return{m,rk}}
+function posPanel(T,PD){const n=Object.keys(T).length,{m,rk}=PD,heat=r=>{const f=(r-1)/Math.max(1,n-1);const h=Math.round(130-130*f);return`hsl(${h},70%,${28+8*(1-Math.abs(f-.5)*2)}%)`};
+  const ts=Object.values(T).sort((a,b)=>POS4.reduce((x,p)=>x+rk[a.rid][p],0)-POS4.reduce((x,p)=>x+rk[b.rid][p],0));
+  return`<section class="panel"><h2>🧩 POSITIONAL STRENGTH</h2>${banner('posgrid')}<div class="hint">Each team's rank (1 = best of ${n}) by total FantasyCalc superflex value at each position. 🔥 = surplus (top 2), 🆘 = starving (bottom 2). Surplus meets starving? That's a trade: see the <a href="#fleece">Fleece Factory</a>.</div>
+   <div class="tw"><table class="pgrid"><thead><tr><th>TEAM</th>${POS4.map(p=>`<th>${p}</th>`).join('')}</tr></thead><tbody>${ts.map(t=>`<tr class="${t.wz?'wz':''}"><td class="tm"><a href="#team/${t.rid}">${esc(t.team)}</a></td>${POS4.map(p=>{const r=rk[t.rid][p];return`<td style="background:${heat(r)}" title="${int(m[t.rid][p])}">${r}${r<=2?' 🔥':r>=n-1?' 🆘':''}</td>`}).join('')}</tr>`).join('')}</tbody></table></div></section>`}
+// ---- 4) DRAFT PICK INVENTORY (next two rookie drafts, rounds 1-3) ----
+function pickInv(T,tp,lg){const y0=+lg.season+1,ys=[y0,y0+1],own={};Object.values(T).forEach(t=>own[t.rid]=[]);
+  ys.forEach(y=>[1,2,3].forEach(r=>Object.values(T).forEach(t=>{const tr=(tp||[]).find(x=>+x.season===y&&+x.round===r&&x.roster_id===t.rid);const o=tr?tr.owner_id:t.rid;if(own[o])own[o].push({y,r,orig:t.rid})})));return{ys,own}}
+function projSlots(T,lg){const pt=+lg.settings.playoff_teams||6,seeds=Object.values(T).sort((a,b)=>b.w-a.w||b.pf-a.pf),po=seeds.slice(0,pt),non=seeds.slice(pt).sort((a,b)=>a.max-b.max);const o={};[...non,...po.reverse()].forEach((t,i)=>o[t.rid]=i+1);return o}
+function picksPanel(T,tp,lg){const {ys,own}=pickInv(T,tp,lg),sl=projSlots(T,lg),ts=Object.values(T);
+  const cnt=t=>own[t.rid].length,firsts=t=>own[t.rid].filter(p=>p.r===1).length,sorted=[...ts].sort((a,b)=>firsts(b)-firsts(a)||cnt(b)-cnt(a));
+  const hoard=sorted[0],farm=sorted[sorted.length-1];
+  const cell=(t,y,r)=>{const L=own[t.rid].filter(p=>p.y===y&&p.r===r);if(!L.length)return'<td class="pk0">–</td>';
+    return`<td class="pk">${L.map(p=>p.orig===t.rid?(y===ys[0]&&r===1?`1.${String(sl[p.orig]).padStart(2,'0')}`:'own'):`<span class="via" title="via ${esc(T[p.orig].team)}">${y===ys[0]&&r===1?`1.${String(sl[p.orig]).padStart(2,'0')}`:esc(abbr(T[p.orig].team))}</span>`).join('<br>')}</td>`};
+  return`<section class="panel"><h2>🎟️ DRAFT PICK INVENTORY</h2>${banner('picks')}<div class="hint">Who owns the ${ys[0]} and ${ys[1]} 1sts, 2nds and 3rds, from Sleeper's traded picks. "own" = their own pick; <b style="color:#ffc72c">gold</b> = acquired (shows the original team). ${ys[0]} 1sts show a <b>projected slot</b> from today's order (non-playoff teams by lowest max PF, then playoff teams by seed).</div>
+   <div class="tw"><table class="pinv"><thead><tr><th>TEAM</th>${ys.map(y=>[1,2,3].map(r=>`<th>${String(y).slice(2)} R${r}</th>`).join('')).join('')}<th>#</th></tr></thead><tbody>${sorted.map(t=>`<tr class="${t.wz?'wz':''}"><td class="tm"><a href="#team/${t.rid}">${esc(t.team)}</a></td>${ys.map(y=>[1,2,3].map(r=>cell(t,y,r)).join('')).join('')}<td><b>${cnt(t)}</b></td></tr>`).join('')}</tbody></table></div>
+   <div class="rl">🐿️ <b>${esc(hoard.team)}</b> is hoarding: ${firsts(hoard)} firsts, ${cnt(hoard)} picks in rounds 1-3. ${firsts(hoard)>=3?'Draft-pick dragon sitting on a pile of gold.':'Squirrel energy.'}</div>
+   <div class="rl">🚜 <b>${esc(farm.team)}</b> sold the farm: ${firsts(farm)} first${firsts(farm)===1?'':'s'}, ${cnt(farm)} picks total. ${firsts(farm)===0?'All in. The future is a rumor.':'Living for today.'}</div></section>`}
+// ---- 5) HEAD-TO-HEAD GRID (all-time, keyed on owner id; tap a cell for details) ----
+function h2hData(S){const G=games(S,{all:true}),h={};G.forEach(g=>{if(g.po)return;for(const [x,y] of [[g.a,g.b],[g.b,g.a]]){const k=x.uid+'|'+y.uid,r=h[k]=h[k]||{w:0,l:0,t:0,pw:0,pl:0,pf:0,pa:0,n:0,last:null};
+    {if(x.p>y.p)r.w++;else if(y.p>x.p)r.l++;else r.t++;r.pf+=x.p;r.pa+=y.p;r.n++}
+    if(!r.last||+g.s>+r.last.s||(+g.s===+r.last.s&&g.week>r.last.week))r.last={s:g.s,week:g.week,p:x.p,o:y.p}}});
+  for(const s of S)for(const [a,b,w] of s.pob||[]){const A=s.teams[a],B=s.teams[b];if(!A||!B)continue;for(const [x,y] of [[A,B],[B,A]]){const k=x.uid+'|'+y.uid,r=h[k]=h[k]||{w:0,l:0,t:0,pw:0,pl:0,pf:0,pa:0,n:0,last:null};if(+w===+x.rid)r.pw++;else r.pl++}}return h}
+function h2hPanel(S,T){const h=h2hData(S),cur=Object.values(T).sort((a,b)=>a.team.localeCompare(b.team));D.h2h={h,T:Object.fromEntries(cur.map(t=>[t.uid,t]))};
+  const bg=r=>{const g=r.w+r.l;if(!g)return'';const f=r.w/g;return`background:hsla(${Math.round(f*130)},70%,38%,${0.25+Math.abs(f-.5)*1.1})`};
+  return`<section class="panel"><h2>🤝 HEAD-TO-HEAD GRID</h2>${banner('h2h')}<div class="hint">Every manager vs every manager, all-time regular season (playoff record in small print), keyed on the Sleeper owner so renamed teams carry their history. Read across: <b>row</b> vs column. Tap a cell for details.</div>
+   <div class="tw h2x"><table><thead><tr><th>vs</th>${cur.map(c=>`<th title="${esc(c.team)}">${esc(abbr(c.team))}</th>`).join('')}</tr></thead><tbody>${cur.map(r=>`<tr><th title="${esc(r.team)}">${esc(r.team)}</th>${cur.map(c=>{if(c===r)return'<td class="x">·</td>';const v=h[r.uid+'|'+c.uid];if(!v)return'<td class="x">–</td>';
+     return`<td data-k="${esc(r.uid+'|'+c.uid)}" style="${bg(v)}">${v.w}-${v.l}${v.pw+v.pl?`<small>${v.pw}-${v.pl}p</small>`:''}</td>`}).join('')}</tr>`).join('')}</tbody></table></div><div id="h2hd" class="h2hd hint">Tap any cell.</div></section>`}
+document.addEventListener('click',e=>{const td=e.target.closest&&e.target.closest('.h2x td[data-k]');if(!td||!D.h2h)return;const k=td.getAttribute('data-k'),[a,b]=k.split('|'),r=D.h2h.h[k],A=D.h2h.T[a],B=D.h2h.T[b],box=document.getElementById('h2hd');if(!r||!box)return;
+  document.querySelectorAll('.h2x td.on').forEach(x=>x.classList.remove('on'));td.classList.add('on');
+  box.innerHTML=`<b>${esc(A.team)}</b> vs <b>${esc(B.team)}</b>: ${r.w}-${r.l}${r.t?'-'+r.t:''} regular season${r.pw+r.pl?`, ${r.pw}-${r.pl} in the playoffs`:''}. Avg score ${fmt(r.n?r.pf/r.n:0)} – ${fmt(r.n?r.pa/r.n:0)}.${r.last?` Last met ${r.last.s} week ${r.last.week}: ${fmt(r.last.p)} – ${fmt(r.last.o)}.`:''} ${r.w-r.l>=3?'Landlord status.':r.l-r.w>=3?'Pays rent every time.':''}`});
+// ---- 6) MANAGER TENDENCIES ----
+function habitsData(S,T){const M={};const g=uid=>M[uid]=M[uid]||{uid,tr:0,ad:0,dr:0,faab:0,bids:0,seasons:new Set()};
+  for(const s of S){const sx=s.season;Object.values(s.teams).forEach(t=>g(t.uid).seasons.add(sx));const u=rid=>(s.teams[rid]||{}).uid||'r'+rid;
+    (s.trades||[]).forEach(t=>t.rids.forEach(r=>g(u(r)).tr++));(s.adds||[]).forEach(([pid,rid,leg,wv,bid])=>{const m=g(u(rid));m.ad++;if(wv){m.faab+=bid;m.bids++}});(s.drops||[]).forEach(d=>g(u(d.rid)).dr++)}
+  const cur=Object.fromEntries(Object.values(T).map(t=>[t.uid,t]));return Object.values(M).filter(m=>cur[m.uid]).map(m=>{const n=m.seasons.size||1;return{...m,t:cur[m.uid],n,tps:m.tr/n,aps:m.ad/n,fps:m.faab/n,churn:(m.ad+m.dr)/n}})}
+function habitsPanel(S,T,lg){const H=habitsData(S,T);if(!H.length)return'';const faab=+lg.settings.waiver_type===2;
+  const top=(f,d)=>[...H].sort((a,b)=>d*(f(b)-f(a)))[0],lab={};const put=(x,l)=>{(lab[x.uid]=lab[x.uid]||[]).push(l)};
+  put(top(x=>x.tps,1),'📞 Trade Addict');put(top(x=>x.churn,1),'🌪️ Churn Machine');if(faab)put(top(x=>x.fps,1),'🐋 FAAB Whale');put(top(x=>x.churn,-1),'👻 Ghost');put(top(x=>x.tps,-1),'🗿 Set and Forget');put(top(x=>x.aps,1),'🦅 Waiver Hawk');
+  const rows=[...H].sort((a,b)=>b.churn-a.churn);
+  return`<section class="panel"><h2>🧠 MANAGER TENDENCIES</h2>${banner('habits')}<div class="hint">Per-season averages since each manager joined (${S[0].season}–${S[S.length-1].season}). Moves = waiver + free-agent adds; churn = adds + drops.${faab?' FAAB = average waiver dollars spent per season (budget $'+(+lg.settings.waiver_budget||100)+', but FAAB can be traded, so whales go past it).':''}</div>
+   <div class="chips">${Object.entries(lab).map(([u,l])=>`<span class="chip"><b>${l.join(' · ')}</b> ${esc(H.find(x=>x.uid===u).t.team)}</span>`).join('')}</div>
+   <div class="tw"><table class="mini hab"><thead><tr><th>MANAGER</th><th>TRADES</th><th>ADDS</th>${faab?'<th>FAAB</th>':''}<th>CHURN</th></tr></thead><tbody>${rows.map(x=>`<tr class="${x.t.wz?'wz':''}"><td class="tm"><a href="#team/${x.t.rid}">${esc(x.t.team)}</a><span class="ow">@${esc(x.t.owner)} · ${x.n} season${x.n>1?'s':''}</span>${lab[x.uid]?`<span class="ow">${lab[x.uid].join(' · ')}</span>`:''}</td><td>${x.tps.toFixed(1)}</td><td>${x.aps.toFixed(1)}</td>${faab?`<td>$${Math.round(x.fps)}</td>`:''}<td>${x.churn.toFixed(1)}</td></tr>`).join('')}</tbody></table></div></section>`}
+// ---- placements ----
+// Teams: League Overview (window, positional strength, pick inventory) above the team list, lazy-filled after the list renders
+{const _tm=R.teams;R.teams=async el=>{await _tm(el);const c=await current();const box=document.createElement('div');box.innerHTML=`<section class="panel">${SPIN('Appraising every roster…')}</section>`;el.insertBefore(box,el.firstChild);
+  (async()=>{const V=await values();const ros=[...new Set(Object.values(c.T).flatMap(t=>t.players||[]))];const P=await playersFor(ros);const S=await all().catch(()=>[]);
+    box.innerHTML=windowPanel(windowData(c.T,V,c.tp,c.lg),S)+posPanel(c.T,posData(c.T,V,P))+picksPanel(c.T,c.tp,c.lg)})().catch(e=>{box.innerHTML=`<section class="panel"><div class="hint">League overview unavailable (${esc(e.message||e)}).</div></section>`})}}
+// Trades: Waiver Wire Wins next to Worst Drops (side by side on desktop), then Trade History, then Tendencies
+{const _trd=R.trades;R.trades=async(el,arg)=>{await _trd(el,arg);const [S,c]=await Promise.all([all(),current()]);const d=el.querySelector('section.panel');
+  const pair=document.createElement('div');pair.className='pair';pair.innerHTML=wwPanel(S,c.T);if(d){d.parentNode.insertBefore(pair,d);pair.appendChild(d)}else el.insertBefore(pair,el.firstChild);
+  el.insertAdjacentHTML('beforeend',habitsPanel(S,c.T,c.lg))}}
+// Records: the old inline matrix becomes a full Head-to-Head Grid panel
+{const _rec=R.records;R.records=async el=>{await _rec(el);const [S,c]=await Promise.all([all(),current()]);el.querySelectorAll('.h2h').forEach(x=>{const h=x.previousElementSibling;if(h&&h.tagName==='H3')h.remove();x.remove()});el.insertAdjacentHTML('beforeend',h2hPanel(S,c.T))}}
 // ---- nav: tabs grouped by use (this week · rosters & deals · legacy · fun), home cards in the same order ----
 const NAVG=[['home','recap','power','race','tank'],['teams','fleece','trades','draft'],['history','records','shame'],['arcade']];
 {const by=Object.fromEntries(TABS.map(t=>[t[0],t])),seen=new Set(NAVG.flat()),groups=NAVG.map(g=>g.filter(k=>by[k]).map(k=>by[k]));const extra=TABS.filter(t=>!seen.has(t[0]));if(extra.length)groups[groups.length-1].push(...extra);
