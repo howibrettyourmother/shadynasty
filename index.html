@@ -30,13 +30,13 @@ body{margin:0;color:var(--ink);font:14px/1.4 -apple-system,BlinkMacSystemFont,"S
 body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
   background:repeating-linear-gradient(90deg,transparent 0 3px,rgba(255,255,255,.012) 3px 4px),radial-gradient(4px 4px at 12% 4%,#fff,transparent),radial-gradient(4px 4px at 18% 3%,#fff,transparent),radial-gradient(4px 4px at 82% 3%,#fff,transparent),radial-gradient(4px 4px at 88% 4%,#fff,transparent);opacity:.9}
 .wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:14px 12px calc(84px + env(safe-area-inset-bottom))}
-/* broadcast header bug */
-  background:linear-gradient(180deg,#fff 0%,#e9eef6 42%,#9aa7bb 52%,#dfe6f0 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 rgba(0,0,0,.6)) drop-shadow(0 0 18px rgba(160,200,255,.25))}
 /* glossy scoreboard panels */
-.panel{position:relative;background:linear-gradient(180deg,rgba(28,36,52,.94),rgba(9,12,19,.96));border:1px solid var(--line);border-radius:12px;padding:14px 12px;margin:28px 0;
+.panel{position:relative;background:linear-gradient(180deg,rgba(34,44,64,.97),rgba(14,18,28,.97));border:1px solid rgba(255,199,44,.20);border-top:3px solid rgba(255,199,44,.65);border-radius:14px;padding:16px 12px 14px;margin:0 0 40px;
   box-shadow:0 14px 34px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.10);overflow:hidden}
 .panel:before{content:"";position:absolute;left:0;right:0;top:0;height:46%;background:linear-gradient(180deg,rgba(255,255,255,.07),transparent);pointer-events:none}
 .panel>*{position:relative}
+#view>*+.panel,#view>.panel:first-child{margin-top:0}#view>.hx{margin-bottom:40px}.panel>h2:first-child{padding-bottom:9px;margin-bottom:10px;box-shadow:0 1px 0 rgba(255,199,44,.18)}
+@media(min-width:760px){.panel{margin-bottom:32px}}
 h2{margin:0 0 12px;font:700 clamp(19px,5.2vw,26px)/1.1 var(--disp);letter-spacing:.04em;text-transform:uppercase;color:#fff;padding-left:10px;border-left:4px solid var(--gold)}
 h3{margin:16px 0 6px;font:700 15px/1.1 var(--disp);letter-spacing:.08em;color:var(--gold);text-transform:uppercase}
 .hint{color:var(--mute);font-size:12px;margin-bottom:8px}
@@ -199,6 +199,6 @@ ol.tbr{list-style:none;padding-left:0}.tb-out{list-style:none;padding:0;margin:0
 <header class="top"><div class="brand"><svg class="shoey" viewBox="0 0 120 96" aria-hidden="true"><use href="#shoey"/></svg><b>SHADYNASTY</b><small>EST. 2021 ·<br>DYNASTY. DEGENERACY. SHOEYS.</small></div><nav id="tabs" aria-label="Sections"></nav></header>
 <main class="wrap" id="view"></main>
 <div class="foot wrap">Auto-built in your browser from the public <a href="https://docs.sleeper.com/" rel="noopener">Sleeper API</a> · values by <a href="https://fantasycalc.com" rel="noopener">FantasyCalc</a> · no humans were harmed, only lineups.</div>
-<script src="roast.js?v=7"></script>
-<script src="app.js?v=20s"></script>
+<script src="roast.js?v=8"></script>
+<script src="app.js?v=32"></script>
 </body></html>

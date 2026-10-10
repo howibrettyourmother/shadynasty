@@ -603,8 +603,8 @@ const TB_TBA='Trophy name TBA by the Commish';
 // What each champ took with the 2.13 (rookie draft the following May), from Sleeper commissioner transactions: Tebow parked on the
 // champ's roster after the season, then a commish add of the rookie on draft day. 2023's champ dropped Tebow himself and no
 // draft-window commish add exists. Brett confirms the pick was used: BigDitka35 grabbed it as a free agent right after the 2024 draft
-// (ended 5/24/24), adding 2024 rookie TEs Jaheim Bell and Cade Stover 24 seconds apart on 5/26/24. Either could be the 2.13.
-const TB_PICK={2021:'8130',2022:'10857',2023:'Cade Stover or Jaheim Bell (the Tebow mixup muddied the records)',2024:'12499',2025:'13278'};
+// (ended 5/24/24). Brett says it was neither of the 5/26/24 FA adds (Jaheim Bell, Cade Stover); he's researching it.
+const TB_PICK={2021:'8130',2022:'10857',2023:'Unsolved mystery (the Tebow mixup ate the records)',2024:'12499',2025:'13278'};
 const tbName=(season,lg)=>{const m=lg&&lg.metadata&&lg.metadata.trophy_loser_banner_text;const v=m||TOILET_BOWL_TROPHY[season];return v&&v!=='TBD'?v:''};
 const TBR={champ:["{T} won the {Y} Toilet Bowl. Best of the worst, and they want a parade for it.","{T}: champion of the losers. The 2.13 is the participation trophy with upside.","{T} ran the table in the bracket nobody watches. Somebody get this man a plunger with a ribbon on it.","{T} won the consolation bracket like it was the Super Bowl. That's the energy we need.","{T}: {Y} Toilet Bowl champ. Peaked in the bracket where the prize is a plaque shaped like a toilet seat."],
  out:["{T} is out of the title hunt. Season over, shoey on deck.","{T} got bounced. Clean out your locker and your browser history.","{T}: eliminated. The dynasty is now a 'dynasty'."],
