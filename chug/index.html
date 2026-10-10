@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>SHADYNASTY SHOEY CHUG</title>
 <meta name="theme-color" content="#0a0604">
-<meta name="description" content="Chug a beer out of a shoe faster than the rest of the SHADYNASTY league. Mash to chug, don't spew.">
+<meta name="description" content="Chug a beer out of a shoe faster than the rest of the SHADYNASTY league. Mash the Chug Zone, pop the burps, dodge the hecklers.">
 <meta property="og:title" content="SHADYNASTY SHOEY CHUG">
 <meta property="og:description" content="Mash to chug. Don't spew. Beat the league. Top 10 times or eternal shame.">
 <meta property="og:type" content="website"><meta property="og:site_name" content="SHADYNASTY">
@@ -92,6 +92,12 @@ ol.lb .t{font:400 22px/1 var(--d);font-variant-numeric:tabular-nums;margin-left:
 .vessel canvas{position:absolute;top:0;left:0;width:100%;height:100%}
 .pct{position:absolute;left:10px;top:10px;font:400 16px/1 var(--d);letter-spacing:.08em;background:rgba(0,0,0,.6);padding:6px 9px;border-radius:8px;z-index:2}
 .combo{position:absolute;left:10px;top:44px;font:400 15px/1 var(--d);letter-spacing:.08em;background:rgba(0,0,0,.6);padding:6px 9px;border-radius:8px;z-index:2;color:#ffe07a}.combo.on{color:#7dff9a}.combo.hot{color:#0d2200;background:#7dff9a}.combo.off{color:#ff9a9a}
+.burp,.trap{position:absolute;left:0;top:0;width:84px;height:84px;border-radius:50%;display:none;z-index:3;pointer-events:none;text-align:center;-webkit-user-select:none;user-select:none}
+.burp.on,.trap.on{display:block;-webkit-animation:pop .18s ease-out;animation:pop .18s ease-out}
+.burp{background:radial-gradient(circle at 35% 30%,#fff 0,#dff6ff 30%,#8fd3ff 75%,#4aa8e8 100%);border:3px solid #fff;box-shadow:0 0 18px rgba(140,210,255,.9);font:400 22px/78px var(--d);color:#0b3a66;letter-spacing:.04em}
+.trap{background:#2a0000;border:3px dashed #ff4d4d;box-shadow:0 0 16px rgba(255,60,60,.8);color:#fff}
+.trap .tf{display:block;font-size:34px;line-height:1;margin-top:9px;font-weight:400}.trap .tf.sm{font-size:26px;margin-top:13px}.trap i{display:block;font:400 11px/1.05 var(--d);font-style:normal;letter-spacing:.05em;color:#ffd0d0;margin-top:3px}
+@-webkit-keyframes pop{0%{-webkit-transform:scale(.3)}70%{-webkit-transform:scale(1.12)}100%{-webkit-transform:scale(1)}}@keyframes pop{0%{transform:scale(.3)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
 .pad{margin:10px 14px calc(12px + var(--sb));height:calc(var(--vh)*13);min-height:74px;border-radius:18px;display:flex;align-items:center;justify-content:center;font:400 40px/1 var(--d);letter-spacing:.08em;color:#1a0f00;background:radial-gradient(ellipse at 50% 30%,#ffe9a0,#f0a000 70%);box-shadow:0 5px 0 #8a5a00,0 0 30px rgba(255,170,0,.4);animation:pulse 1s ease-in-out infinite}
 .pad.hit{transform:translateY(4px) scale(.98);box-shadow:0 1px 0 #8a5a00}
 .pad.lock{background:radial-gradient(ellipse at 50% 30%,#d6ffb0,#6fb800 70%);box-shadow:0 5px 0 #355a00;color:#0d2200}
@@ -124,7 +130,7 @@ ol.lb .t{font:400 22px/1 var(--d);font-variant-numeric:tabular-nums;margin-left:
     <div class="hero"><img id="heroImg" src="img/shoe.webp" alt="A white sneaker overflowing with beer"></div>
     <div class="logo"><div class="k">SHADYNASTY</div><h1>SHOEY<br>CHUG</h1></div>
     <div class="wrap">
-      <p class="tag"><b>Chug ON the beat. Mashers spew.</b> Ride the stomp-stomp-clap, build a streak, drain it in under 15 seconds.</p>
+      <p class="tag"><b>Mash the glowing CHUG ZONE.</b> Pop the burps, dodge the hecklers, drain it in under 15 seconds.</p>
       <button class="who" id="whoBtn"><span><small>Chugging for</small><b id="whoName">Pick your team</b></span><span class="ch">CHANGE ›</span></button>
       <label class="stl" id="stlWrap"><input type="checkbox" id="stlBox">Drink from the glitter stiletto (extra shame)</label>
       <div class="note" id="joeNote" style="display:none">👠 League rules: your team drinks from the stiletto.</div>
@@ -140,7 +146,7 @@ ol.lb .t{font:400 22px/1 var(--d);font-variant-numeric:tabular-nums;margin-left:
     <div class="hud"><div class="clock" id="clock">0.00</div><div class="tm"><small id="vesselLbl">Shoey</small><b id="gTeam"></b></div></div>
     <div class="meter" id="meter"><i id="foamBar"></i><span id="foamTxt">FOAM</span></div>
     <div class="react" id="react"><img id="rA" alt=""><img id="rB" alt=""><div class="cap" id="cap">GET READY</div></div>
-    <div class="vessel" id="vessel"><img id="vImg" src="img/shoe.webp" alt=""><canvas id="gauge"></canvas><div class="pct" id="pct">BEER 100%</div><div class="combo" id="combo">TAP ON THE BEAT</div></div>
+    <div class="vessel" id="vessel"><img id="vImg" src="img/shoe.webp" alt=""><canvas id="gauge"></canvas><div class="pct" id="pct">BEER 100%</div><div class="combo" id="combo">CHASE THE ZONE</div><div class="burp" id="burp"></div><div class="trap" id="trap"></div></div>
     <div class="pad" id="pad">MASH TO CHUG</div>
   </div>
   <div class="count" id="count">3</div>
@@ -170,15 +176,15 @@ ol.lb .t{font:400 22px/1 var(--d);font-variant-numeric:tabular-nums;margin-left:
   <div id="lbBody"><div class="hint">Loading…</div></div><button class="btn alt" data-close>CLOSE</button><div style="height:calc(20px + var(--sb))"></div></div></div>
 <div class="sheet" id="howSheet"><div class="wrap scroll" style="flex:1"><h2>HOW TO SHOEY</h2>
   <div class="roast" style="border-color:var(--gold);font-weight:500">
-  <p style="margin-top:0"><b>Chug ON the beat. Mashers spew.</b></p>
-  <p>1. Tap <b>SHOEY UP</b>. The crowd stomps a 4-count first: tap along with it (that tunes the timing to your phone).</p>
-  <p>2. Tap once per beat, when the gold ring closes onto the shoe. On-beat taps are big gulps with barely any foam.</p>
-  <p>3. Chain them: 5 in a row = <b>BIG GULPS</b>, 10 = <b>CHUG STREAK</b>. Miss a beat or tap between beats and the streak dies.</p>
-  <p>4. Off-beat taps are tiny sips and pile on foam. Max the <b>FOAM</b> and you <b>SPEW</b>: +1.5s, a gag break and beer back in the shoe.</p>
-  <p style="margin-bottom:0">5. The beat speeds up from 100 to 150 BPM. Drain it under 15 seconds or it's a DNF. Top 10 times make the board.</p></div>
+  <p style="margin-top:0"><b>Smash the CHUG ZONE. Don't touch the hecklers.</b></p>
+  <p>1. Tap <b>SHOEY UP</b>, wait for 3-2-1, then mash. Taps inside the glowing gold <b>CHUG ZONE</b> are big gulps with barely any foam.</p>
+  <p>2. The zone drifts and jumps around the shoe, faster as you go. Taps outside it are tiny sips that pile on foam. Max the <b>FOAM</b> and you <b>SPEW</b>: +1.5s and beer back in the shoe.</p>
+  <p>3. <b>BURP!</b> bubbles pop up every few seconds. Until you tap one, you drink at half speed and foam builds. Tap it fast for a bonus gulp. Ignore it for 2s and a forced burp costs 0.5s.</p>
+  <p>4. <b>Heckler traps</b> (Joe, a ref's yellow flag, Commish calling, Boss calling) flash near the zone for a second. Tap one and you spew instantly.</p>
+  <p style="margin-bottom:0">5. Drain it under 15 seconds or it's a DNF. Top 10 times make the board.</p></div>
   <button class="btn" data-close>GOT IT</button><div style="height:calc(20px + var(--sb))"></div></div></div>
 <canvas id="fx"></canvas><div id="flash"></div><div class="toast" id="toast"></div>
-<script src="roasts.js?v=2"></script>
-<script src="game.js?v=4"></script>
+<script src="roasts.js?v=3"></script>
+<script src="game.js?v=5"></script>
 </body>
 </html>

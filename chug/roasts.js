@@ -119,21 +119,53 @@ DNF:[
 "Beer 1, {T} 0. Sad as hell.",
 "Can't finish a beer, can't finish a season. Consistent, at least."
 ],
-OFFBEAT:[
-"{T} has worse rhythm than a holder on a botched field goal snap.",
-"The whole stadium was stomping in time and you were tapping like a false start every play.",
-"Off beat the entire shoey. You chug like your O-line pass blocks: late and confused.",
-"The beat was right there, {T}. You missed it like a wide-open receiver.",
-"Stomp, stomp, clap, and somehow {T} found the one count nobody was using.",
-"Your timing is as bad as your trade timing: always a week late.",
-"Zero rhythm. You'd jump offsides in a walkthrough."
+ZONEMISS:[
+"{T} missed the Chug Zone more than a kicker in a blizzard.",
+"The zone was glowing, {T}. Glowing. You still tapped everywhere but there.",
+"You chased that zone like your waiver claims: always one step behind.",
+"Hand-eye coordination of a punter trying to tackle.",
+"{T} spent the whole shoey poking the shoe like it owed him money. Wrong spot, every time.",
+"The zone moved. You did not. Kind of like your roster."
 ],
-ONBEAT:[
-"On beat the whole way. Shame your lineup decisions never had that kind of timing.",
-"{T} rode the stomp-clap like a pro. Rhythm of a drumline, roster of a JV squad.",
-"Locked into the beat. First thing {T} has timed right since the startup draft.",
-"Smooth chug, great rhythm, still a bum. The beat can't fix your RB room."
+ZONEHIT:[
+"Lived in the Chug Zone. Shame your lineup never finds the end zone like that.",
+"{T} tracked that zone like a ballhawk safety. Roster still a bum though.",
+"Locked onto the zone. First thing {T} has hit all season.",
+"Great finger, great aim, still a bum. The zone can't fix your RB room."
 ],
+BURP:[
+"{T} sat there ignoring a burp like it was a trade offer from Joe.",
+"Forced burp. The whole bar felt that one in their sternum.",
+"That burp had more air under it than your playoff hopes.",
+"You let the burp build for two full seconds. Pressure management of a rookie QB.",
+"Missed the burp, then the burp found you. Sounded like a tuba falling down stairs."
+],
+TRAP:{
+joe:[
+"You tapped Joe's face. Even his face is a trap. Spew, obviously.",
+"Poked the Joe and got Joe'd. That's what happens when you touch the rebuild.",
+"{T} hit the Joe and instantly felt the rebuild in his throat."
+],
+flag:[
+"Tapped the yellow flag. Penalty on {T}: illegal use of the mouth. Spew, 1.5 seconds.",
+"You touched the flag mid-chug. Holding, number shoey, offense. Repeat the beer.",
+"Flag on the play. Chugging while stupid. Spew."
+],
+commish:[
+"You picked up for the commish mid-shoey. The commish heard you spew. Everyone heard you spew.",
+"Answered the Commish call. He was calling to say you're a clown. Confirmed live.",
+"Commish calling, and {T} picked up like it was a trade accepted alert. Spew."
+],
+boss:[
+"Took a call from the boss mid-chug. Career and beer, both all over your shirt.",
+"Boss calling and {T} answered with a mouthful of foam. Great look.",
+"You answered the boss with a shoey in your mouth. HR has questions."
+],
+any:[
+"It said DON'T TAP. {T} tapped. That's the whole season in one move.",
+"Heckler trap, {T}. You walked right into it like a pick six."
+]
+},
 // Stiletto bank. Lines matching /Joe|rebuild|tank/i are only used for Joe's team.
 J:[
 "{T} chugging out of a glitter stiletto is still the best move this franchise made all year.",
