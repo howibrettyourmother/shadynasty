@@ -602,8 +602,9 @@ const TOILET_BOWL_TROPHY={2021:'THE APPLEBEES SUPPLEMENTAL DRAFT PICK BONER BOWL
 const TB_TBA='Trophy name TBA by the Commish';
 // What each champ took with the 2.13 (rookie draft the following May), from Sleeper commissioner transactions: Tebow parked on the
 // champ's roster after the season, then a commish add of the rookie on draft day. 2023's champ dropped Tebow himself and no
-// draft-window commish add exists, so that one is unconfirmed.
-const TB_PICK={2021:'8130',2022:'10857',2024:'12499',2025:'13278'};
+// draft-window commish add exists. Brett confirms the pick was used: BigDitka35 grabbed it as a free agent right after the 2024 draft
+// (ended 5/24/24), adding 2024 rookie TEs Jaheim Bell and Cade Stover 24 seconds apart on 5/26/24. Either could be the 2.13.
+const TB_PICK={2021:'8130',2022:'10857',2023:'Cade Stover or Jaheim Bell (the Tebow mixup muddied the records)',2024:'12499',2025:'13278'};
 const tbName=(season,lg)=>{const m=lg&&lg.metadata&&lg.metadata.trophy_loser_banner_text;const v=m||TOILET_BOWL_TROPHY[season];return v&&v!=='TBD'?v:''};
 const TBR={champ:["{T} won the {Y} Toilet Bowl. Best of the worst, and they want a parade for it.","{T}: champion of the losers. The 2.13 is the participation trophy with upside.","{T} ran the table in the bracket nobody watches. Somebody get this man a plunger with a ribbon on it.","{T} won the consolation bracket like it was the Super Bowl. That's the energy we need.","{T}: {Y} Toilet Bowl champ. Peaked in the bracket where the prize is a plaque shaped like a toilet seat."],
  out:["{T} is out of the title hunt. Season over, shoey on deck.","{T} got bounced. Clean out your locker and your browser history.","{T}: eliminated. The dynasty is now a 'dynasty'."],
@@ -642,10 +643,10 @@ function tbTeaser(lg,T,pt){const seeds=Object.values(T).sort((a,b)=>b.w-a.w||b.p
 async function tbHall(T){const L=(await chain()).filter(l=>l.status==='complete').sort((a,b)=>a.season-b.season);const cur=Object.fromEntries(Object.values(T).map(t=>[t.uid,t]));
   const rows=await Promise.all(L.map(async l=>{const [lb,u,r]=await Promise.all([jc('league/'+l.league_id+'/losers_bracket').catch(()=>[]),jc('league/'+l.league_id+'/users'),jc('league/'+l.league_id+'/rosters')]);
     const f=(lb||[]).find(m=>m.p===1&&m.w);if(!f)return null;const tm=teamsOf(u,r)[f.w];if(!tm)return null;return{season:l.season,name:tbName(l.season,l),tm,now:cur[tm.uid],pick:TB_PICK[l.season]}}));
-  const H=rows.filter(Boolean).reverse();if(!H.length)return'';const ids=H.map(h=>h.pick).filter(p=>p&&!PL[p]);if(ids.length)Object.assign(PL,await playersFor(ids));
+  const H=rows.filter(Boolean).reverse();if(!H.length)return'';const ids=H.map(h=>h.pick).filter(p=>p&&/^\d+$/.test(p)&&!PL[p]);if(ids.length)Object.assign(PL,await playersFor(ids));
   return`<section class="panel tbowl"><h2>🚽 TOILET BOWL HALL OF FAME</h2><div class="hint">Champions of the bracket nobody watches. Each one earned the supplemental 2.13 in the next rookie draft (Sleeper can't do one-off picks, so the Commish parks Tim Tebow on their roster and swaps in the rookie on draft day). Trophy names straight from the Commish's Sleeper trophies.</div>
    ${H.map(h=>`<div class="tbh"><div class="tb-ban">${esc(h.name||TB_TBA)}</div><div class="tbh-b">${h.tm.av?`<img class="av" src="${esc(h.tm.av)}" alt="" referrerpolicy="no-referrer">`:''}<div><b class="gold">${h.season}</b> · <a href="#team/${(h.now||h.tm).rid}">${esc((h.now||h.tm).team)}</a> <small>@${esc(h.tm.owner)} · ${h.tm.w}-${h.tm.l} regular season</small>
-     <div class="tbh-p">2.13 (${+h.season+1}): ${h.pick?`<b>${pn(h.pick)}</b>`:'<i>unconfirmed</i>'} · <a href="#race/${h.season}">bracket</a></div></div></div><div class="rl">${esc(TBR.champ[(+h.season)%TBR.champ.length].replace(/\{T\}/g,(h.now||h.tm).team).replace(/\{Y\}/g,h.season))}</div></div>`).join('')}</section>`}
+     <div class="tbh-p">2.13 (${+h.season+1}): ${h.pick?`<b>${/^\d+$/.test(h.pick)?pn(h.pick):esc(h.pick)}</b>`:'<i>unconfirmed</i>'} · <a href="#race/${h.season}">bracket</a></div></div></div><div class="rl">${esc(TBR.champ[(+h.season)%TBR.champ.length].replace(/\{T\}/g,(h.now||h.tm).team).replace(/\{Y\}/g,h.season))}</div></div>`).join('')}</section>`}
 {const _dr=R.draft;R.draft=async el=>{const lb=await j('league/'+LEAGUE+'/losers_bracket').catch(()=>[]);const f=(lb||[]).find(m=>m.p===1&&m.w);D.tbChamp=f?f.w:null;return _dr(el)}}
 {const _h2=R.history;R.history=async el=>{await _h2(el);const c=await current();const box=document.createElement('div');el.appendChild(box);
   tbHall(c.T).then(h=>{box.innerHTML=h}).catch(()=>{})}}
