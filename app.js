@@ -247,14 +247,17 @@ R.shame=async el=>{el.innerHTML=`<section class="panel">${SPIN('Pouring the shoe
    <h3>WORST TRADES OF ALL TIME</h3>${ugly.map((t,i)=>tradeCard(t,'dis',i+1)).join('')}
    <h3>WORST DROPS OF ALL TIME</h3>${dropsList(S,V).slice(0,10).map((d,i)=>dropItem(d,i)).join('')}
    <h3>LAST-PLACE FINISHES</h3><ol class="rec sh">${lasts.map(x=>`<li>${badge}<div><b>${x.s}</b> ${esc(x.t.team)}${tag(x.t)} <small>@${esc(x.t.owner)} · ${x.t.w}-${x.t.l}</small></div></li>`).join('')}</ol></section>`};
-R.arcade=async el=>{el.innerHTML=`<section class="panel arcade"><h2>🕹️ ARCADE</h2>
-  <a class="gcard" href="chug/"><img src="img/th/chug.webp?v=1" width="400" height="250" loading="lazy" decoding="async" alt="A white sneaker overflowing with beer"><span><b>🍺 SHOEY CHUG <i>NEW</i></b><small>Mash to drain a beer out of a sneaker in under 15 seconds. Too fast and you spew on the cheer squad. One unlucky team drinks from the stiletto.</small></span></a>
-  <h3>FASTEST SHOEYS</h3><div id="sclb">${SPIN('Loading chug times…')}</div>
-  <a class="big" href="${GAME}">🎮 MOREHOUSE MORE PROBLEMS<small>Survive Joe's rebuild. Canvas shooter, plays great on iPhone.</small></a>
-  <h3>MO PROBLEMS LEADERBOARD</h3><div id="lb">${SPIN('Loading high scores…')}</div></section>`;
-  const scb=el.querySelector('#sclb');fetch('https://shoey-chug-scores.brettwilson08.workers.dev/scores?board=main&limit=5').then(r=>r.json()).then(d=>{const t=(d.top||[]).slice(0,5);scb.innerHTML=(t.length?`<ol class="rec">${t.map(x=>`<li><b>${(x.ms/1000).toFixed(2)}s</b> ${x.st?'👠 ':''}${esc(x.n)}</li>`).join('')}</ol>`:'<div class="hint">Nobody has chugged yet. Set the time to beat.</div>')+`<a class="ktc" href="chug/">CHUG AND BEAT IT →</a>`}).catch(()=>{scb.innerHTML=`<div class="hint">Chug board is napping. <a href="chug/">Open the game</a>.</div>`});
-  try{const d=await fetch('https://morehouse-scores.brettwilson08.workers.dev/scores?board=main&mode=all&limit=10').then(r=>r.json());el.querySelector('#lb').innerHTML=`<ol class="rec">${(d.top||[]).slice(0,10).map(x=>`<li><b>${int(x.s)}</b> ${esc(x.n)}</li>`).join('')}</ol><a class="ktc" href="${GAME}">PLAY AND BEAT IT →</a>`}
-  catch(e){el.querySelector('#lb').innerHTML=`<div class="hint">Leaderboard is napping. <a href="${GAME}">Open the game</a> to see it.</div>`}};
+R.arcade=async el=>{const MO='https://morehouse-scores.brettwilson08.workers.dev/scores?board=main&mode=all&limit=5',SC='https://shoey-chug-scores.brettwilson08.workers.dev/scores?board=main&limit=5';
+  const card=(href,img,alt,badge,title,blurb,lbT,id,cta)=>`<article class="hl"><a class="hl-im" href="${href}"><img src="img/th/${img}.webp?v=1" width="800" height="500" loading="lazy" decoding="async" alt="${alt}"><i>${badge}</i></a>
+    <div class="hl-b"><h3 class="hl-t"><a href="${href}">${title}</a></h3><p class="hl-p">${blurb}</p><h4>${lbT}</h4><div id="${id}" class="hl-lb">${SPIN('Loading the board…')}</div><a class="ktc play" href="${href}">${cta}</a></div></article>`;
+  el.innerHTML=`<section class="panel arcade"><h2>🕹️ ARCADE</h2><div class="heads">
+  ${card('chug/','chug-800','A white sneaker overflowing with beer','NEW','🍺 SHOEY CHUG','Mash to drain a beer out of a sneaker in under 15 seconds. Too fast and you spew all over the cheer squad. One unlucky team drinks from the stiletto.','FASTEST SHOEYS','sclb','CHUG AND BEAT IT →')}
+  ${card(GAME,'mo-800','Mo Morehouse Mo Problems title screen: a crying cartoon GM and the crowned Wilson Weasels final boss card','CLASSIC','🎮 MO MOREHOUSE MO PROBLEMS','Survival shooter. Blast busts, rejected trades and 4th-round picks, catch rare hope off the waiver wire, then face the final boss: the Wilson Weasels.','MO PROBLEMS HIGH SCORES','molb','SURVIVE THE REBUILD →')}
+  </div></section>`;
+  const nap=(n,h)=>{n.innerHTML=`<div class="hint">Board is napping. <a href="${h}">Open the game</a> to see it.</div>`},ol=(a,f,empty)=>a.length?`<ol class="rec">${a.map(f).join('')}</ol>`:`<div class="hint">${empty}</div>`;
+  const sc=el.querySelector('#sclb'),mo=el.querySelector('#molb'),get=u=>fetch(u).then(r=>{if(!r.ok)throw Error(r.status);return r.json()});
+  get(SC).then(d=>{sc.innerHTML=ol((d.top||[]).slice(0,5),x=>`<li><b>${(x.ms/1000).toFixed(2)}s</b> ${x.st?'👠 ':''}${esc(x.n)}</li>`,'Nobody has chugged yet. Set the time to beat.')}).catch(()=>nap(sc,'chug/'));
+  get(MO).then(d=>{mo.innerHTML=ol((d.top||[]).slice(0,5),x=>`<li><b>${int(x.s)}</b> ${esc(x.n)}</li>`,'No scores yet. Go survive.')}).catch(()=>nap(mo,GAME))};
 // ---------------- router ----------------
 const TABS=[['home','🏠','HOME'],['recap','📰','RECAP'],['power','⚡','POWER'],['teams','👥','TEAMS'],['trades','🔁','TRADES'],['history','🏛️','HISTORY'],['records','📕','RECORDS'],['shame','🍺','SHAME'],['arcade','🕹️','ARCADE']];
 async function route(){const h=(location.hash||'#home').slice(1).split('/'),k=R[h[0]]?h[0]:'home',el=$('#view');
