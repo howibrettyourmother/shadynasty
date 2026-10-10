@@ -93,22 +93,42 @@ function teamValue(T,V,tp,lg){const season=+lg.season,RD=+lg.settings.draft_roun
   for(const k in out)out[k].tot=out[k].pv+out[k].kv;return out}
 // ---------------- pages ----------------
 const R={};
-const HOMECARDS=[['#recap','📰','RECAP','Who owes a shoey this week'],['#power','⚡','POWER RANKINGS','A formula that hates your team'],['#race','🏁','PLAYOFF RACE','Your odds, simulated 3,000 times'],
- ['#tank','🚽','TANK WATCH','The race to be worst on purpose'],['#draft','🎓','DRAFT ROOM','Mock 2027 rookie draft. Joe is on the clock.'],['#teams','👥','TEAMS','Rosters, picks and receipts'],['#fleece','🧶','FLEECE FACTORY','Trades you should send tonight'],
- ['#trades','🔁','TRADES & MOVES','Every deal and every dumb drop'],['#history','🏛️','HISTORY','Champions and cautionary tales'],['#records','📕','RECORD BOOK','Highs, lows and who owns who'],
- ['#shame','🍺','HALL OF SHAME','Frame it. Never forget it.'],['#arcade','🕹️','ARCADE','Mo Morehouse, mo problems']];
+const HOMECARDS=[['#recap','📰','RECAP','Who owes a shoey this week','la1'],['#power','⚡','POWER RANKINGS','A formula that hates your team','sw2'],['#race','🏁','PLAYOFF RACE','Your odds, simulated 3,000 times','sw4'],
+ ['#tank','🚽','TANK WATCH','The race to be worst on purpose','la2'],['#draft','🎓','DRAFT ROOM','Mock 2027 rookie draft. The tank is on the clock.','sw3'],['#teams','👥','TEAMS','Rosters, picks, rivals and receipts','sw1'],['#fleece','🧶','FLEECE FACTORY','Trades you should send tonight','la5'],
+ ['#trades','🔁','TRADES & DROPS','Every deal and every dumb drop','la3'],['#history','🏛️','HISTORY','Champions and cautionary tales','sw5'],['#records','📕','RECORD BOOK','Highs, lows and who owns who','sw6'],
+ ['#shame','🍺','HALL OF SHAME','Frame it. Never forget it.','la4'],['#arcade','🕹️','ARCADE','Mo Morehouse, mo problems','la6']];
+// Per-section banner slots: drop a new image at img/sec/<key>-{720,1200}.webp and set ok:1 to show it at the top of that page.
+const SECIMG={home:{ok:0},recap:{ok:0},power:{ok:0},race:{ok:0},tank:{ok:0},draft:{ok:0},teams:{ok:0},fleece:{ok:0},trades:{ok:0},history:{ok:0},records:{ok:0},shame:{ok:0},arcade:{ok:0}};
+const banner=(k,alt)=>{const x=SECIMG[k];return x&&x.ok?`<figure class="secb"><img src="img/sec/${k}-720.webp" srcset="img/sec/${k}-720.webp 720w, img/sec/${k}-1200.webp 1200w" sizes="(min-width:1000px) 976px, 100vw" width="720" height="405" loading="lazy" decoding="async" alt="${esc(alt||x.alt||'')}"></figure>`:''};
 R.home=async el=>{const {state,lg,T}=await current();const leg=+state.leg||1,last=+lg.settings.last_scored_leg||0,wk=lg.status==='in_season'?Math.max(1,leg):last||1;
-  const M=await j('league/'+LEAGUE+'/matchups/'+wk).catch(()=>[]);const by={};M.forEach(m=>{if(m.matchup_id!=null)(by[m.matchup_id]=by[m.matchup_id]||[]).push(m)});
+  const [M,LM]=await Promise.all([j('league/'+LEAGUE+'/matchups/'+wk).catch(()=>[]),last?jc('league/'+LEAGUE+'/matchups/'+last).catch(()=>[]):[]]);const by={};M.forEach(m=>{if(m.matchup_id!=null)(by[m.matchup_id]=by[m.matchup_id]||[]).push(m)});
   const rows=Object.values(T).sort((a,b)=>b.w-a.w||b.pf-a.pf),pt=+lg.settings.playoff_teams||6;
   const box=g=>{const [a,b]=g.map(m=>({...T[m.roster_id],p:+m.points||0}));if(!a||!b)return'';const lead=a.p===b.p?null:a.p>b.p?a:b;
     const side=x=>`<div class="sb-t${x===lead?' lead':''}"><span class="nm">${x.av?`<img class="av" src="${esc(x.av)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:''}${esc(x.team)}${tag(x)}</span><b>${fmt(x.p)}</b></div>`;
     return`<div class="sb">${side(a)}${side(b)}</div>`};
   const H=await headlines(T,lg);
-  el.innerHTML=`<section class="panel hero"><div class="ticker" id="ticker" aria-live="polite">${H[0]||''}</div></section>
-  <section class="panel"><h2>🏟️ WEEK ${wk} ${last>=wk?'FINAL':'LIVE'}</h2><div class="hint">${last>=wk?'Final scores.':'Live from Sleeper. Refreshes every minute while you watch.'}</div><div class="sbs">${Object.values(by).map(box).join('')||'<div class="hint">No matchups this week.</div>'}</div></section>
+  // live hooks
+  const hk=[],B=x=>`<b>${esc(x)}</b>`,rec=t=>`${t.w}-${t.l}${t.t?'-'+t.t:''}`,lead=rows[0];
+  if(lead)hk.push(['#power','👑','STANDINGS LEADER',lead.team,`${rec(lead)} · ${fmt(lead.pf)} PF. Everyone is chasing ${B(lead.team)}.`,'gold']);
+  const lb={};LM.forEach(m=>m.matchup_id!=null&&(lb[m.matchup_id]=lb[m.matchup_id]||[]).push(m));const G=Object.values(lb).filter(g=>g.length===2).map(([a,b])=>a.points>=b.points?[a,b]:[b,a]).sort((x,y)=>(y[0].points-y[1].points)-(x[0].points-x[1].points));
+  if(G[0]&&T[G[0][0].roster_id]&&T[G[0][1].roster_id]){const [w,l]=G[0];hk.push(['#recap/'+last,'💥',`WEEK ${last} BLOWOUT`,`+${fmt(w.points-l.points)}`,`${B(T[w.roster_id].team)} ${fmt(w.points)}, ${B(T[l.roster_id].team)} ${fmt(l.points)}. Thoughts and prayers.`,'red'])}
+  const lo=[...LM].filter(m=>T[m.roster_id]).sort((a,b)=>a.points-b.points)[0];if(lo)hk.push(['#recap/'+last,'🥾',`WEEK ${last} WORST SCORE`,fmt(lo.points),`${B(T[lo.roster_id].team)} owes the league a shoey.`,'red']);
+  const tk=rows.slice(pt).sort((a,b)=>a.max-b.max)[0];if(tk)hk.push(['#tank','🚽','TANK WATCH LEADER',tk.team,`Lowest max PF outside the playoff spots (${fmt(tk.max)}). Pole position for the 1.01.`,'pink']);
+  const ins=rows[pt-1],out=rows[pt];if(ins&&out){const gb=ins.w-out.w;hk.push(['#race','🏁','PLAYOFF BUBBLE',`#${pt} vs #${pt+1}`,`${B(ins.team)} (${rec(ins)}) holds the last spot. ${B(out.team)} (${rec(out)}) is ${gb>0?gb+' game'+(gb>1?'s':'')+' back':'tied and lurking'}.`,''])}
+  hk.push(['#trades','🗑️','WORST DROP OF ALL TIME','<span id="hk-drop-p">Digging…</span>','<span id="hk-drop-l">Loading the crime scene from every season since 2021…</span>','red',1]);
+  const hook=([h,i,t,v,l,c,raw])=>`<a class="hook ${c}" href="${h}"><span class="hk-t">${i} ${t}</span><span class="hk-v">${raw?v:esc(v)}</span><span class="hk-l">${l}</span></a>`;
+  el.innerHTML=`<section class="hx"><img class="hx-i" src="img/hero-720.webp" srcset="img/hero-720.webp 720w, img/hero-1200.webp 1200w" sizes="(min-width:1000px) 1000px, 100vw" width="1200" height="675" alt="Cheer squad celebrating on the field under the stadium lights" fetchpriority="high" decoding="async">
+   <div class="hc"><svg class="shoey hx-s" viewBox="0 0 120 96" aria-hidden="true"><use href="#shoey"/></svg><h1 class="hx-h">SHADYNASTY</h1><div class="hx-t">Est. 2021 · Dynasty. Degeneracy. Shoeys.</div>
+   <div class="hx-k"><div class="ticker" id="ticker" aria-live="polite">${H[0]||''}</div></div>
+   <div class="hx-c"><a href="#recap">📰 Week ${last||wk} roast</a><a href="#race">🏁 Playoff odds</a><a href="#shame">🍺 Hall of Shame</a></div></div></section>
+  <section class="panel"><h2>🔥 THE BIG STORIES</h2><div class="hooks">${hk.map(hook).join('')}</div></section>
+  <section class="panel"><h2>🗺️ PICK YOUR POISON</h2><div class="cards">${HOMECARDS.map(([h,i,n,t,im])=>`<a class="card" href="${h}"><span class="cth"><img src="img/th/${im}.webp" width="400" height="250" loading="lazy" decoding="async" alt="${im[0]==='s'?'Cheerleaders cheering':'Cheerleaders pointing and laughing'}"><span class="ci">${i}</span></span><span class="cb"><b>${n}</b><small>${t}</small></span></a>`).join('')}</div></section>
   <section class="panel"><h2>📋 STANDINGS</h2><div class="tw"><table><thead><tr><th>#</th><th>TEAM</th><th>W-L</th><th>PF</th><th class="hs">PA</th><th class="hs">MAX PF</th></tr></thead><tbody>
-  ${rows.map((t,i)=>`<tr class="${i<pt?'po':''}${t.wz?' wz':''}"><td>${i+1}</td><td class="tm"><a href="#team/${t.rid}">${esc(t.team)}</a>${tag(t)}<span class="ow">@${esc(t.owner)}</span></td><td>${t.w}-${t.l}${t.t?'-'+t.t:''}</td><td>${fmt(t.pf)}</td><td class="hs">${fmt(t.pa)}</td><td class="hs">${fmt(t.max)}</td></tr>`).join('')}</tbody></table></div><div class="hint">Top ${pt} make the playoffs (highlighted).</div></section>
-  <section class="panel"><h2>🗺️ EVERYTHING ELSE</h2><div class="cards">${HOMECARDS.map(([h,i,n,t])=>`<a class="card" href="${h}"><span class="ci">${i}</span><b>${n}</b><small>${t}</small></a>`).join('')}</div></section>`;
+  ${rows.map((t,i)=>`<tr class="${i<pt?'po':''}"><td>${i+1}</td><td class="tm"><a href="#team/${t.rid}">${esc(t.team)}</a>${tag(t)}<span class="ow">@${esc(t.owner)}</span></td><td>${rec(t)}</td><td>${fmt(t.pf)}</td><td class="hs">${fmt(t.pa)}</td><td class="hs">${fmt(t.max)}</td></tr>`).join('')}</tbody></table></div><div class="hint">Top ${pt} make the playoffs (highlighted).</div></section>
+  <section class="panel"><h2>🏟️ WEEK ${wk} ${last>=wk?'FINAL':'LIVE'}</h2><div class="hint">${last>=wk?'Final scores.':'Live from Sleeper. Refreshes every minute while you watch.'}</div><div class="sbs">${Object.values(by).map(box).join('')||'<div class="hint">No matchups this week.</div>'}</div></section>`;
+  const dp=el.querySelector('#hk-drop-p'),dl=el.querySelector('#hk-drop-l');
+  Promise.all([all(),values()]).then(([S,V])=>{const d=dropsList(S,V)[0];if(!d||!dp)return;
+    dp.textContent=(PL[d.pid]||{}).n||'Player '+d.pid;dl.innerHTML=`${B(d.team)} cut him in ${d.season}. ${fmt(d.pts)} starter pts for other teams since${d.to?` (mostly ${esc(d.to)})`:''}. Hold your nose.`}).catch(()=>{if(dl)dl.textContent='The evidence is loading slowly. Tap for the full list.'});
   let i=0;clearInterval(R.tick);R.tick=setInterval(()=>{const t=$('#ticker');if(!t){clearInterval(R.tick);return}const HH=H.concat(R.facts||[]);i=(i+1)%HH.length;t.classList.remove('in');void t.offsetWidth;t.innerHTML=HH[i];t.classList.add('in')},6000);
   clearTimeout(R.live);if(last<wk&&location.hash.replace('#','')in{'':1,home:1})R.live=setTimeout(()=>{if((location.hash||'#home')==='#home'&&!document.hidden)route()},60000)};
 async function headlines(T,lg){const last=+lg.settings.last_scored_leg||0,out=[],v=(s,x)=>s.replace(/\{(\w+)\}/g,(m,k)=>x[k]!=null?`<b>${esc(x[k])}</b>`:m),J=(Object.values(T).find(t=>t.joe)||{}).team||'Joe';

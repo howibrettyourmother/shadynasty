@@ -6,7 +6,7 @@ A static, zero-upkeep league site for the SHADYNASTY dynasty league. Everything 
 [Sleeper API](https://docs.sleeper.com/) (walking `previous_league_id` back to 2021) plus dynasty superflex values from
 [FantasyCalc](https://fantasycalc.com). No backend, no AI at runtime, no manual data entry.
 
-Tabs: Home (live scores, standings, rotating headlines + all-time facts) · Recap (seeded roast recap + weekly awards) · Power
+Tabs: Home (hero + rotating roast headline, live hooks: leader, blowout, worst score, Tank Watch leader, playoff bubble, worst drop ever; image card grid; standings; live scores) · Recap (seeded roast recap + weekly awards) · Power
 (formula rankings + dynasty team value, KTC link) · Race (Monte Carlo playoff / #1 seed odds, luck, schedule, bench, boom/bust) ·
 Teams (roster with values, picks owned, all-time record, trades) · Fleece Factory (value-balanced trade ideas) · Trades (every trade,
 points since + current value) · History (champions, final standings, all-time table) · Records (scores, blowouts, streaks, H2H) ·
