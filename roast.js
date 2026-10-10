@@ -236,7 +236,8 @@ function renderRecap(lg,rows,D){
   const opp=t=>{const g=games.find(g=>g.w===t||g.l===t);return g?(g.w===t?g.l:g.w):null};
   const N=all.length-1,J=(rows.find(r=>r.joe)||{}).team||'Joe';
   const V=(t,x)=>Object.assign({T:t.team,s:f1(t.pts),O:opp(t)?opp(t).team:'',os:opp(t)?f1(opp(t).pts):'',B:f1(t.bench),k:t.beat,x:N-t.beat,J},x||{});
-  const photo=(kind,cap)=>`<figure class="rphoto ${kind}"><img src="img/cheer-${kind}-360.webp" srcset="img/cheer-${kind}-360.webp 360w, img/cheer-${kind}-600.webp 600w" sizes="(min-width:760px) 300px, 46vw" width="360" height="${kind==='laugh'?163:169}" loading="lazy" decoding="async" alt="${kind==='laugh'?'Cheerleaders pointing and laughing':'Cheerleaders celebrating the Wilson Weasels'}"><figcaption>${cap}</figcaption></figure>`;
+  // section art from app.js: shoey of the week -> trades (laughing), Joe moments -> tank (laughing), high score -> records (amazed)
+  const photo=(kind,cap)=>secImg(/SHOEY/.test(cap)?'trades':kind==='swoon'?'records':'tank',cap,'',kind);
   const award=(ic,title,t,line,ph)=>`<div class="award${ph?' withph':''}"><div class="aw-t">${ic} ${title}</div><div class="aw-n">${esc(t.team)} <span>${line[0]}</span></div><div class="aw-l">${line[1]}</div>${ph||''}</div>`;
   // the laughing squad sits beside the Shoey card and any award Joe "wins"; Weasels awards stay photo-free (they're the best team in the league)
   const jph=t=>t&&t.joe?photo('laugh','JOE AGAIN. THE SQUAD CAN’T BREATHE.'):'';

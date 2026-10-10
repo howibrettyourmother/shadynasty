@@ -81,7 +81,7 @@ function games(S,opt){const out=[];for(const s of S)s.wk.forEach((w,wi)=>{const 
 const SHOEY=(c)=>`<svg class="shoey ${c||''}" viewBox="0 0 120 96" aria-hidden="true"><use href="#shoey"/></svg>`;
 const SPIN=t=>`<div class="spin">${SHOEY('wob')}<div>${esc(t||'Pouring the stats into a shoe…')}</div></div>`;
 const tag=t=>'';   // no team labels (too repetitive)
-const photo=(kind,cap,cls)=>`<figure class="rphoto ${kind} ${cls||''}"><img src="img/cheer-${kind}-360.webp" srcset="img/cheer-${kind}-360.webp 360w, img/cheer-${kind}-600.webp 600w" sizes="(min-width:760px) 300px, 92vw" width="360" height="${kind==='laugh'?163:169}" loading="lazy" decoding="async" alt="${kind==='laugh'?'Cheerleaders pointing and laughing':'Cheerleaders celebrating'}"><figcaption>${cap}</figcaption></figure>`;
+const photo=(k,cap,cls,kind)=>secImg(k,cap,cls,kind);
 function rng(seed){return seeded(hashStr(String(seed)))}
 const pickOf=(arr,seed)=>arr[Math.floor(rng(seed)()*arr.length)];
 const ktcBtn=`<a class="ktc" href="${KTC}" target="_blank" rel="noopener">📊 KTC League Power Rankings ↗</a>`;
@@ -93,13 +93,29 @@ function teamValue(T,V,tp,lg){const season=+lg.season,RD=+lg.settings.draft_roun
   for(const k in out)out[k].tot=out[k].pv+out[k].kv;return out}
 // ---------------- pages ----------------
 const R={};
-const HOMECARDS=[['#recap','📰','RECAP','Who owes a shoey this week','la1'],['#power','⚡','POWER RANKINGS','A formula that hates your team','sw2'],['#race','🏁','PLAYOFF RACE','Your odds, simulated 3,000 times','sw4'],
- ['#tank','🚽','TANK WATCH','The race to be worst on purpose','la2'],['#draft','🎓','DRAFT ROOM','Mock 2027 rookie draft. The tank is on the clock.','sw3'],['#teams','👥','TEAMS','Rosters, picks, rivals and receipts','sw1'],['#fleece','🧶','FLEECE FACTORY','Trades you should send tonight','la5'],
- ['#trades','🔁','TRADES & DROPS','Every deal and every dumb drop','la3'],['#history','🏛️','HISTORY','Champions and cautionary tales','sw5'],['#records','📕','RECORD BOOK','Highs, lows and who owns who','sw6'],
- ['#shame','🍺','HALL OF SHAME','Frame it. Never forget it.','la4'],['#arcade','🕹️','ARCADE','Mo Morehouse, mo problems','la6']];
-// Per-section banner slots: drop a new image at img/sec/<key>-{720,1200}.webp and set ok:1 to show it at the top of that page.
-const SECIMG={home:{ok:0},recap:{ok:0},power:{ok:0},race:{ok:0},tank:{ok:0},draft:{ok:0},teams:{ok:0},fleece:{ok:0},trades:{ok:0},history:{ok:0},records:{ok:0},shame:{ok:0},arcade:{ok:0}};
-const banner=(k,alt)=>{const x=SECIMG[k];return x&&x.ok?`<figure class="secb"><img src="img/sec/${k}-720.webp" srcset="img/sec/${k}-720.webp 720w, img/sec/${k}-1200.webp 1200w" sizes="(min-width:1000px) 976px, 100vw" width="720" height="405" loading="lazy" decoding="async" alt="${esc(alt||x.alt||'')}"></figure>`:''};
+const HOMECARDS=[['#recap','📰','RECAP','Who owes a shoey this week','recap'],['#power','⚡','POWER RANKINGS','A formula that hates your team','power'],['#race','🏁','PLAYOFF RACE','Your odds, simulated 3,000 times','race'],
+ ['#tank','🚽','TANK WATCH','The race to be worst on purpose','tank'],['#draft','🎓','DRAFT ROOM','Mock 2027 rookie draft. The tank is on the clock.','draft'],['#teams','👥','TEAMS','Rosters, picks, rivals and receipts','teams'],['#fleece','🧶','FLEECE FACTORY','Trades you should send tonight','fleece'],
+ ['#trades','🔁','TRADES & DROPS','Every deal and every dumb drop','trades'],['#history','🏛️','HISTORY','Champions and cautionary tales','history'],['#records','📕','RECORD BOOK','Highs, lows and who owns who','records'],
+ ['#shame','🍺','HALL OF SHAME','Frame it. Never forget it.','shame'],['#arcade','🕹️','ARCADE','Mo Morehouse, mo problems','arcade']];
+// Per-section images: img/sec/<key>-{720,1200}.webp. Banners sit at the top of each page (Power/Draft/Shame show theirs inline with a caption instead).
+const SECIMG={home:{ok:1,alt:'Five cheerleaders in gold and black under stadium lights, one raising a shoey'},
+ recap:{ok:1,alt:'Two fans at a sports bar laughing and pointing at a lopsided scoreboard',mood:'laugh'},
+ power:{ok:1,alt:'Cheerleaders amazed at a player flexing on the field',mood:'swoon'},
+ race:{ok:1,alt:'A woman waving a checkered flag as football helmets race down the track',mood:'swoon'},
+ tank:{ok:1,alt:'Cheerleaders laughing at a football-shaped tank sinking in the mud',mood:'laugh'},
+ draft:{ok:1,alt:'Cheerleaders hyped in front of a glowing draft board',mood:'swoon'},
+ teams:{ok:1,alt:'Ring girls standing between two rival mascots in a boxing ring',mood:'swoon'},
+ fleece:{ok:1,alt:'A sly car-lot dealer leaning on a giant golden football',mood:'swoon'},
+ trades:{ok:1,alt:'Cheerleaders laughing at a man holding a terrible trade slip',mood:'laugh'},
+ history:{ok:1,alt:'A librarian in a toga holding scrolls among old record books',mood:'swoon'},
+ records:{ok:1,alt:'Cheerleaders amazed at a giant glowing scoreboard',mood:'swoon'},
+ shame:{ok:1,alt:'Cheerleaders holding their noses at a moldy football and a burning dumpster',mood:'laugh'},
+ arcade:{ok:1,alt:'Neon arcade cheerleaders playing retro football games, one with a shoey',mood:'swoon'},
+ drops:{ok:1,alt:'Cheerleaders holding their noses at a jersey thrown in the trash',mood:'laugh'}};
+const secSrc=(k,w)=>`img/sec/${k}-${w}.webp`;
+const banner=(k,alt)=>{const x=SECIMG[k];return x&&x.ok?`<figure class="secb"><img src="${secSrc(k,720)}" srcset="${secSrc(k,720)} 720w, ${secSrc(k,1200)} 1200w" sizes="(min-width:1000px) 976px, 100vw" width="720" height="405" loading="lazy" decoding="async" alt="${esc(alt||x.alt||'')}"></figure>`:''};
+// captioned inline photo (used inside cards); kind = caption color ('laugh' red / 'swoon' pink), defaults to the image's mood
+function secImg(k,cap,cls,kind){const x=SECIMG[k]||{};kind=kind||x.mood||'swoon';return`<figure class="rphoto ${kind} ${cls||''}"><img src="${secSrc(k,720)}" srcset="${secSrc(k,720)} 720w, ${secSrc(k,1200)} 1200w" sizes="(min-width:760px) 300px, 92vw" width="720" height="405" loading="lazy" decoding="async" alt="${esc(x.alt||'')}"><figcaption>${cap}</figcaption></figure>`}
 R.home=async el=>{const {state,lg,T}=await current();const leg=+state.leg||1,last=+lg.settings.last_scored_leg||0,wk=lg.status==='in_season'?Math.max(1,leg):last||1;
   const [M,LM]=await Promise.all([j('league/'+LEAGUE+'/matchups/'+wk).catch(()=>[]),last?jc('league/'+LEAGUE+'/matchups/'+last).catch(()=>[]):[]]);const by={};M.forEach(m=>{if(m.matchup_id!=null)(by[m.matchup_id]=by[m.matchup_id]||[]).push(m)});
   const rows=Object.values(T).sort((a,b)=>b.w-a.w||b.pf-a.pf),pt=+lg.settings.playoff_teams||6;
@@ -117,12 +133,12 @@ R.home=async el=>{const {state,lg,T}=await current();const leg=+state.leg||1,las
   const ins=rows[pt-1],out=rows[pt];if(ins&&out){const gb=ins.w-out.w;hk.push(['#race','🏁','PLAYOFF BUBBLE',`#${pt} vs #${pt+1}`,`${B(ins.team)} (${rec(ins)}) holds the last spot. ${B(out.team)} (${rec(out)}) is ${gb>0?gb+' game'+(gb>1?'s':'')+' back':'tied and lurking'}.`,''])}
   hk.push(['#trades','🗑️','WORST DROP OF ALL TIME','<span id="hk-drop-p">Digging…</span>','<span id="hk-drop-l">Loading the crime scene from every season since 2021…</span>','red',1]);
   const hook=([h,i,t,v,l,c,raw])=>`<a class="hook ${c}" href="${h}"><span class="hk-t">${i} ${t}</span><span class="hk-v">${raw?v:esc(v)}</span><span class="hk-l">${l}</span></a>`;
-  el.innerHTML=`<section class="hx"><img class="hx-i" src="img/hero-720.webp" srcset="img/hero-720.webp 720w, img/hero-1200.webp 1200w" sizes="(min-width:1000px) 1000px, 100vw" width="1200" height="675" alt="Cheer squad celebrating on the field under the stadium lights" fetchpriority="high" decoding="async">
+  el.innerHTML=`<section class="hx"><img class="hx-i" src="img/sec/home-720.webp" srcset="img/sec/home-720.webp 720w, img/sec/home-1200.webp 1200w" sizes="(min-width:1000px) 1000px, 100vw" width="1200" height="675" alt="${esc(SECIMG.home.alt)}" fetchpriority="high" decoding="async">
    <div class="hc"><svg class="shoey hx-s" viewBox="0 0 120 96" aria-hidden="true"><use href="#shoey"/></svg><h1 class="hx-h">SHADYNASTY</h1><div class="hx-t">Est. 2021 · Dynasty. Degeneracy. Shoeys.</div>
    <div class="hx-k"><div class="ticker" id="ticker" aria-live="polite">${H[0]||''}</div></div>
    <div class="hx-c"><a href="#recap">📰 Week ${last||wk} roast</a><a href="#race">🏁 Playoff odds</a><a href="#shame">🍺 Hall of Shame</a></div></div></section>
   <section class="panel"><h2>🔥 THE BIG STORIES</h2><div class="hooks">${hk.map(hook).join('')}</div></section>
-  <section class="panel"><h2>🗺️ PICK YOUR POISON</h2><div class="cards">${HOMECARDS.map(([h,i,n,t,im])=>`<a class="card" href="${h}"><span class="cth"><img src="img/th/${im}.webp" width="400" height="250" loading="lazy" decoding="async" alt="${im[0]==='s'?'Cheerleaders cheering':'Cheerleaders pointing and laughing'}"><span class="ci">${i}</span></span><span class="cb"><b>${n}</b><small>${t}</small></span></a>`).join('')}</div></section>
+  <section class="panel"><h2>🗺️ PICK YOUR POISON</h2><div class="cards">${HOMECARDS.map(([h,i,n,t,im])=>`<a class="card" href="${h}"><span class="cth"><img src="img/th/${im}.webp" width="400" height="250" loading="lazy" decoding="async" alt="${esc((SECIMG[im]||{}).alt||'')}"><span class="ci">${i}</span></span><span class="cb"><b>${n}</b><small>${t}</small></span></a>`).join('')}</div></section>
   <section class="panel"><h2>📋 STANDINGS</h2><div class="tw"><table><thead><tr><th>#</th><th>TEAM</th><th>W-L</th><th>PF</th><th class="hs">PA</th><th class="hs">MAX PF</th></tr></thead><tbody>
   ${rows.map((t,i)=>`<tr class="${i<pt?'po':''}"><td>${i+1}</td><td class="tm"><a href="#team/${t.rid}">${esc(t.team)}</a>${tag(t)}<span class="ow">@${esc(t.owner)}</span></td><td>${rec(t)}</td><td>${fmt(t.pf)}</td><td class="hs">${fmt(t.pa)}</td><td class="hs">${fmt(t.max)}</td></tr>`).join('')}</tbody></table></div><div class="hint">Top ${pt} make the playoffs (highlighted).</div></section>
   <section class="panel"><h2>🏟️ WEEK ${wk} ${last>=wk?'FINAL':'LIVE'}</h2><div class="hint">${last>=wk?'Final scores.':'Live from Sleeper. Refreshes every minute while you watch.'}</div><div class="sbs">${Object.values(by).map(box).join('')||'<div class="hint">No matchups this week.</div>'}</div></section>`;
@@ -156,7 +172,7 @@ R.power=async el=>{const {lg,T,tp}=await current();const last=+lg.settings.last_
   el.innerHTML=`<section class="panel"><h2>⚡ POWER RANKINGS · WEEK ${last}</h2><div class="hint">Formula: 35% all-play win%, 20% points for, 15% last-3-week form, 10% max PF, 20% dynasty value (FantasyCalc SF roster + picks).</div>${ktcBtn}
   ${list.map(({t,s},i)=>`<article class="pr${i===0?' first':''}${t.wz?' wzc':''}"><div class="rk">${i+1}</div><div class="pb"><div class="pn"><a href="#team/${t.rid}">${esc(t.team)}</a>${tag(t)}</div>
    <div class="ps">${t.w}-${t.l} · all-play ${ap[t.rid].w}-${ap[t.rid].l} · ${fmt(t.pf)} PF · value ${int(TV[t.rid].tot)} · score ${s.toFixed(1)}</div><div class="pbl">${blurb(t,i+1)}</div>
-   ${i===0?photo('swoon','#1 IN THE POWER RANKINGS. THE SQUAD IS ALL IN.'):''}</div></article>`).join('')}</section>
+   ${i===0?photo('power','#1 IN THE POWER RANKINGS. THE SQUAD IS ALL IN.'):''}</div></article>`).join('')}</section>
   <section class="panel" id="value"><h2>💰 DYNASTY TEAM VALUE</h2><div class="hint">Total FantasyCalc superflex value of every rostered player plus owned ${+lg.season+1}–${+lg.season+3} picks.</div>${ktcBtn}
   <div class="tw"><table><thead><tr><th>#</th><th>TEAM</th><th>PLAYERS</th><th>PICKS</th><th>TOTAL</th></tr></thead><tbody>${vr.map((t,i)=>`<tr class="${t.wz?'wz':''}"><td>${i+1}</td><td class="tm"><a href="#team/${t.rid}">${esc(t.team)}</a>${tag(t)}</td><td>${int(TV[t.rid].pv)}</td><td>${int(TV[t.rid].kv)}</td><td><b>${int(TV[t.rid].tot)}</b></td></tr>`).join('')}</tbody></table></div>${credit}</section>`};
 R.teams=async el=>{const {T}=await current();el.innerHTML=`<section class="panel"><h2>👥 TEAMS</h2><div class="tg">${Object.values(T).sort((a,b)=>a.team.localeCompare(b.team)).map(t=>`<a class="tc${t.wz?' wzc':''}" href="#team/${t.rid}">${t.av?`<img class="av" src="${esc(t.av)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:''}<span><b>${esc(t.team)}</b>${tag(t)}<br><small>@${esc(t.owner)} · ${t.w}-${t.l}</small></span></a>`).join('')}</div></section>`};
@@ -187,7 +203,7 @@ function tradeCard(t,mode,rank){const lop=t.gap>=100,ev=t.gap<15;const line=t.si
   return`<article class="trade${lop?' lop':''}"><div class="tdh">${rank?`<span class="rank">#${rank}</span>`:''}${t.season} · WEEK ${t.leg}${mode?` · margin ${int(t.margin)}`:''}${lop?' · <span class="pill red">LOPSIDED</span>':''}</div>${t.sides.map(sd=>`<div class="tside${sd===t.win&&t.gap>0?' win':''}"><div class="tn">${esc(sd.team)} got</div><ul>${sd.players.map(p=>`<li>${pn(p.pid)} <small>${fmt(p.p)} pts</small></li>`).join('')}${sd.picks.map(p=>`<li>${p.s} R${p.r} pick <small>(${esc(p.orig)}’s)</small>${p.who?` → ${pn(p.who)} <small>${fmt(p.p)} pts</small>`:' <small>not drafted yet</small>'}</li>`).join('')||'<li><small>nothing</small></li>'}</ul><div class="tsc">${fmt(sd.pts)} pts for them since · value now ${int(sd.val)}</div></div>`).join('')}
    <div class="tv">Winning on points: <b>${esc(t.win.team)}</b>${t.sides.length>1?` (+${fmt(t.gap)})`:''} · on current value: <b>${esc(vw.team)}</b></div>${line?`<div class="rl">${line}</div>`:''}</article>`}
 R.trades=async el=>{el.innerHTML=`<section class="panel">${SPIN('Digging up every trade since 2021…')}</section>`;const [S,V]=await Promise.all([all(),values()]);const {T}=await current();const L=tradeList(S,T,V);
-  el.innerHTML=dropsPanel(S,V)+`<section class="panel"><h2>🔁 TRADE HISTORY (${L.length})</h2><div class="hint">“Winning” = points the acquired players scored <b>as starters for their new team</b> since the deal (picks count the player drafted with them), plus who holds more FantasyCalc superflex value today.</div>${L.map(t=>tradeCard(t)).join('')}${credit}</section>`};
+  el.innerHTML=dropsPanel(S,V)+`<section class="panel"><h2>🔁 TRADE HISTORY (${L.length})</h2>${banner('trades')}<div class="hint">“Winning” = points the acquired players scored <b>as starters for their new team</b> since the deal (picks count the player drafted with them), plus who holds more FantasyCalc superflex value today.</div>${L.map(t=>tradeCard(t)).join('')}${credit}</section>`};
 R.history=async el=>{el.innerHTML=`<section class="panel">${SPIN('Rewinding the tape…')}</section>`;const [S,V]=await Promise.all([all(),values()]);const {T}=await current();const TL=tradeList(S,T,V),DL=dropsList(S,V);
   const AT={};for(const s of S)for(const t of Object.values(s.teams)){const a=AT[t.uid]=AT[t.uid]||{name:t.owner,team:t.team,w:0,l:0,t:0,pf:0,ttl:0,po:0,last:0,joe:t.joe,wz:t.wz,n:0};a.w+=t.w;a.l+=t.l;a.t+=t.t;a.pf+=t.pf;a.n++;if(s.champ===t.rid)a.ttl++;if(s.place[t.rid])a.po++;a.team=t.team;a.name=t.owner}
   for(const s of S){if(!s.done)continue;const r=Object.values(s.teams).sort((a,b)=>a.w-b.w||a.pf-b.pf)[0];if(r&&AT[r.uid])AT[r.uid].last++}
@@ -224,7 +240,7 @@ R.shame=async el=>{el.innerHTML=`<section class="panel">${SPIN('Pouring the shoe
   const bench=[...sc].map(x=>({...x,d:x.o-x.p})).sort((a,b)=>b.d-a.d).slice(0,8);
   const ugly=rankTrades(tradeList(S,T,V)).worst;
   const lasts=S.filter(s=>s.done).map(s=>({s:s.season,t:Object.values(s.teams).sort((a,b)=>a.w-b.w||a.pf-b.pf)[0]}));
-  el.innerHTML=`<section class="panel shame"><h2>🍺 HALL OF SHAME</h2>${photo('laugh','THE SQUAD HAS SEEN YOUR LINEUPS.','top')}
+  el.innerHTML=`<section class="panel shame"><h2>🍺 HALL OF SHAME</h2>${photo('shame','THE SQUAD HAS SEEN YOUR LINEUPS.','top')}
    <h3>LOWEST SCORES EVER</h3><ol class="rec sh">${lo.map((x,i)=>`<li>${badge}<div><b>${fmt(x.p)}</b> ${esc(x.team)}${tag(x)} vs ${esc(x.opp.team)} <small>${x.s} wk ${x.week}</small>${cap('lo'+i+x.s+x.week)}</div></li>`).join('')}</ol>
    <h3>WORST BLOWOUT LOSSES</h3><ol class="rec sh">${bl.map((x,i)=>`<li>${badge}<div><b>-${fmt(x.w.p-x.l.p)}</b> ${esc(x.l.team)}${tag(x.l)} got buried by ${esc(x.w.team)} <small>${x.g.s} wk ${x.g.week}</small>${cap('bl'+i+x.g.s)}</div></li>`).join('')}</ol>
    <h3>BIGGEST BENCH BLUNDERS</h3><ol class="rec sh">${bench.map((x,i)=>`<li>${badge}<div><b>${fmt(x.d)}</b> pts left on the bench by ${esc(x.team)}${tag(x)} <small>${x.s} wk ${x.week} · scored ${fmt(x.p)}, could have had ${fmt(x.o)}${x.opp.p>x.p&&x.opp.p<x.o?' and WON':''}</small></div></li>`).join('')}</ol>
@@ -242,9 +258,10 @@ async function route(){const h=(location.hash||'#home').slice(1).split('/'),k=R[
   document.querySelectorAll('#tabs a').forEach(a=>a.classList.toggle('on',a.dataset.k===k||(k==='team'&&a.dataset.k==='teams')));
   const on=document.querySelector('#tabs a.on');if(on&&on.scrollIntoView)try{on.scrollIntoView({block:'nearest',inline:'center'})}catch(e){}
   if(!el.firstChild||el.dataset.k!==k)el.innerHTML=`<section class="panel">${SPIN()}</section>`;el.dataset.k=k;const tok=route.tok=(route.tok||0)+1;
-  const box=document.createElement('div');try{await R[k](box,h[1]);if(tok!==route.tok)return;el.replaceChildren(...box.childNodes);if(R.after)R.after(k)}
+  const box=document.createElement('div');try{await R[k](box,h[1]);if(tok!==route.tok)return;el.replaceChildren(...box.childNodes);addBanner(k);if(R.after)R.after(k)}
   catch(e){console.warn(e);if(tok===route.tok)el.innerHTML=`<section class="panel">${SHOEY('sm')}<div class="hint">Sleeper fumbled that one (${esc(e.message||e)}). Pull to refresh in a minute.</div></section>`}
   if(h[0]!==route.last){window.scrollTo(0,0);route.last=h[0]}}
+function addBanner(k){const b=k==='team'?'teams':k;if(['home','trades','power','draft','shame'].includes(b)||!SECIMG[b])return;const h=document.querySelector('#view .panel h2');if(!h||document.querySelector('#view .secb'))return;const a=h.parentElement.classList.contains('panel')?h:h.parentElement.closest('.panel>*')||h;a.insertAdjacentHTML('afterend',banner(b))}
 $('#tabs').innerHTML=TABS.map(([k,i,n])=>`<a href="#${k}" data-k="${k}"><span>${i}</span>${n}</a>`).join('');
 // R pages write into a detached box; the ticker needs to find #ticker after insertion
 R.after=k=>{if(k==='home'){const t=$('#ticker');if(t)t.classList.add('in')}};
@@ -372,7 +389,7 @@ function nmAt(by,season,rid){for(const s of Object.values(by).sort((a,b)=>+b.sea
 function dropItem(d,i){const line=pickOf(d.joe?DBJ:DB,'dr'+d.pid+d.rid).replace(/\{(\w+)\}/g,(m,k)=>`<b>${esc({T:d.team,P:(PL[d.pid]||{}).n||'Player '+d.pid,s:d.season,pts:fmt(d.pts),v:int(d.v)}[k])}</b>`);
   return`<article class="trade lop"><div class="tdh"><span class="rank">#${i+1}</span>${d.season} · WEEK ${d.leg}</div><div class="tside"><div class="tn">${esc(d.team)} dropped ${pn(d.pid)}</div>
    <div class="tsc">${fmt(d.pts)} starter pts for other teams since${d.to?` (mostly ${esc(d.to)})`:''} · value now ${int(d.v)}</div></div><div class="rl">${line}</div></article>`}
-function dropsPanel(S,V){const L=dropsList(S,V).slice(0,10);return`<section class="panel"><h2>🗑️ WORST DROPS OF ALL TIME</h2><div class="hint">Waiver and free-agent drops since ${S[0].season}, ranked by starter points the player scored for <b>other</b> teams after the drop + current FantasyCalc value ÷ 25.</div>${L.map(dropItem).join('')}</section>`}
+function dropsPanel(S,V){const L=dropsList(S,V).slice(0,10);return`<section class="panel"><h2>🗑️ WORST DROPS OF ALL TIME</h2><div class="hint">Waiver and free-agent drops since ${S[0].season}, ranked by starter points the player scored for <b>other</b> teams after the drop + current FantasyCalc value ÷ 25.</div>${banner('drops')}${L.map(dropItem).join('')}</section>`}
 
 // per-season best trade / worst trade / worst drop for the History tab
 function yearMoves(s,TL,DL){const {best,worst}=rankTrades(TL.filter(t=>t.season===s.season));const b=best[0],w=worst[0]||best[1],d=DL.find(x=>x.season===s.season);
@@ -407,5 +424,5 @@ R.draft=async el=>{const {lg,T,tp}=await current();const wb=await j('league/'+LE
   const picks=[];for(let r=1;r<=2;r++)order.forEach((t,i)=>{const o=T[own(r,t.rid)]||t;picks.push({r,n:i+1,orig:t,o})});
   const line=(p,k)=>{const P=BOARD27[k];const arr=k===0?DRL.one:p.o.joe?DRL.joe:P[1]==='QB'?DRL.qb.concat(DRL.gen):DRL.gen;return pickOf(arr,'dr27'+k+p.o.rid).replace(/\{(\w+)\}/g,(m,q)=>`<b>${esc({T:p.o.team,P:P[0]}[q])}</b>`)};
   el.innerHTML=`<section class="panel"><h2>🎓 DRAFT ROOM · ${NEXT} MOCK</h2><div class="hint">Snapshot mock of the May ${NEXT} rookie draft. Order: non-playoff teams by <b>lowest max PF</b> (Tank Watch rules), then playoff teams by projected finish from current standings. Traded picks from Sleeper. Board: consensus of DraftSharks + Dynasty Nerds SF, <b>as of Oct 2026</b>. Changes every week; nobody hold us to this.</div>
-   ${picks.map((p,k)=>`${k===0||k===12?`<h3>ROUND ${p.r}</h3>`:''}<article class="dp${k===0?' first':''}"><div class="dn">${p.r}.${String(p.n).padStart(2,'0')}</div><div class="db"><div class="dpp">${esc(BOARD27[k][0])} <small>${BOARD27[k][1]} · ${esc(BOARD27[k][2])}</small></div><div class="dt"><a href="#team/${p.o.rid}">${esc(p.o.team)}</a>${p.o.rid!==p.orig.rid?` <small>(via ${esc(p.orig.team)})</small>`:''}</div><div class="rl">${line(p,k)}</div>${k===0?photo('laugh','THE 1.01. THE SQUAD SAW THIS COMING.'):''}</div></article>`).join('')}</section>`};
+   ${picks.map((p,k)=>`${k===0||k===12?`<h3>ROUND ${p.r}</h3>`:''}<article class="dp${k===0?' first':''}"><div class="dn">${p.r}.${String(p.n).padStart(2,'0')}</div><div class="db"><div class="dpp">${esc(BOARD27[k][0])} <small>${BOARD27[k][1]} · ${esc(BOARD27[k][2])}</small></div><div class="dt"><a href="#team/${p.o.rid}">${esc(p.o.team)}</a>${p.o.rid!==p.orig.rid?` <small>(via ${esc(p.orig.team)})</small>`:''}</div><div class="rl">${line(p,k)}</div>${k===0?photo('draft','THE 1.01. THE SQUAD SAW THIS COMING.'):''}</div></article>`).join('')}</section>`};
 route();   // last: every R.* page above is registered before the first render
