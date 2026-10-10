@@ -44,7 +44,7 @@ async function chain(){if(D.chain)return D.chain;const cache=LS.get('sn:chain')|
 function teamsOf(users,rosters){const U=Object.fromEntries(users.map(u=>[u.user_id,u])),T={};
   for(const r of rosters){const u=U[r.owner_id]||{},s=r.settings||{},un=u.username||u.display_name||'';
     T[r.roster_id]={rid:r.roster_id,uid:r.owner_id||'r'+r.roster_id,owner:u.display_name||'Orphan',team:clean(u.metadata&&u.metadata.team_name)||u.display_name||('Team '+r.roster_id),
-      av:u.avatar?'https://sleepercdn.com/avatars/thumbs/'+u.avatar:'',w:s.wins||0,l:s.losses||0,t:s.ties||0,pf:num(s.fpts,s.fpts_decimal),pa:num(s.fpts_against,s.fpts_against_decimal),max:num(s.ppts,s.ppts_decimal),
+      av:r.owner_id===BRETT?'img/weasel-av.webp':u.avatar?'https://sleepercdn.com/avatars/thumbs/'+u.avatar:'',w:s.wins||0,l:s.losses||0,t:s.ties||0,pf:num(s.fpts,s.fpts_decimal),pa:num(s.fpts_against,s.fpts_against_decimal),max:num(s.ppts,s.ppts_decimal),
       joe:/^joebags85$/i.test(un),wz:r.owner_id===BRETT,players:r.players||[],starters:r.starters||[],streak:(r.metadata&&r.metadata.streak)||''}}
   return T}
 // compact season summary; completed seasons are cached forever in localStorage
