@@ -598,7 +598,7 @@ async function fillTrainer(nd){const {lg,T,state}=await current();const r=(arr,k
 // real rookie mid-draft. Trophy names: Sleeper league.metadata.trophy_loser_banner_text wins when present; this map is the fallback.
 const TOILET_BOWL_TROPHY={2021:'THE APPLEBEES SUPPLEMENTAL DRAFT PICK BONER BOWL PRESENTED BY MAZDA ®',2022:'Arby’s Supplemental 2.13 Draft Pick Boner Bowl Presented by FTX ®',
   2023:'Dunder Mifflin Celebrity Rabies Awareness for the Cure Toilet Bowl Champion',2024:'The Zoolander Bowl for Teams Who Can’t Play Good',
-  2025:'Preparation H® “Ring of Fire” SHADYNASTY Toilet Trophy ft. Pepto-Bismol',2026:'TBD'};
+  2025:'Preparation H® “Ring of Fire” SHADYNASTY Toilet Trophy ft. Pepto-Bismol',2026:'Polymarket "Market Says You\'re Cooked: 99.7% Yes" 2.13 Toilet Bowl'};
 const TB_TBA='Trophy name TBA by the Commish';
 // What each champ took with the 2.13 (rookie draft the following May), from Sleeper commissioner transactions: Tebow parked on the
 // champ's roster after the season, then a commish add of the rookie on draft day. 2023's champ dropped Tebow himself and no
