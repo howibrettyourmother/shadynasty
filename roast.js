@@ -48,26 +48,26 @@ normal:[
  "{W} {ws}, {L} {ls}. {L} left the stadium early to beat the traffic.",
  "{W} beat {L} by {m} and didn't break a sweat."],
 joeLose:[
- "Joe lost again and the tank is right on schedule. {J} is a well-oiled losing machine.",
+ "{J} lost again. Cute, but the L doesn't move the 1.01. Only a low max PF does, and that roster is handling it.",
  "{J} put up {s}. Jeremiah Smith just felt a disturbance in the Force.",
  "Another L for {J}. Joe's GM hat is just a bucket for tears at this point.",
  "{J} scored {s}. That's not a lineup, that's a rebuild with a pulse.",
  "Joe set a lineup this week. Allegedly. {J} scored {s}.",
  "{J} lost to {O}. The tank isn't a strategy anymore, it's a lifestyle.",
  "{s} points for {J}. Joe's 1.01 odds just did a keg stand.",
- "Joe lost and called it 'part of the process'. The process is losing. It's working.",
+ "Joe lost and called it 'part of the process'. Wrong process, Joe: the 1.01 goes to the lowest max PF, not the most L's.",
  "{J} dropped another one. Joe owes the league a shoey and an apology, in that order.",
  "{J} with {s}. Somewhere a draft-pick hoarder is smiling in the dark.",
  "Joe lost by {m}. He'll tell you it's year 5 of the rebuild. It's always year 5.",
  "{J} put up {s} and still thinks the future is bright. It's not bright, Joe, it's a 4th-round pick."],
 joeWin:[
- "Joe WON? {J} just set the tank back a week. Jeremiah Smith is crying.",
- "{J} beat {O}. Joe accidentally started good players and it cost him draft position.",
- "A win for {J}. The tank sprang a leak. Somebody grab the duct tape.",
+ "Joe WON? Relax, wins don't cost the 1.01. The {s} points padding his max PF do. Jeremiah Smith is crying.",
+ "{J} beat {O}. The W is harmless. The {s} potential points it came with cost him draft position.",
+ "{J} put up {s}. The tank sprang a leak, and it's leaking potential points. Somebody grab the duct tape.",
  "Joe won and immediately regretted it. That's a {s}-point self-own.",
  "{J} won by {m}. The rebuild is furious. Joe is confused. We're all confused.",
  "Joe beat {O}. Don't worry, {J} still has the lowest max PF energy in the league.",
- "{J} snuck a win. Joe will be setting an all-kicker lineup next week to fix it.",
+ "{J} snuck a win. Benching his studs won't fix it, Joe: max PF counts your best lineup anyway. You need worse players.",
  "{J} won. Somewhere in a war room, a whiteboard that says 'TANK' just fell off the wall.",
  "Joe got a W. Treat it like a rare hope star: shiny, pointless, gone by Tuesday.",
  "{J} won with {s}. Joe's 1.01 math just threw up in its mouth a little."],
@@ -280,7 +280,7 @@ const PB={
 top:["{T} sits at #{r} with an all-play of {ap}. Everyone else is just content.","#{r} {T}: averaging {f} the last three weeks. Disgusting. Respect.","{T} is the team you pray to not see on your schedule.","{T} at #{r}. Enjoy the view, the fall is gonna hurt.","{T} is cooking with {pf} PF. The rest of the league is microwaving.","All-play {ap}. {T} would beat your team, your backup team and your fantasy podcast."],
 mid:["{T} at #{r}: aggressively fine. Like a gas-station sandwich.","{T} is in the mushy middle. Make a trade or make peace with mediocrity.","#{r} {T}. Could make a run. Could also faceplant. Coin flip franchise.","All-play {ap}. {T} beats the bad teams and gets bullied by the good ones.","{T} is one waiver pickup away from relevance. Or irrelevance.","{T} averaging {f} lately. Not scary. Not embarrassing. Just there."],
 low:["{T} at #{r}. The tank is calling and {T} is picking up.","All-play {ap}. {T} would lose to a roster of kickers.","{T} averaging {f}. That's not a slump, that's a lifestyle.","#{r} {T}: somebody check if the manager still has the app.","{T} is playing for pride. There is no pride left.","{T} has {pf} PF. Most of it came by accident."],
-joe:["{J} at #{r}. Joe's not losing, he's 'accumulating draft capital'. Sure, Joe.","#{r} {J}. The rebuild is in year 5 and the blueprint is a napkin.","{J}: all-play {ap}. Jeremiah Smith is already house-hunting near Joe.","{J} at #{r}. Joe's GM philosophy: why win now when you can lose forever?"]};
+joe:["{J} at #{r}. Joe's not bad, he's 'suppressing his max PF'. Sure, Joe.","#{r} {J}. The rebuild is in year 5 and the blueprint is a napkin.","{J}: all-play {ap}. Jeremiah Smith is already house-hunting near Joe.","{J} at #{r}. Joe's GM philosophy: why win now when you can lose forever?"]};
 // Trade roasts for lopsided deals: {W} winner, {L} loser, {d} point gap
 const TB={
 lop:["{W} fleeced {L} by {d} points. Somebody call fantasy-football police.","{L} got robbed in broad daylight: {d} points and counting.","{W} won this trade by {d}. {L} should have its trade privileges revoked.","{L} accepted this. On purpose. {W} is up {d}.","{d} points of pure larceny. {W} thanks {L} for the donation.","This trade aged like milk for {L}: down {d}.","{L} is still telling people it was 'for the future'. Down {d}.","{W} owes {L} a fruit basket. Up {d}."],
