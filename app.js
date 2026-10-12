@@ -991,8 +991,8 @@ const TEAM_FX={
   digs:["Freedom isn't free, but this team's points sure are cheap.","Land of the free, home of the bench points.","Big Mike salutes the flag. The lineup salutes nothing.","Proud to be an American. Less proud of this starting RB.","Red, white and blew another one.","Fireworks on the Fourth, duds on Sunday."]},
  '679423513769111552':{name:'Ramrod',c:['#e3262e','#2b6cff','#ffffff','#e3262e','#2b6cff'],em:['👮','🥤','🚨'],mix:'ecck',ov:'siren',txt:'CAR RAMROD',tc:'#2b6cff',ti:'🚨',
   digs:["Car Ramrod! …Car Ramrod.","Meow. Meow, I said this lineup is weak. Meow.","Farva ordered a liter of cola. You ordered a liter of bench points.","License and registration… and a reason you started that guy.","Ramrod pulls over the scoreboard. It's doing 60 in a 140 zone.","Desperation. Aron's in the lead. Do you wanna know why? Meow. Wait, that's not it."]},
- '679424354223738880':{name:'Still Renovating',c:['#ffc72c','#ffe07a','#d4a017','#fff3b0'],em:['👒','✨','🔨'],mix:'skcke',ov:'spot',txt:'EL JEFE',tc:'#ffc72c',ti:'✨',
-  digs:["Prillionaire. In fantasy points, anyway.","Unprillievable.","The Prills Have Eyes. Mostly on the waiver wire.","Prilling spree incoming.","Prill or be Prilled.","Prillin' and chillin'.","El Jefe has spoken. Nobody asked."]},
+ '679424354223738880':{name:'Still Renovating',c:['#ffc72c','#ffe07a','#d4a017','#fff3b0'],em:['👒','✨','🔨'],mix:'skcke',ov:'spot',txt:['EL JEFE','PRILLBO BAGGINS'],tc:'#ffc72c',ti:'✨',
+  digs:["Prillionaire. In fantasy points, anyway.","Prillbo Baggins: there and back again… to .500.","Unprillievable.","The Prills Have Eyes. Mostly on the waiver wire.","Prilling spree incoming.","Prill or be Prilled.","Prillin' and chillin'.","El Jefe has spoken. Nobody asked."]},
  '684465506765316096':{name:'SaquonMyPickens',c:['#ffcb05','#00274c','#ffcb05','#00274c','#bfe8ff'],em:['🫧','🫧','🧽'],mix:'bbcck',ov:'squeegee',tc:'#ffcb05',ti:'🧽',
   digs:["Crystal clear: this lineup is streaky.","Go Blue (in the face from losing).","Squeaky clean roster. Squeaky clean of points.","Jay can see through any window. Not through a bad trade.","Wiped out. Like your bench.","Hail to the victors. You are not them this week."]},
  '559056589221363712':{name:'Tet McMuffins',c:['#1f4e9c','#ffffff','#9bbcf2','#e3262e'],em:['✈️','🧳','☁️'],mix:'ecc',fly:{e:'✈️',y:0.22,sz:58,trail:'contrail'},tc:'#9bbcf2',ti:'🎫',pass:true,
@@ -1020,7 +1020,7 @@ function teamBurst(uid,o){o=o||{};const th=TEAM_FX[uid];if(!th)return;const now=
   const N=th.rain?110:130;for(let n=0;n<N;n++){const kd=mx[n%mx.length];th.rain?add(Math.random()*W,-20-Math.random()*H*0.9,kd,1):add(cx+(Math.random()-0.5)*60,cy,kd)}
   const star=(px,py,r,n)=>{x.beginPath();for(let q=0;q<n*2;q++){const a=q*Math.PI/n-Math.PI/2,rr=q%2?r*0.42:r;x.lineTo(px+Math.cos(a)*rr,py+Math.sin(a)*rr)}x.closePath();x.fill()};
   let hp=null;if(th.ov==='hound'){const o=document.createElement('canvas');o.width=o.height=16;const q=o.getContext('2d');q.fillStyle='#fff';q.fillRect(0,0,16,16);q.fillStyle='#9e1b32';q.beginPath();[[0,0],[8,0],[16,8],[16,16],[8,8],[0,8]].forEach(([a,b],z)=>z?q.lineTo(a,b):q.moveTo(a,b));q.fill();q.fillRect(0,8,4,4);q.fillRect(12,0,4,4);hp=x.createPattern(o,'repeat')}
-  const FW=[];const D0=2000,t0=performance.now();
+  const TX=Array.isArray(th.txt)?th.txt[Math.floor(Math.random()*th.txt.length)]:th.txt;const FW=[];const D0=2000,t0=performance.now();
   const fr=t=>{const e=t-t0,u=Math.min(1,e/D0),fade=u>0.8?1-(u-0.8)/0.2:1;x.clearRect(0,0,W,H);x.globalAlpha=fade;
     // ---- overlays (cheap fills only) ----
     const ov=th.ov;
@@ -1053,7 +1053,7 @@ function teamBurst(uid,o){o=o||{};const th=TEAM_FX[uid];if(!th)return;const now=
         if(f.trail==='notes'){x.fillStyle=s.c;x.font='18px serif';x.fillText(s.n%2?'🎵':'🎶',s.x,s.y-(1-s.l)*50)}
         else{x.fillStyle=s.c;x.beginPath();x.arc(s.x,s.y,f.trail==='contrail'?3+(1-s.l)*5:4+(1-s.l)*10,0,Math.PI*2);x.fill()}}x.globalAlpha=fade}
     // ---- big flashing word ----
-    if(th.txt&&e>150&&e<1700&&Math.floor(e/220)%2===0){x.font='900 '+Math.round(Math.min(W/ (th.txt.length*0.62),64))+'px Oswald, Impact, sans-serif';x.lineWidth=5;x.strokeStyle='rgba(0,0,0,.7)';x.strokeText(th.txt,cx,H*0.3);x.fillStyle=th.tc;x.fillText(th.txt,cx,H*0.3)}
+    if(TX&&e>150&&e<1700&&Math.floor(e/220)%2===0){x.font='900 '+Math.round(Math.min(W/(TX.length*0.62),64))+'px Oswald, Impact, sans-serif';x.lineWidth=5;x.strokeStyle='rgba(0,0,0,.7)';x.strokeText(TX,cx,H*0.3);x.fillStyle=th.tc;x.fillText(TX,cx,H*0.3)}
     if(u<1)requestAnimationFrame(fr);else cv.remove()};
   requestAnimationFrame(fr);setTimeout(()=>cv.remove(),2600)}
 const fxTeam=v=>{v=String(v||'');const T=D.cur&&D.cur.T;if(!T||!v)return null;return Object.values(T).find(t=>String(t.rid)===v||String(t.uid)===v)||null};
