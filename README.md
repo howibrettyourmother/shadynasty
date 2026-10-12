@@ -14,5 +14,9 @@ Hall of Shame · Arcade (Shoey Chug + Mo Problems, both with leaderboards; Tank 
 
 Shoey Chug lives in `chug/` (served at /shadynasty/chug/): a static canvas+DOM mash game. Leaderboard: Cloudflare Worker `shoey-chug-scores` (own KV namespace, separate from Mo Problems), source and admin script in the shoey-chug-worker folder outside this repo.
 
+Live: Home shows a league-wide live scoreboard on game days (win odds, who's left per matchup, Monday-night math, dead bodies in lineups) using the ESPN public scoreboard + Sleeper projections; Recap has weekly report cards for every team. Header ↻ (and pull-to-refresh in the installed app) force-refreshes everything.
+
+Data: `data/players.json` is a slim copy of Sleeper's ~15 MB players file plus this week's projections, rebuilt every 30-60 min by `.github/workflows/players.yml` (`tools/slim_players.py`). The site falls back to Sleeper direct if it's missing or stale. Injury precedence: Sleeper's players file is authoritative; ESPN game-day inactives can only add an Out, never clear one.
+
 Caching: finished seasons are summarized once into localStorage; the slim Sleeper players map is kept for a week; values for a day.
 Smoke test: `python3 smoke.py` (serve the folder on :18802 first).
