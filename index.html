@@ -225,6 +225,13 @@ table.rct td,table.rct th{text-align:center}table.rct td.tm{text-align:left;max-
 @keyframes tsp{from{transform:scale(.8) rotate(-15deg);opacity:.6}to{transform:scale(1.15) rotate(15deg);opacity:1}}
 @media (prefers-reduced-motion: reduce){#toast.joe .tsp{animation:none}}
 .sched td:first-child{width:28px;opacity:.7}.sched td small{opacity:.65}.sched a{color:inherit}
+#toast.tfx{border:2px solid var(--tc,#ffc72c);box-shadow:0 0 16px color-mix(in srgb,var(--tc,#ffc72c) 55%,transparent),0 6px 24px rgba(0,0,0,.55)}
+#toast.tfx .tsp{display:inline-block;animation:tsp .9s ease-in-out infinite alternate}
+#toast .bp{display:block;text-align:left;font-family:ui-monospace,Menlo,monospace;font-size:13px;border-left:3px dashed var(--tc);padding-left:9px}#toast .bp b{display:block;font-size:11px;letter-spacing:.08em;opacity:.8}
+@media (prefers-reduced-motion: reduce){#toast.tfx .tsp{animation:none}}
+.fxs{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}.fxs::-webkit-scrollbar{display:none}
+.fxc{flex:0 0 64px;background:none;border:0;color:var(--ink);padding:0;cursor:pointer;text-align:center}.fxc img,.fxc span{display:block;width:52px;height:52px;margin:0 auto 4px;border-radius:50%;border:2px solid rgba(255,199,44,.5);object-fit:cover;background:#1b2333;line-height:48px;font-weight:700}
+.fxc small{display:block;font-size:10px;line-height:1.2;max-height:2.4em;overflow:hidden}.fxc:active img{transform:scale(.92)}
 </style></head>
 <body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <linearGradient id="beer" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23a"/><stop offset="1" stop-color="#d98a00"/></linearGradient>
@@ -244,5 +251,5 @@ table.rct td,table.rct th{text-align:center}table.rct td.tm{text-align:left;max-
 <main class="wrap" id="view"></main>
 <div class="foot wrap">Auto-built in your browser from the public <a href="https://docs.sleeper.com/" rel="noopener">Sleeper API</a> · values by <a href="https://fantasycalc.com" rel="noopener">FantasyCalc</a> · no humans were harmed, only lineups.</div>
 <script src="roast.js?v=10"></script>
-<script src="app.js?v=47"></script>
+<script src="app.js?v=49"></script>
 </body></html>

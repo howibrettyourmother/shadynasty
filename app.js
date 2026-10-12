@@ -975,10 +975,107 @@ function joeBurst(){const now=Date.now();if(now-(joeBurst.t||0)<4000)return;joeB
       else{x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillRect(-p.s/2,-p.s*0.7,p.s,p.s*1.4);x.restore()}}
     if(u<1)requestAnimationFrame(fr);else{cv.remove();ed.remove()}};
   requestAnimationFrame(fr);setTimeout(()=>{cv.remove();ed.remove()},2600)}
-const joeIds=()=>{const t=D.cur&&Object.values(D.cur.T).find(x=>x.joe);return t?[String(t.rid),String(t.uid),t.team]:null};
-document.addEventListener('change',e=>{try{const s=e.target;if(!s||s.tagName!=='SELECT'||s.getAttribute('data-f')!=='team')return;const J=joeIds();if(J&&s.value&&(s.value===J[0]||s.value===J[1]))joeBurst()}catch(x){}});
-document.addEventListener('click',e=>{try{const J=joeIds();if(!J||!e.target.closest)return;const td=e.target.closest('.h2x td[data-k]');if(td){if(td.getAttribute('data-k').split('|').includes(J[1]))joeBurst();return}
-  const c=e.target.closest('.chip');if(c&&c.textContent.indexOf(J[2])>=0)joeBurst()}catch(x){}});
+// ================= TEAM BURSTS: every team gets its own easter egg (Joe's rainbow unicorn stays in joeBurst above) =================
+// Customize a team by editing its entry in TEAM_FX (keyed by Sleeper owner/user ID). Fields:
+//  c: confetti colors · em: emoji in the confetti mix · mix: particle kinds (e emoji, c confetti, s star, k twinkle, b bubble)
+//  grav: + falls, − rises · rain: true = particles drop from the top instead of bursting from center
+//  fly: {e:'✈️' or img:'path', y:0.0–1 screen height, sz, trail:'contrail'|'smoke'|'glitter'|'notes', strut:true bobs}
+//  ov: overlay effect: 'siren' | 'squeegee' | 'hound' | 'heat' | 'smoke' | 'works' | 'boo' | 'spot'
+//  txt: big flashing word · tc: toast accent color · ti: toast icon · digs: rotating toast lines
+const TEAM_FX={
+ '679424003198238720':{name:'A new dawn rising',c:['#9e1b32','#ffffff','#9e1b32','#828a8f'],em:['🐘','🐘','🏈'],mix:'eccscc',ov:'hound',txt:'ROLL TIDE',tc:'#9e1b32',ti:'🐘',
+  digs:["Roll Tide… roll right out of playoff contention.","Rammer Jammer, yellow hammer, give 'em hell… oh wait, that's your lineup giving up.","Process? This team's process is losing by 40.","The elephant in the room: this roster.","Saban would've cut half this bench by Tuesday.","Roll Tide! Roll… to the waiver wire. Again."]},
+ '679012011916492800':{name:'Badfish',c:['#c8642a','#e8b04b','#7a4a22','#f2d28b'],em:['🤠','🌵','🤠','🌵'],mix:'eecck',ov:'heat',fly:{e:'🌾',y:0.8,sz:40,spin:true,trail:'dust'},tc:'#c8642a',ti:'🤠',
+  digs:["Yeehaw (derogatory).","Everything's bigger in Texas except this team's points.","Hot as hell outside, cold as hell in the box score.","Tumbleweed rolls by… that's the bench production.","Don't mess with Texas. Do mess with this lineup, it's easy.","Howdy, partner. The good kind of first place is that way."]},
+ '602659459214409728':{name:'Bigmike9193',c:['#b22234','#ffffff','#3c3b6e'],em:['🇺🇸','⭐','🇺🇸'],mix:'eccs',ov:'works',fly:{e:'✈️',y:0.18,sz:44,trail:'contrail',fast:true},tc:'#3c3b6e',ti:'🇺🇸',
+  digs:["Freedom isn't free, but this team's points sure are cheap.","Land of the free, home of the bench points.","Big Mike salutes the flag. The lineup salutes nothing.","Proud to be an American. Less proud of this starting RB.","Red, white and blew another one.","Fireworks on the Fourth, duds on Sunday."]},
+ '679423513769111552':{name:'Ramrod',c:['#e3262e','#2b6cff','#ffffff','#e3262e','#2b6cff'],em:['👮','🥤','🚨'],mix:'ecck',ov:'siren',txt:'CAR RAMROD',tc:'#2b6cff',ti:'🚨',
+  digs:["Car Ramrod! …Car Ramrod.","Meow. Meow, I said this lineup is weak. Meow.","Farva ordered a liter of cola. You ordered a liter of bench points.","License and registration… and a reason you started that guy.","Ramrod pulls over the scoreboard. It's doing 60 in a 140 zone.","Desperation. Aron's in the lead. Do you wanna know why? Meow. Wait, that's not it."]},
+ '679424354223738880':{name:'Still Renovating',c:['#ffc72c','#ffe07a','#d4a017','#fff3b0'],em:['👒','✨','🔨'],mix:'skcke',ov:'spot',txt:'EL JEFE',tc:'#ffc72c',ti:'✨',
+  digs:["Prillionaire. In fantasy points, anyway.","Unprillievable.","The Prills Have Eyes. Mostly on the waiver wire.","Prilling spree incoming.","Prill or be Prilled.","Prillin' and chillin'.","El Jefe has spoken. Nobody asked."]},
+ '684465506765316096':{name:'SaquonMyPickens',c:['#ffcb05','#00274c','#ffcb05','#00274c','#bfe8ff'],em:['🫧','🫧','🧽'],mix:'bbcck',ov:'squeegee',tc:'#ffcb05',ti:'🧽',
+  digs:["Crystal clear: this lineup is streaky.","Go Blue (in the face from losing).","Squeaky clean roster. Squeaky clean of points.","Jay can see through any window. Not through a bad trade.","Wiped out. Like your bench.","Hail to the victors. You are not them this week."]},
+ '559056589221363712':{name:'Tet McMuffins',c:['#1f4e9c','#ffffff','#9bbcf2','#e3262e'],em:['✈️','🧳','☁️'],mix:'ecc',fly:{e:'✈️',y:0.22,sz:58,trail:'contrail'},tc:'#9bbcf2',ti:'🎫',pass:true,
+  digs:["Now boarding: the playoffs. Gate closing.","Please remain seated until your team comes to a complete stop.","The Best Morehouse. Low bar, cleared.","Captain speaking: expect turbulence in the flex spot.","Your lineup has been delayed. Please check the departures board.","In case of a water landing, your bench can be used as a flotation device."]},
+ '602988793519214592':{name:'TheTunaSquad',c:['#1e90ff','#7fd3ff','#0b4f8a','#c7f0ff'],em:['🐟','🐟','🐟','🌊'],mix:'eebk',rain:true,ov:'waves',tc:'#7fd3ff',ti:'🐟',
+  digs:["Big Tuna, small points.","Canned again.","Something smells fishy. It's the box score.","Tuna Squad, swimming with the bottom feeders.","Caught, gutted, canned. Week in review.","Dolphin-safe. Win-safe too, apparently."]},
+ '603082868373135360':{name:'Wilson Weasels',c:['#2a2f3a','#6b7280','#e3262e','#111111'],em:['👎','🍅','💨'],mix:'eeck',ov:'boo',txt:'BOOOO',fly:{img:'img/weasel-av.webp',y:0.78,sz:76,strut:true,trail:'smoke'},tc:'#e3262e',ti:'🦹',
+  digs:["The heel enters the arena. Boo him.","Brett read your trade offer and laughed. Out loud. To your face.","Cheap heat: Brett's lineup is fine, he just wants you mad.","Throw your drink, the weasel can't hear you over the wins.","Every league needs a villain. This one built a website.","Boo all you want. He's checking the waiver wire anyway."]},
+ '679818637024010240':{name:'DetroitDumpsterFire',c:['#ff6a00','#ffb300','#555555','#2d2d2d'],em:['🔥','🗑️','🎶','🎵'],mix:'eeck',grav:-0.06,ov:'smoke',fly:{e:'🎸',y:0.62,sz:50,trail:'notes',float:true},tc:'#ff6a00',ti:'🎸',
+  digs:["Recall notice issued for this lineup.","Built Detroit tough, scores like the Lions circa 2008.","Unplugged: the bench, apparently.","Strumming the same sad song every week.","Assembly line keeps rolling. So do the losses.","Check engine light's been on since week 1."]},
+ '679425819310903296':{name:'Excessive Celebration',c:['#ffffff','#dff3ff','#2d6cdf','#fdb913'],em:['🏔️','❄️','🎿','🤜','🤛','❄️'],mix:'eekce',ov:'mtn',fly:{e:'⛷️',y:0.66,sz:46,trail:'snow',float:true},txt:'SEND IT',tc:'#7fc8ff',ti:'🤜🤛',
+  digs:["Mile High lineup, sea-level points.","Bro, you peaked in Week 1.","Altitude sickness: the bench.","Send it… straight to the Toilet Bowl.","Fist bump for the effort, bro. Zero bumps for the result.","Fresh powder on the slopes, fresh L in the standings."]}
+};
+const FX_LAST=["Dead last in the power rankings, {T}.","{T}: bottom of the formula, top of the mockery.","Last place, {T}. The formula isn't biased, you're just bad."];
+const _fxImg={};function fxImg(src){if(!_fxImg[src]){const i=new Image();i.src=src;_fxImg[src]=i}return _fxImg[src]}
+Object.values(TEAM_FX).forEach(t=>{if(t.fly&&t.fly.img)setTimeout(()=>fxImg(t.fly.img),3000)});
+function teamBurst(uid,o){o=o||{};const th=TEAM_FX[uid];if(!th)return;const now=Date.now();if(now-(joeBurst.t||0)<4000)return;joeBurst.t=now;
+  const k='sn:td'+uid;let i=0;try{i=+localStorage.getItem(k)||0;localStorage.setItem(k,String((i+1)%th.digs.length))}catch(e){i=Math.floor(Math.random()*th.digs.length)}
+  const d=(o.roast?pickOf(FX_LAST,'fl'+uid+Math.floor(Date.now()/4000)).replace('{T}',th.name)+' ':'')+th.digs[i%th.digs.length],tt=toast(th.pass?`<span class="bp"><b>🎫 BOARDING PASS · ${esc(th.name)}</b>${esc(d)}</span>`:`<span class="tsp">${th.ti}</span> ${esc(d)}`,3000);tt.classList.add('tfx');tt.style.setProperty('--tc',th.tc);
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const W=innerWidth,H=innerHeight,dpr=Math.min(2,window.devicePixelRatio||1),cv=document.createElement('canvas');cv.className='jbc';cv.setAttribute('aria-hidden','true');cv.width=W*dpr;cv.height=H*dpr;
+  const x=cv.getContext('2d');if(!x)return;x.scale(dpr,dpr);document.body.append(cv);x.textAlign='center';x.textBaseline='middle';
+  const cx=W/2,cy=H*0.45,G=th.grav!=null?th.grav:0.16,P=[],T=[],mx=th.mix||'ecc',em=th.em||[];
+  const add=(px,py,kd,rain)=>{const a=-Math.PI/2+(Math.random()-0.5)*2.6,v=rain?0:3+Math.random()*7;P.push({x:px,y:py,vx:rain?(Math.random()-0.5)*1.5:Math.cos(a)*v,vy:rain?2+Math.random()*3:Math.sin(a)*v-(G<0?0:2),r:Math.random()*6.3,vr:(Math.random()-0.5)*0.25,s:4+Math.random()*5,k:kd,c:th.c[P.length%th.c.length],e:em[P.length%Math.max(1,em.length)]})};
+  const N=th.rain?110:130;for(let n=0;n<N;n++){const kd=mx[n%mx.length];th.rain?add(Math.random()*W,-20-Math.random()*H*0.9,kd,1):add(cx+(Math.random()-0.5)*60,cy,kd)}
+  const star=(px,py,r,n)=>{x.beginPath();for(let q=0;q<n*2;q++){const a=q*Math.PI/n-Math.PI/2,rr=q%2?r*0.42:r;x.lineTo(px+Math.cos(a)*rr,py+Math.sin(a)*rr)}x.closePath();x.fill()};
+  let hp=null;if(th.ov==='hound'){const o=document.createElement('canvas');o.width=o.height=16;const q=o.getContext('2d');q.fillStyle='#fff';q.fillRect(0,0,16,16);q.fillStyle='#9e1b32';q.beginPath();[[0,0],[8,0],[16,8],[16,16],[8,8],[0,8]].forEach(([a,b],z)=>z?q.lineTo(a,b):q.moveTo(a,b));q.fill();q.fillRect(0,8,4,4);q.fillRect(12,0,4,4);hp=x.createPattern(o,'repeat')}
+  const FW=[];const D0=2000,t0=performance.now();
+  const fr=t=>{const e=t-t0,u=Math.min(1,e/D0),fade=u>0.8?1-(u-0.8)/0.2:1;x.clearRect(0,0,W,H);x.globalAlpha=fade;
+    // ---- overlays (cheap fills only) ----
+    const ov=th.ov;
+    if(ov==='siren'){const on=Math.floor(e/160)%2;const g=x.createLinearGradient(0,0,W,0);g.addColorStop(0,on?'rgba(227,38,46,.45)':'rgba(227,38,46,0)');g.addColorStop(0.35,'rgba(0,0,0,0)');g.addColorStop(0.65,'rgba(0,0,0,0)');g.addColorStop(1,on?'rgba(43,108,255,0)':'rgba(43,108,255,.45)');x.fillStyle=g;x.fillRect(0,0,W,H)}
+    else if(ov==='hound'&&hp){const bh=H*0.12,sl=Math.min(1,e/400);x.globalAlpha=fade*0.85;x.fillStyle=hp;x.fillRect(0,0,W*sl,bh);x.fillRect(W*(1-sl),H-bh,W*sl,bh);x.globalAlpha=fade}
+    else if(ov==='heat'){for(let q=0;q<5;q++){const yy=H-40-q*28+Math.sin(e/120+q)*6;x.fillStyle=`rgba(255,${140-q*15},40,${0.10-q*0.015})`;x.beginPath();x.ellipse(cx+Math.sin(e/200+q)*30,yy,W*0.7,22,0,0,Math.PI*2);x.fill()}}
+    else if(ov==='smoke'){for(let q=0;q<9;q++){const z=((e/D0)+q/9)%1,yy=H*0.9-z*H*0.8,r=30+z*70;x.fillStyle=`rgba(70,70,70,${0.22*(1-z)})`;x.beginPath();x.arc(cx+Math.sin(q*2.1+e/400)*W*0.3,yy,r,0,Math.PI*2);x.fill()}}
+    else if(ov==='boo'){x.fillStyle='rgba(20,20,20,.35)';x.fillRect(0,0,W,H);const g=x.createRadialGradient(cx,H*0.78,10,cx,H*0.78,W*0.6);g.addColorStop(0,'rgba(227,38,46,.25)');g.addColorStop(1,'rgba(227,38,46,0)');x.fillStyle=g;x.fillRect(0,0,W,H)}
+    else if(ov==='spot'){const sx=cx+Math.sin(e/350)*W*0.3,g=x.createRadialGradient(sx,cy,10,sx,cy,W*0.55);g.addColorStop(0,th.tc+'55');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,W,H)}
+    else if(ov==='mtn'){const rise=Math.min(1,e/450),base=H+10,off=(1-rise)*H*0.25;[[[0,0.2],[0.18,0.08],[0.38,0.17],[0.6,0.05],[0.82,0.15],[1,0.09]],[[0,0.12],[0.25,0.02],[0.5,0.1],[0.72,0],[1,0.1]]].forEach((pk,q)=>{const Y=f=>base-H*(0.06+(0.2-f))+off+q*H*0.05;x.fillStyle=q?'#56688f':'#34425f';x.beginPath();x.moveTo(0,H);pk.forEach(([fx,fy])=>x.lineTo(W*fx,Y(fy)));x.lineTo(W,H);x.fill();x.fillStyle='rgba(255,255,255,.95)';pk.forEach(([fx,fy],z)=>{if(fy>0.1||z===0||z===pk.length-1)return;const tx=W*fx,ty=Y(fy);x.beginPath();x.moveTo(tx,ty);x.lineTo(tx-14,ty+14);x.lineTo(tx-4,ty+10);x.lineTo(tx+2,ty+15);x.lineTo(tx+14,ty+14);x.fill()})})}
+    else if(ov==='waves'){x.fillStyle='rgba(30,144,255,.25)';for(let q=0;q<2;q++){x.beginPath();x.moveTo(0,H);for(let px=0;px<=W;px+=20)x.lineTo(px,H-50-q*25+Math.sin(px/40+e/180+q*2)*10);x.lineTo(W,H);x.fill()}}
+    else if(ov==='works'&&e<1500&&FW.length<4&&e>FW.length*350){const fx0=W*(0.2+Math.random()*0.6),fy0=H*(0.2+Math.random()*0.3),c=th.c[FW.length%3];FW.push(1);for(let q=0;q<16&&P.length<150;q++){const a=q/16*Math.PI*2;P.push({x:fx0,y:fy0,vx:Math.cos(a)*4,vy:Math.sin(a)*4,r:0,vr:0,s:3,k:'k',c,e:''})}}
+    // ---- particles ----
+    for(const p of P){if(p.k==='b'){p.vy-=0.05;p.vx+=Math.sin(e/200+p.r)*0.05}else p.vy+=G;p.vx*=0.985;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;x.fillStyle=p.c;
+      if(p.k==='e'){x.font='20px serif';x.save();x.translate(p.x,p.y);x.rotate(p.r*0.3);x.fillText(p.e,0,0);x.restore()}
+      else if(p.k==='s')star(p.x,p.y,p.s,5);
+      else if(p.k==='k'){x.globalAlpha=fade*(0.4+0.6*Math.abs(Math.sin(e/60+p.r)));star(p.x,p.y,p.s*0.8,4);x.globalAlpha=fade}
+      else if(p.k==='b'){x.strokeStyle='rgba(200,240,255,.8)';x.lineWidth=1.5;x.beginPath();x.arc(p.x,p.y,p.s*1.3,0,Math.PI*2);x.stroke()}
+      else{x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillRect(-p.s/2,-p.s*0.7,p.s,p.s*1.4);x.restore()}}
+    // ---- squeegee: a fogged pane wiped clean left→right, with glints ----
+    if(ov==='squeegee'){const sx=Math.min(1,e/1200)*(W+60)-30;x.fillStyle='rgba(220,235,245,.35)';x.fillRect(sx,0,W-sx,H);x.fillStyle='#ffcb05';x.fillRect(sx-4,H*0.08,8,H*0.84);x.fillStyle='#00274c';x.fillRect(sx-14,H*0.48,28,10);
+      for(let q=0;q<3;q++){const gx=sx-30-q*60;if(gx>0){x.fillStyle='rgba(255,255,255,.9)';star(gx,H*(0.25+q*0.22),6+3*Math.abs(Math.sin(e/80+q)),4)}}}
+    // ---- flyover sprite + trail ----
+    const f=th.fly;if(f){const sp=f.fast?1100:1600,uu=Math.min(1,Math.max(0,(e-100)/sp));if(uu>0&&uu<1){const fx=-60+uu*(W+120),fy=H*f.y+(f.strut?-Math.abs(Math.sin(uu*Math.PI*8))*10:f.float?Math.sin(uu*Math.PI*3)*20:0);
+      if(f.trail){const tc={contrail:'rgba(255,255,255,.75)',smoke:'rgba(90,90,90,.6)',glitter:th.c[T.length%th.c.length],dust:'rgba(200,160,100,.5)',notes:'#fff',snow:'rgba(255,255,255,.85)'}[f.trail];T.push({x:fx-(f.sz*0.45),y:fy+(f.trail==='contrail'?f.sz*0.1:f.sz*0.2),l:1,c:tc,n:T.length})}
+      x.save();x.translate(fx,fy);
+      if(f.img){const im=fxImg(f.img);x.rotate(Math.sin(uu*Math.PI*8)*0.12);if(im.complete&&im.naturalWidth){x.beginPath();x.arc(0,0,f.sz/2,0,Math.PI*2);x.closePath();x.save();x.clip();x.drawImage(im,-f.sz/2,-f.sz/2,f.sz,f.sz);x.restore();x.strokeStyle='#e3262e';x.lineWidth=3;x.stroke()}else{x.font=f.sz+'px serif';x.fillText('🦡',0,0)}}
+      else{if(f.e==='✈️')x.rotate(Math.PI/4);if(f.spin)x.rotate(uu*12);x.font=f.sz+'px serif';x.fillText(f.e,0,0)}x.restore()}
+      for(let q=T.length-1;q>=0;q--){const s=T[q];s.l-=f.trail==='contrail'?0.012:0.03;if(s.l<=0){T.splice(q,1);continue}x.globalAlpha=fade*s.l;
+        if(f.trail==='notes'){x.fillStyle=s.c;x.font='18px serif';x.fillText(s.n%2?'🎵':'🎶',s.x,s.y-(1-s.l)*50)}
+        else{x.fillStyle=s.c;x.beginPath();x.arc(s.x,s.y,f.trail==='contrail'?3+(1-s.l)*5:4+(1-s.l)*10,0,Math.PI*2);x.fill()}}x.globalAlpha=fade}
+    // ---- big flashing word ----
+    if(th.txt&&e>150&&e<1700&&Math.floor(e/220)%2===0){x.font='900 '+Math.round(Math.min(W/ (th.txt.length*0.62),64))+'px Oswald, Impact, sans-serif';x.lineWidth=5;x.strokeStyle='rgba(0,0,0,.7)';x.strokeText(th.txt,cx,H*0.3);x.fillStyle=th.tc;x.fillText(th.txt,cx,H*0.3)}
+    if(u<1)requestAnimationFrame(fr);else cv.remove()};
+  requestAnimationFrame(fr);setTimeout(()=>cv.remove(),2600)}
+const fxTeam=v=>{v=String(v||'');const T=D.cur&&D.cur.T;if(!T||!v)return null;return Object.values(T).find(t=>String(t.rid)===v||String(t.uid)===v)||null};
+const fxFire=(t,o)=>{if(!t)return;if(t.joe)joeBurst();else teamBurst(String(t.uid),o)};
+// Auto-plays: once per session per key, never more than one per page view; the global 4s throttle still applies.
+const fxAuto=(key,t,o)=>{if(!t)return;try{if(sessionStorage.getItem('sn:af:'+key))return;sessionStorage.setItem('sn:af:'+key,'1')}catch(e){}if(fxAuto.pv===route.tok)return;fxAuto.pv=route.tok;setTimeout(()=>fxFire(t,o),500)};
+// Tap any team avatar or name anywhere: burst plays, links still navigate (the canvas lives on <body>, so it survives the route change).
+document.addEventListener('click',e=>{try{if(!e.target.closest||!D.cur)return;const T=Object.values(D.cur.T);if(e.target.closest('.h2x td[data-k],.chip,select'))return;
+  const tc=e.target.closest('[data-fx]');if(tc){const t=fxTeam(tc.getAttribute('data-fx'));if(t){fxFire(t);try{localStorage.setItem('sn:fxhint','1')}catch(x){}const h=$('#fxh');if(h)h.remove()}return}
+  const a=e.target.closest('a[href^="#team/"]');if(a){const t=fxTeam(a.getAttribute('href').split('/')[1]);if(t){fxAuto.pv=route.tok+1;const lp=a.closest('.pr');fxFire(t,lp&&!lp.nextElementSibling&&location.hash.startsWith('#power')?{roast:1}:null)}return}
+  const im=e.target.closest('img.av');if(im){const src=im.getAttribute('src');fxFire(T.find(t=>t.av&&t.av===src));return}
+  const el=e.target.closest('b,span,td,div,strong');if(el&&el.children.length<=1){const tx=(el.textContent||'').trim();const t=tx.length<40&&T.find(t=>t.team===tx);if(t)fxFire(t)}}catch(x){}});
+// Team pages auto-play their burst once; Power auto-plays #1 once per session; Home gets a "Tap a team" strip.
+{const _fa=R.after;R.after=k=>{if(_fa)_fa(k);try{const h=(location.hash||'').slice(1).split('/');
+  if(k==='team')fxAuto('team/'+h[1],fxTeam(h[1]));
+  else if(k==='power'){const a=document.querySelector('#view .pr a[href^="#team/"]');if(a)fxAuto('power',fxTeam(a.getAttribute('href').split('/')[1]))}
+  else if(k==='home'&&D.cur&&!$('#fxs')){const tgt=[...document.querySelectorAll('#view section.panel h2')].find(x=>/PICK YOUR POISON/.test(x.textContent));if(!tgt)return;let hint=true;try{hint=!localStorage.getItem('sn:fxhint')}catch(x){}
+    tgt.closest('section').insertAdjacentHTML('beforebegin',`<section class="panel" id="fxs"><h2>👀 TAP A TEAM</h2>${hint?'<div class="hint" id="fxh">Every team has its own little surprise. Go on, tap one.</div>':''}<div class="fxs">${Object.values(D.cur.T).sort((a,b)=>a.team.localeCompare(b.team)).map(t=>`<button type="button" class="fxc" data-fx="${t.rid}" aria-label="${esc(t.team)}">${t.av?`<img src="${esc(t.av)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:`<span>${esc(t.team[0])}</span>`}<small>${esc(t.team)}</small></button>`).join('')}</div></section>`)}}catch(x){}}}
+document.addEventListener('change',e=>{try{const s=e.target;if(!s||s.tagName!=='SELECT'||s.getAttribute('data-f')!=='team')return;fxFire(fxTeam(s.value))}catch(x){}});
+document.addEventListener('click',e=>{try{if(!e.target.closest||!D.cur)return;const td=e.target.closest('.h2x td[data-k]');const T=Object.values(D.cur.T);
+  if(td){const ks=td.getAttribute('data-k').split('|'),j=T.find(t=>t.joe&&ks.includes(String(t.uid)));fxFire(j||fxTeam(ks[0]));return}
+  const c=e.target.closest('.chip');if(!c)return;const tx=c.textContent;const j=T.find(t=>t.joe&&tx.indexOf(t.team)>=0);fxFire(j||T.filter(t=>tx.indexOf(t.team)>=0).sort((a,b)=>b.team.length-a.team.length)[0])}catch(x){}});
 // Team pages: this season's schedule. Results so far + every remaining opponent, straight from Sleeper's matchups.
 async function teamSched(el,rid){const {lg,T}=await current(),t=T[rid];if(!t)return;const last=+lg.settings.last_scored_leg||0,pws=+lg.settings.playoff_week_start||15,cur=Math.max(1,+(D.state&&D.state.leg)||last+1);
   const M=await pool(Array.from({length:pws-1},(_,k)=>()=>jc('league/'+LEAGUE+'/matchups/'+(k+1)).catch(()=>[])),8),gp=x=>Math.max(1,x.w+x.l+x.t),ppg=x=>x.pf/gp(x);
