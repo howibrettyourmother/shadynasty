@@ -217,6 +217,13 @@ table.rct td,table.rct th{text-align:center}table.rct td.tm{text-align:left;max-
 @keyframes jbx{0%{opacity:1;transform:translate(0,0) rotate(0) scale(.5)}55%{opacity:1;transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(1)}100%{opacity:0;transform:translate(var(--x),calc(var(--y) + 70px)) rotate(var(--r)) scale(.8)}}
 @media(prefers-reduced-motion:reduce){.jb{display:none}#rf.busy,.gl{animation:none}}
 .bwv{font-size:12px;margin-top:3px;opacity:.9}.bwv .pill{font-size:10px}.cupk{margin:10px 0;padding:10px 12px;border:1px solid rgba(255,196,0,.35);border-radius:10px;background:rgba(255,196,0,.07);font-size:13px;line-height:1.5}.cupk>small{display:block;opacity:.7;margin-top:4px}.cupk div small{opacity:.7}
+.jbc{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:125}
+.jbe{position:fixed;inset:0;pointer-events:none;z-index:124;box-shadow:inset 0 0 26px 6px rgba(255,124,192,.75),inset 0 0 60px 14px rgba(255,199,44,.35);opacity:0;animation:jbe 2s ease-out forwards}
+@keyframes jbe{0%{opacity:0}15%{opacity:1}35%{opacity:.45}55%{opacity:.9}100%{opacity:0}}
+#toast.joe{background:linear-gradient(#141b29,#141b29) padding-box,linear-gradient(90deg,#ff3b5c,#ff9f1a,#ffe23a,#3ddc84,#3fa7ff,#9b6bff,#ff7cc0) border-box;border:2px solid transparent;box-shadow:0 0 18px rgba(255,124,192,.55),0 6px 24px rgba(0,0,0,.55)}
+#toast.joe .tsp{display:inline-block;animation:tsp .9s ease-in-out infinite alternate}
+@keyframes tsp{from{transform:scale(.8) rotate(-15deg);opacity:.6}to{transform:scale(1.15) rotate(15deg);opacity:1}}
+@media (prefers-reduced-motion: reduce){#toast.joe .tsp{animation:none}}
 </style></head>
 <body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <linearGradient id="beer" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23a"/><stop offset="1" stop-color="#d98a00"/></linearGradient>
@@ -236,5 +243,5 @@ table.rct td,table.rct th{text-align:center}table.rct td.tm{text-align:left;max-
 <main class="wrap" id="view"></main>
 <div class="foot wrap">Auto-built in your browser from the public <a href="https://docs.sleeper.com/" rel="noopener">Sleeper API</a> · values by <a href="https://fantasycalc.com" rel="noopener">FantasyCalc</a> · no humans were harmed, only lineups.</div>
 <script src="roast.js?v=10"></script>
-<script src="app.js?v=45"></script>
+<script src="app.js?v=46"></script>
 </body></html>

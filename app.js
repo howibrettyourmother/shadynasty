@@ -947,11 +947,35 @@ const JOE_DIGS=["Loading contention window… still loading.","Filtering for Joe
  "Joe's trade history: buy high, sell low, repeat.","Searching this roster for a starter… please wait.","Rainbow Warrior? More like Rebuild Warrior.","Joe accepted a trade. Somewhere a league mate just got a free upgrade.",
  "The L column called. It needs more room.","Joe's draft-pick collection: impressive. Joe's wins: not."];
 function joeBurst(){const now=Date.now();if(now-(joeBurst.t||0)<4000)return;joeBurst.t=now;let i=0;try{i=(+localStorage.getItem('sn:jd')||0);localStorage.setItem('sn:jd',String((i+1)%JOE_DIGS.length))}catch(e){i=Math.floor(Math.random()*JOE_DIGS.length)}
-  toast('🧢 '+esc(JOE_DIGS[i%JOE_DIGS.length]),2600);if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  const C=['#ff4fa8','#ff7cc0','#ffc72c','#ffe07a','#ff4fa8','#ffc72c','#e3262e','#ff9f1a','#ffe23a','#3ddc84','#3fa7ff','#9b6bff'],b=document.createElement('div');b.className='jb';b.setAttribute('aria-hidden','true');
-  let h='';for(let k=0;k<34;k++){const a=Math.random()*Math.PI*2,d=70+Math.random()*120,c=C[k%C.length],sp=k%3===0;
-    h+=`<i style="--x:${Math.round(Math.cos(a)*d)}px;--y:${Math.round(Math.sin(a)*d-40)}px;--r:${Math.round(Math.random()*720-360)}deg;background:${c};${sp?'width:5px;height:5px;border-radius:50%;box-shadow:0 0 6px '+c+';':''}animation-delay:${(Math.random()*0.12).toFixed(2)}s"></i>`}
-  b.innerHTML=h;document.body.appendChild(b);setTimeout(()=>b.remove(),1300)}
+  const tt=toast('<span class="tsp">✨</span> '+esc(JOE_DIGS[i%JOE_DIGS.length])+' <span class="tsp">✨</span>',3000);tt.classList.add('joe');if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  // One canvas, ~2s, 150 particles max, rAF only while running. Edge shimmer is a single opacity-animated overlay.
+  const W=innerWidth,H=innerHeight,dpr=Math.min(2,window.devicePixelRatio||1),cv=document.createElement('canvas'),ed=document.createElement('div');cv.className='jbc';ed.className='jbe';cv.setAttribute('aria-hidden','true');ed.setAttribute('aria-hidden','true');
+  cv.width=W*dpr;cv.height=H*dpr;const x=cv.getContext('2d');if(!x)return;x.scale(dpr,dpr);document.body.append(cv,ed);
+  const RB=['#ff3b5c','#ff9f1a','#ffe23a','#3ddc84','#3fa7ff','#9b6bff','#ff7cc0'],GL=['#ff4fa8','#ff7cc0','#ffc72c','#ffe07a','#fff3b0','#ffffff'],cx=W/2,cy=H*0.62,R=Math.min(W*0.62,H*0.5),bw=Math.max(6,R*0.055);
+  const P=[],E=['🦄','💖','⭐'],T=[];const add=(px,py,k)=>{const a=-Math.PI/2+(Math.random()-0.5)*2.6,v=3+Math.random()*7;P.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2,r:Math.random()*6.3,vr:(Math.random()-0.5)*0.3,s:4+Math.random()*5,k,c:k==='c'?RB[P.length%7]:GL[P.length%6],e:E[P.length%3]})};
+  const KD='sshcrsshcs';for(let k=0;k<132;k++)add(cx+(Math.random()-0.5)*60,cy-R*0.25,k<6?'e':KD[k%KD.length]);
+  const star=(px,py,r,n)=>{x.beginPath();for(let k=0;k<n*2;k++){const a=k*Math.PI/n-Math.PI/2,q=k%2?r*0.42:r;x.lineTo(px+Math.cos(a)*q,py+Math.sin(a)*q)}x.closePath();x.fill()};
+  const heart=(px,py,r)=>{x.beginPath();x.moveTo(px,py+r*0.35);x.bezierCurveTo(px,py-r*0.3,px-r,py-r*0.3,px-r,py+r*0.15);x.bezierCurveTo(px-r,py+r*0.6,px,py+r*0.9,px,py+r*1.1);x.bezierCurveTo(px,py+r*0.9,px+r,py+r*0.6,px+r,py+r*0.15);x.bezierCurveTo(px+r,py-r*0.3,px,py-r*0.3,px,py+r*0.35);x.fill()};
+  const D0=2000,t0=performance.now();x.textAlign='center';x.textBaseline='middle';
+  const fr=t=>{const e=t-t0,u=Math.min(1,e/D0),fade=u>0.8?1-(u-0.8)/0.2:1;x.clearRect(0,0,W,H);x.globalAlpha=fade;
+    // soft glow
+    const g=x.createRadialGradient(cx,cy-R*0.4,0,cx,cy-R*0.4,R*1.1);g.addColorStop(0,'rgba(255,124,192,.28)');g.addColorStop(1,'rgba(255,124,192,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+    // rainbow arc sweeps in left->right over 0.55s, then a white shimmer band slides across it
+    const sw=Math.min(1,e/550),a1=Math.PI+Math.PI*(1-Math.pow(1-sw,3));x.lineCap='round';
+    RB.slice(0,6).forEach((c,k)=>{x.strokeStyle=c;x.lineWidth=bw;x.beginPath();x.arc(cx,cy,R-k*bw,Math.PI,a1);x.stroke()});
+    if(e>450){const sh=((e-450)/900)%1,sa=Math.PI+Math.PI*sh;x.strokeStyle='rgba(255,255,255,.55)';x.lineWidth=bw*6;x.beginPath();x.arc(cx,cy,R-bw*2.5,sa-0.09,sa+0.09);x.stroke()}
+    // unicorn leaps along the arc with a glitter trail
+    const uu=Math.min(1,Math.max(0,(e-200)/1300)),ua=Math.PI+Math.PI*uu,ux=cx+Math.cos(ua)*(R+bw*0.6),uy=cy+Math.sin(ua)*(R+bw*0.6)-Math.abs(Math.sin(uu*Math.PI*5))*12;
+    if(uu>0&&uu<1){T.push({x:ux,y:uy+10,l:1,c:GL[T.length%6]});if(P.length<150&&T.length%3===0)add(ux,uy,'h')}
+    for(let k=T.length-1;k>=0;k--){const s=T[k];s.l-=0.025;if(s.l<=0){T.splice(k,1);continue}x.fillStyle=s.c;x.globalAlpha=fade*s.l;star(s.x,s.y+(1-s.l)*14,2+3*s.l,4)}
+    x.globalAlpha=fade;if(uu>0&&uu<1){x.save();x.translate(ux,uy);x.scale(-1,1);x.rotate(-(uu-0.5)*1.2);x.font=Math.round(Math.max(34,R*0.17))+'px serif';x.fillText('🦄',0,0);x.restore()}
+    // particles: stars, hearts, sparkles, confetti, a few unicorns
+    for(const p of P){p.vy+=0.16;p.vx*=0.985;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;x.fillStyle=p.c;
+      if(p.k==='s')star(p.x,p.y,p.s,5);else if(p.k==='h')heart(p.x,p.y,p.s*0.8);else if(p.k==='e'){x.font='18px serif';x.fillText(p.e,p.x,p.y)}
+      else if(p.k==='r'){x.globalAlpha=fade*(0.5+0.5*Math.abs(Math.sin(e/60+p.r)));star(p.x,p.y,p.s*0.8,4);x.globalAlpha=fade}
+      else{x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillRect(-p.s/2,-p.s*0.7,p.s,p.s*1.4);x.restore()}}
+    if(u<1)requestAnimationFrame(fr);else{cv.remove();ed.remove()}};
+  requestAnimationFrame(fr);setTimeout(()=>{cv.remove();ed.remove()},2600)}
 const joeIds=()=>{const t=D.cur&&Object.values(D.cur.T).find(x=>x.joe);return t?[String(t.rid),String(t.uid),t.team]:null};
 document.addEventListener('change',e=>{try{const s=e.target;if(!s||s.tagName!=='SELECT'||s.getAttribute('data-f')!=='team')return;const J=joeIds();if(J&&s.value&&(s.value===J[0]||s.value===J[1]))joeBurst()}catch(x){}});
 document.addEventListener('click',e=>{try{const J=joeIds();if(!J||!e.target.closest)return;const td=e.target.closest('.h2x td[data-k]');if(td){if(td.getAttribute('data-k').split('|').includes(J[1]))joeBurst();return}
