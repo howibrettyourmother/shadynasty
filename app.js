@@ -630,7 +630,6 @@ async function fillTrainer(nd){const {lg,T,state}=await current();const r=(arr,k
   const avg=p=>A[p]?A[p][0]/A[p][1]:Math.min(16,(V.p[p]||0)/450),est=p=>!A[p],team=p=>TM[p]||(P[p]||{}).t||'',nm=p=>(P[p]||{}).n||'Player '+p;
   const lastWk=Math.max(...Object.values(BYE26)),weeks=[];for(let w=wk+1;w<=lastWk;w++)if(Object.values(BYE26).includes(w))weeks.push(w);
   const SCH={};(await pool(weeks.map(w=>()=>jc('league/'+LEAGUE+'/matchups/'+w).catch(()=>[])),6)).forEach((ms,k)=>{const by={},o={};(ms||[]).forEach(m=>{if(m.matchup_id!=null)(by[m.matchup_id]=by[m.matchup_id]||[]).push(m.roster_id)});Object.values(by).forEach(g=>{if(g.length===2){o[g[0]]=g[1];o[g[1]]=g[0]}});SCH[weeks[k]]=o});
-  const PF={},GP={};M.forEach(w=>w.forEach(m=>{if(+m.points>0){PF[m.roster_id]=(PF[m.roster_id]||0)+ +m.points;GP[m.roster_id]=(GP[m.roster_id]||0)+1}}));const ppg=rid=>GP[rid]?PF[rid]/GP[rid]:0,medPPG=Object.keys(T).map(ppg).sort((a,b)=>a-b)[Math.floor(Object.keys(T).length/2)]||0;
   const rows=Object.values(T).map(t=>{const ls=likelyStarters(slots,t.players||[],avg,P),wt=p=>ls.has(p)?1:0.25;
     const bye=(t.players||[]).filter(p=>BYE26[team(p)]===wk).map(p=>({p,s:ls.has(p),x:avg(p)*wt(p)})).sort((a,b)=>b.x-a.x);
     const hurt=(t.players||[]).filter(p=>IM[p]&&BYE26[team(p)]!==wk).map(p=>({p,i:IM[p],s:ls.has(p),x:avg(p)*INJW[IM[p][0]]*wt(p)})).sort((a,b)=>b.x-a.x);
@@ -638,10 +637,10 @@ async function fillTrainer(nd){const {lg,T,state}=await current();const r=(arr,k
     return{t,bye,hurt,bx:bye.reduce((a,b)=>a+b.x,0),ix:hurt.reduce((a,b)=>a+b.x,0),fut,worst}}).map(o=>({...o,x:o.bx+o.ix})).sort((a,b)=>b.x-a.x);
   const RW={};rows.forEach(o=>RW[o.t.rid]=o);const outW=(rid,w)=>{const o=RW[rid];const f=o&&o.fut.find(f=>f.w===w);return f||{w,n:0,pts:0,o:[]}};
   const sit=(o,w)=>{const orid=(SCH[w]||{})[o.t.rid],op=orid!=null&&RW[orid];if(!op)return null;const hp=outW(o.t.rid,w).pts,f=outW(orid,w);
-    const k=f.pts>=Math.max(20,0.5*hp)&&hp>=20?'both':hp>=20&&f.pts<10&&ppg(orid)>=medPPG?'cup':'';return{op,f,k,hp}};
-  const cups=[];weeks.forEach(w=>rows.forEach(o=>{const x=sit(o,w);if(x&&x.hp>=30&&x.f.pts<10)cups.push({w,o,x})}));cups.sort((a,b)=>a.w-b.w||b.x.hp-a.x.hp);
+    const k=hp>=30&&f.pts<10?'cup':f.pts>=Math.max(20,0.5*hp)&&hp>=20?'both':'';return{op,f,k,hp}};
+  const cups=[];weeks.forEach(w=>rows.forEach(o=>{const x=sit(o,w);if(x&&x.k==='cup')cups.push({w,o,x})}));cups.sort((a,b)=>a.w-b.w||b.x.hp-a.x.hp);
   const sitTag=x=>!x?'':x.k==='both'?` <span class="pill red">both gutted</span>`:x.k==='cup'?` <span class="pill">cupcake for ${esc(x.op.t.team)}</span>`:'';
-  const sitLine=x=>!x?'':`<div class="bwv">vs <b>${esc(x.op.t.team)}</b> · ${x.f.n?`${x.f.n} starter${x.f.n===1?'':'s'} out, ~${int(x.f.pts)} pts`:'nobody on bye'}${sitTag(x)}</div>`;
+  const sitLine=x=>!x?'':`<div class="bwv">vs <b>${esc(x.op.t.team)}</b> · ${x.f.n?`${x.f.n} starter${x.f.n===1?'':'s'} out, ~${x.f.pts<10?d1(x.f.pts):int(x.f.pts)} pts`:'nobody on bye'}${sitTag(x)}</div>`;
   const pill=s=>`<span class="pill${s==='Questionable'?'':' red'}">${esc(s)}</span>`,ln=(h,tag2)=>`<div class="ip">${h.s?'⭐ ':''}<b>${esc(nm(h.p))}</b> ${tag2} <small>${fmt(avg(h.p))}${est(h.p)?'*':''}/wk</small></div>`;
   const w0=rows[0],maxPts=Math.max(1,...rows.flatMap(o=>o.fut.map(f=>f.pts)));
   const heat=weeks.length?`<div class="tw"><table class="heat"><thead><tr><th>TEAM</th>${weeks.map(w=>`<th>${w}</th>`).join('')}</tr></thead><tbody>${rows.slice().sort((a,b)=>(b.worst?b.worst.pts:0)-(a.worst?a.worst.pts:0)).map(o=>`<tr><td class="tm">${esc(o.t.team)}</td>${o.fut.map(f=>`<td style="background:rgba(227,38,46,${(f.pts/maxPts*0.85).toFixed(2)})" title="${f.n} starters, ${fmt(f.pts)} pts">${f.n||''}</td>`).join('')}</tr>`).join('')}</tbody></table></div><div class="hint">Likely starters on bye per remaining week; redder = more points out.</div>`:'';
@@ -650,8 +649,8 @@ async function fillTrainer(nd){const {lg,T,state}=await current();const r=(arr,k
     ${i===0&&o.x>0?`<div class="rl">${r(o.bye.filter(b=>b.s).length?BWH.top:IRB.top,'bw'+o.t.rid+wk,{T:o.t.team,n:o.bye.filter(b=>b.s).length||o.hurt.length,p:fmt(o.x)})}</div>`:''}</li>`).join('')}</ol>
     <div class="hint">⭐ = likely starter. * = hasn't scored this season, guessed from dynasty value.</div>
     <h3>🔥 BYE WEEK HELL: WORST WEEK AHEAD</h3>${weeks.length?`<ol class="rec ig">${rows.filter(o=>o.worst).sort((a,b)=>b.worst.pts-a.worst.pts).map((o,i)=>{const x=o.worst.n?sit(o,o.worst.w):null,rv=x&&(x.k==='both'?BWH.both:x.k==='cup'?(o.t.joe?BWH.joe:BWH.cup):null);
-      return`<li><div><b>Week ${o.worst.w}</b>: ${o.worst.n} starter${o.worst.n===1?'':'s'} out, ~${int(o.worst.pts)} pts · ${esc(o.t.team)}<small>${o.worst.o.map(p=>esc(nm(p))).join(', ')||'nobody'}</small>${sitLine(x)}${i===0&&o.worst.n?`<div class="rl">${r(BWH.up,'bu'+o.t.rid+wk,{T:o.t.team,w:o.worst.w,n:o.worst.n,p:int(o.worst.pts)})}</div>`:rv&&i<6?`<div class="rl">${r(rv,'bv'+o.t.rid+o.worst.w,{T:o.t.team,O:x.op.t.team,w:o.worst.w,p:int(x.hp)})}</div>`:''}</div></li>`}).join('')}</ol>
-    ${cups.length?`<div class="cupk"><b>🧁 CUPCAKE WEEKS</b>${cups.slice(0,8).map(c=>`<div>Wk ${c.w}: <b>${esc(c.x.op.t.team)}</b> gets ${esc(c.o.t.team)} <small>(−${int(c.x.hp)} pts on bye vs −${d1(c.x.f.pts)})</small></div>`).join('')}<small>Soft matchups: opponent has 30+ starter pts on bye, you have under 10.</small></div>`:''}${heat}`:'<div class="hint">No byes left this season. Every excuse from here on is a lie.</div>'}`;
+      return`<li><div><b>Week ${o.worst.w}</b>: ${o.worst.n} starter${o.worst.n===1?'':'s'} out, ~${int(o.worst.pts)} pts · ${esc(o.t.team)}<small>${o.worst.o.map(p=>esc(nm(p))).join(', ')||'nobody'}</small>${sitLine(x)}${cups.filter(c=>c.o===o&&c.w!==o.worst.w).map(c=>`<div class="bwv">Also wk ${c.w} vs <b>${esc(c.x.op.t.team)}</b> · ~${int(c.x.hp)} pts on bye${sitTag(c.x)}</div>`).join('')}${i===0&&o.worst.n?`<div class="rl">${r(BWH.up,'bu'+o.t.rid+wk,{T:o.t.team,w:o.worst.w,n:o.worst.n,p:int(o.worst.pts)})}</div>`:rv&&i<6?`<div class="rl">${r(rv,'bv'+o.t.rid+o.worst.w,{T:o.t.team,O:x.op.t.team,w:o.worst.w,p:int(x.hp)})}</div>`:''}</div></li>`}).join('')}</ol>
+    ${cups.length?`<div class="cupk"><b>🧁 CUPCAKE WEEKS</b>${cups.slice(0,8).map(c=>`<div>Wk ${c.w}: <b>${esc(c.x.op.t.team)}</b> gets ${esc(c.o.t.team)} <small>(−${int(c.x.hp)} pts on bye vs −${d1(c.x.f.pts)})</small></div>`).join('')}<small>Same rule as the 'cupcake' tags above: opponent has 30+ starter pts on bye, you have under 10.</small></div>`:''}${heat}`:'<div class="hint">No byes left this season. Every excuse from here on is a lie.</div>'}`;
   return w0}
 {const _pw=R.power;R.power=async el=>{await _pw(el);el.insertAdjacentHTML('beforeend',trainerHTML());const n=el.querySelector('#trn');
   setTimeout(()=>fillTrainer(n).catch(e=>{n.innerHTML=`<div class="hint">The trainer's room is locked (${esc(e.message||e)}). Try again in a bit.</div>`}),0)};
@@ -980,9 +979,20 @@ const joeIds=()=>{const t=D.cur&&Object.values(D.cur.T).find(x=>x.joe);return t?
 document.addEventListener('change',e=>{try{const s=e.target;if(!s||s.tagName!=='SELECT'||s.getAttribute('data-f')!=='team')return;const J=joeIds();if(J&&s.value&&(s.value===J[0]||s.value===J[1]))joeBurst()}catch(x){}});
 document.addEventListener('click',e=>{try{const J=joeIds();if(!J||!e.target.closest)return;const td=e.target.closest('.h2x td[data-k]');if(td){if(td.getAttribute('data-k').split('|').includes(J[1]))joeBurst();return}
   const c=e.target.closest('.chip');if(c&&c.textContent.indexOf(J[2])>=0)joeBurst()}catch(x){}});
+// Team pages: this season's schedule. Results so far + every remaining opponent, straight from Sleeper's matchups.
+async function teamSched(el,rid){const {lg,T}=await current(),t=T[rid];if(!t)return;const last=+lg.settings.last_scored_leg||0,pws=+lg.settings.playoff_week_start||15,cur=Math.max(1,+(D.state&&D.state.leg)||last+1);
+  const M=await pool(Array.from({length:pws-1},(_,k)=>()=>jc('league/'+LEAGUE+'/matchups/'+(k+1)).catch(()=>[])),8),gp=x=>Math.max(1,x.w+x.l+x.t),ppg=x=>x.pf/gp(x);
+  const rows=M.map((w,wi)=>{const me=(w||[]).find(m=>m.roster_id===rid);if(!me||me.matchup_id==null)return'';const o=w.find(m=>m.matchup_id===me.matchup_id&&m.roster_id!==rid);if(!o||!T[o.roster_id])return'';
+    const O=T[o.roster_id],wk=wi+1,a=+me.points||0,b=+o.points||0,nm=`<a href="#team/${O.rid}">${esc(O.team)}</a>`;
+    if(wk<=last){const res=a>b?'W':a<b?'L':'T',ap=w.filter(m=>m.roster_id!==rid&&(+m.points||0)<a).length;
+      return`<tr><td>${wk}</td><td>${nm}</td><td><b class="${res==='W'?'up':res==='L'?'lbr':''}">${res}</b> ${fmt(a)}–${fmt(b)}<small class="sub"> beats ${ap}/${w.length-1}</small></td></tr>`}
+    return`<tr${wk===cur?' class="st"':''}><td>${wk}</td><td>${nm}</td><td>${wk===cur?'<b>this week</b> · ':''}${O.w}-${O.l}${O.t?'-'+O.t:''} · ${fmt(ppg(O))}/wk</td></tr>`}).join('');
+  if(!rows)return;const h=[...el.querySelectorAll('h3')].find(x=>x.textContent==='ROSTER');if(!h)return;
+  h.insertAdjacentHTML('beforebegin',`<h3>🗓️ ${esc(lg.season)} SCHEDULE</h3><div class="tw"><table class="mini sched"><thead><tr><th>WK</th><th>OPPONENT</th><th>RESULT / THEIR SEASON</th></tr></thead><tbody>${rows}</tbody></table></div><div class="hint">"Beats x/${Object.keys(T).length-1}" = how many teams that score would have beaten that week.</div>`)}
+{const _ts=R.team;R.team=async(el,rid)=>{await _ts(el,rid);await teamSched(el,+rid).catch(()=>{})}}
 // Team pages: this week's injury tags + byes on the roster (same slim players file / precedence as the Trainer's Room)
 {const _tp=R.team;R.team=async(el,rid)=>{await _tp(el,rid);const c=await current(),t=c.T[+rid];if(!t)return;const wk=Math.max(1,+(c.state&&(c.state.display_week||c.state.week))||1);
-  injuries(t.players).then(IN=>{const IM=injMap(IN);el.querySelectorAll('tr[data-p]').forEach(tr=>{const p=tr.getAttribute('data-p'),i=IM[p],tm=(IN.tm||{})[p]||(PL[p]||{}).t,td=tr.firstElementChild;if(!td)return;
+  const trs=[...el.querySelectorAll('tr[data-p]')];injuries(t.players).then(IN=>{const IM=injMap(IN);trs.forEach(tr=>{const p=tr.getAttribute('data-p'),i=IM[p],tm=(IN.tm||{})[p]||(PL[p]||{}).t,td=tr.firstElementChild;if(!td)return;
     if(i)td.insertAdjacentHTML('beforeend',` <span class="pill${i[0]==='Questionable'?'':' red'}" title="${esc(i[1]||'')}">${esc(String(i[0]).toUpperCase().slice(0,4))}</span>`);
     else if(tm&&BYE26[tm]===wk)td.insertAdjacentHTML('beforeend',' <span class="pill bye">BYE</span>')})}).catch(()=>{})}}
 route();   // last: every R.* page above is registered before the first render
