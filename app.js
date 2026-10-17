@@ -53,7 +53,7 @@ async function values(){const k='sn:fc3';const c=LS.get(k);if(c&&Date.now()-c.at
 const ORD=['','1st','2nd','3rd','4th','5th'];
 function pickVal(V,season,round){return V.pk[season+' '+ORD[round]]||V.pk[season+' '+ORD[round]+' (Mid)']||(V.pk[(+season-1)+' '+ORD[round]]||0)*0.9||0}
 // ---------------- data model ----------------
-const D={};try{for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&(k.indexOf('sn:s5:')===0||k.indexOf('sn:s6:')===0||k.indexOf('sn:s7:')===0||k.indexOf('sn:s8:')===0))localStorage.removeItem(k)}}catch(e){}
+const D={};try{for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&(k.indexOf('sn:s5:')===0||k.indexOf('sn:s6:')===0||k.indexOf('sn:s7:')===0||k.indexOf('sn:s8:')===0||k.indexOf('sn:s9:')===0))localStorage.removeItem(k)}}catch(e){}
 async function chain(){if(D.chain)return D.chain;const cache=LS.get('sn:chain')||{},out=[];let id=LEAGUE;
   while(id&&id!=='0'){let lg=cache[id];if(!lg||lg.status!=='complete'){lg=await j('league/'+id);if(lg.status==='complete')cache[id]=lg}out.push(lg);id=lg.previous_league_id}
   LS.set('sn:chain',cache);return D.chain=out}
@@ -64,7 +64,7 @@ function teamsOf(users,rosters){const U=Object.fromEntries(users.map(u=>[u.user_
       joe:/^joebags85$/i.test(un),wz:r.owner_id===BRETT,players:r.players||[],starters:r.starters||[],streak:(r.metadata&&r.metadata.streak)||''}}
   return T}
 // compact season summary; completed seasons are cached forever in localStorage
-async function season(lg){const done=lg.status==='complete',id=lg.league_id,key='sn:s9:'+id;if(done){const c=LS.get(key);if(c)return c}
+async function season(lg){const done=lg.status==='complete',id=lg.league_id,key='sn:s10:'+id;if(done){const c=LS.get(key);if(c)return c}
   const st=lg.settings||{},last=+st.last_scored_leg||0,pws=+st.playoff_week_start||15,leg=done?18:Math.max(1,+(D.state&&D.state.leg)||last+1);
   const g=done?jc:j;
   const [users,rosters,wb,drafts]=await Promise.all([g('league/'+id+'/users'),g('league/'+id+'/rosters'),g('league/'+id+'/winners_bracket').catch(()=>[]),jc('league/'+id+'/drafts').catch(()=>[])]);
@@ -79,7 +79,7 @@ async function season(lg){const done=lg.status==='complete',id=lg.league_id,key=
   const wk=M.map(w=>w.map(m=>{const pp=m.players_points||{};return[m.roster_id,m.matchup_id,+m.points||0,Math.round(optimal(slots,m.players||[],pp,P)*100)/100]}));
   const sp={},top=M.map(()=>({}));M.forEach((w,wi)=>w.forEach(m=>{const s=(m.starters||[]),pts=m.starters_points||[];const R=sp[m.roster_id]=sp[m.roster_id]||{};
     let hi=null;s.forEach((pid,i)=>{if(!pid||pid==='0')return;const v=+pts[i]||0;(R[pid]=R[pid]||[]).push([wi+1,v]);if(!hi||v>hi[1])hi=[pid,v]});top[wi][m.roster_id]=hi}));
-  const trades=[];TX.flat().filter(t=>t&&t.type==='trade'&&t.status==='complete').forEach(t=>trades.push({id:t.transaction_id,season:lg.season,leg:+t.leg||1,at:t.status_updated||t.created,rids:t.roster_ids||[],adds:t.adds||{},picks:(t.draft_picks||[]).map(p=>({s:p.season,r:p.round,o:p.roster_id,to:p.owner_id,from:p.previous_owner_id}))}));
+  const trades=[];TX.flat().filter(t=>t&&t.type==='trade'&&t.status==='complete').forEach(t=>trades.push({id:t.transaction_id,season:lg.season,leg:+t.leg||1,at:t.status_updated||t.created,rids:t.roster_ids||[],adds:t.adds||{},drops:t.drops||{},picks:(t.draft_picks||[]).map(p=>({s:p.season,r:p.round,o:p.roster_id,to:p.owner_id,from:p.previous_owner_id}))}));
   const adds=[];TX.flat().filter(t=>t&&(t.type==='waiver'||t.type==='free_agent')&&t.status==='complete'&&t.adds).forEach(t=>{let fb=+(t.settings&&t.settings.waiver_bid)||0;for(const [pid,rid] of Object.entries(t.adds)){adds.push([pid,+rid,+t.leg||1,t.type==='waiver'?1:0,fb,t.status_updated||t.created||0]);fb=0}});
   const drops=[];TX.flat().filter(t=>t&&(t.type==='waiver'||t.type==='free_agent')&&t.status==='complete'&&t.drops).forEach(t=>{for(const [pid,rid] of Object.entries(t.drops))drops.push({pid,rid:+rid,season:lg.season,leg:+t.leg||1,at:t.status_updated||t.created})});
   const place={};let champ=null;for(const m of wb||[]){if(!m.p||!m.w)continue;place[m.w]=m.p;place[m.l]=m.p+1;if(m.p===1)champ=m.w}
@@ -263,30 +263,55 @@ R.team=async(el,rid)=>{rid=+rid;const {lg,T,tp}=await current();const t=T[rid];i
 //  - picks: the drafted player counts only for the team that actually made the pick; a pick flipped before the draft counts for the flipper as a pick of that round
 //    (today's FantasyCalc price, using the Early/Mid/Late tier of the slot it ended up being) and stops there
 const TRV=10,PCAP=200,TMIN=20,TIER=n=>n<=4?'Early':n<=8?'Mid':'Late';
-const TRADE_HINT=`Score = starter points the new team got out of the deal + FantasyCalc value they still hold ÷ ${TRV} (1,000 value ≈ 100 pts). Points max out at ${PCAP} per player per season so a 5-year starter doesn't bury a stud rookie. Traded him away or cut him? His value stops counting for you. Flipped a pick? You get credit for the pick, not the guy somebody else drafted with it.`;
+const TRADE_HINT=`Score = starter points the new team got out of the deal + FantasyCalc value they still hold ÷ ${TRV} (1,000 value ≈ 100 pts). Points max out at ${PCAP} per player per season so a 5-year starter doesn't bury a stud rookie. Flipped him (or the pick) in a later trade? You get his share of what came back, by today's value, followed up to 2 trades deep. Cut him? His value today still counts, marked dropped. All values are today's FantasyCalc numbers (no history at trade time exists).`;
 function tradeList(S,T,V){const bySeason=Object.fromEntries(S.map(s=>[s.season,s])),out=[],tp=(D.cur&&D.cur.tp)||[],nextYr=(+(((D.cur||{}).lg||{}).season)||new Date().getFullYear())+1;
   const ptsFor=(rid,pid,season,leg)=>{let t=0;for(const s of S){if(+s.season<+season||!s.sp)continue;const a=(s.sp[rid]||{})[pid];let y=0;if(a)for(const [w,p] of a)if(+s.season>+season||w>=leg)y+=p;t+=Math.min(y,PCAP)}return t};
   const nm=(s,rid)=>{const x=(bySeason[s]||{}).teams;return x&&x[rid]?x[rid].team:(T[rid]||{}).team||'Team '+rid};
   const lastMove={},pickMoves={},dropAt={};
   for(const s of S){for(const tr of s.trades){for(const pid in tr.adds)lastMove[pid]=Math.max(lastMove[pid]||0,tr.at||0);for(const pk of tr.picks){const k=pk.s+'|'+pk.r+'|'+pk.o;(pickMoves[k]=pickMoves[k]||[]).push(tr.at||0)}}
     for(const d of s.drops||[]){const k=d.pid+'|'+d.rid;dropAt[k]=Math.max(dropAt[k]||0,d.at||0)}}
-  // still on that roster today, not moved by a later trade, not cut since `at`
-  const holds=(rid,pid,at)=>{const t=T[rid];return!!t&&t.players.includes(pid)&&(lastMove[pid]||0)<=at&&!((dropAt[pid+'|'+rid]||0)>at)};
-  for(const s of S)for(const tr of s.trades){const at=tr.at||0,sides=tr.rids.map(rid=>({rid,team:nm(s.season,rid),cur:(T[rid]||{}).team,players:[],picks:[],pts:0,val:0,score:0}));const sd=r=>sides.find(x=>x.rid===r);
-    for(const [pid,rid] of Object.entries(tr.adds)){const x=sd(rid);if(!x)continue;const p=ptsFor(rid,pid,s.season,tr.leg),kept=holds(rid,pid,at),v=kept?V.p[pid]||0:0;x.players.push({pid,p,v,gone:!kept});x.pts+=p;x.val+=v}
-    for(const pk of tr.picks){const x=sd(pk.to);if(!x)continue;const k=pk.s+'|'+pk.r+'|'+pk.o,d=(bySeason[pk.s]||{}).picks,got=d&&d[k],flip=(pickMoves[k]||[]).some(a=>a>at);let p=0,v=0,who=null,tier='';
-      if(flip){tier=got&&got[2]?TIER(got[2]):'';v=(tier&&V.pk[nextYr+' '+ORD[pk.r]+' ('+tier+')'])||pickVal(V,nextYr,pk.r)}
-      else if(got){if(+got[1]===+pk.to){who=got[0];p=ptsFor(pk.to,who,pk.s,1);v=holds(pk.to,who,0)?V.p[who]||0:0}}
-      else{const o=tp.find(z=>+z.season===+pk.s&&+z.round===+pk.r&&+z.roster_id===+pk.o);if(+(o?o.owner_id:pk.o)===+pk.to)v=pickVal(V,pk.s,pk.r)}
-      x.picks.push({...pk,who,p,v,flip,tier,orig:nm(s.season,pk.o)});x.pts+=p;x.val+=v}
+  // still on that roster today and not moved by a later trade (a cut-and-re-signed guy who's on the roster now still counts)
+  const holds=(rid,pid,at)=>{const t=T[rid];return!!t&&t.players.includes(pid)&&(lastMove[pid]||0)<=at};
+  // ---- trade tree: an asset the receiving team later lost is NOT worth 0 ----
+  // flipped in a later trade -> its share (by today's FantasyCalc value) of what came back, followed up to 2 trades deep (cycle-safe);
+  // dropped / otherwise gone -> today's value, labeled. No historical FantasyCalc values exist, so everything is valued at today's prices.
+  const TRX=[];for(const s of S)for(const tr of s.trades)TRX.push({tr,season:s.season});TRX.sort((a,b)=>(a.tr.at||0)-(b.tr.at||0));
+  const senderOf=(tr,pid)=>{const d=tr.drops&&tr.drops[pid];if(d!=null)return +d;if(tr.rids.length===2){const to=+tr.adds[pid],o=tr.rids.find(r=>+r!==to);return o!=null?+o:null}return null};
+  const sentBy=(tr,rid)=>[...Object.keys(tr.adds).filter(pid=>senderOf(tr,pid)===+rid).map(pid=>({k:'p',pid})),...tr.picks.filter(p=>+p.from===+rid).map(p=>({k:'k',s:p.s,r:p.r,o:p.o}))];
+  const gotBy=(tr,rid)=>[...Object.entries(tr.adds).filter(([,r])=>+r===+rid).map(([pid])=>({k:'p',pid})),...tr.picks.filter(p=>+p.to===+rid).map(p=>({k:'k',s:p.s,r:p.r,o:p.o}))];
+  const drafted=a=>{const d=(bySeason[a.s]||{}).picks;return d&&d[a.s+'|'+a.r+'|'+a.o]};
+  const nowVal=a=>{if(a.k==='p')return V.p[a.pid]||0;const g=drafted(a);return g?V.p[g[0]]||0:pickVal(V,a.s,a.r)};
+  // weights for splitting a multi-asset return: players at today's value (floor 100 so a since-retired guy isn't weightless); picks at what that round costs today
+  // (a pick was a pick when it was traded, so a busted draftee shouldn't zero it out)
+  const wOf=a=>a.k==='p'?Math.max(V.p[a.pid]||0,100):(drafted(a)?0:pickVal(V,a.s,a.r))||pickVal(V,nextYr,a.r)||100;
+  const nextOut=(rid,a,at)=>TRX.find(x=>(x.tr.at||0)>at&&(a.k==='p'?(x.tr.adds[a.pid]!=null&&senderOf(x.tr,a.pid)===+rid):x.tr.picks.some(p=>+p.from===+rid&&+p.s===+a.s&&+p.r===+a.r&&+p.o===+a.o)));
+  const flipW=(rid,a,o,depth,seen,p0)=>{const tr=o.tr,sent=sentBy(tr,rid),got=gotBy(tr,rid),tot=sent.reduce((t,x)=>t+wOf(x),0),share=tot>0?wOf(a)/tot:1/Math.max(1,sent.length);
+    const r={p:p0,v:0,fp:0,tag:'flipped',via:got,share,fs:o.season,fl:tr.leg,fa:tr.at||0,with:sent.length-1};
+    if(depth>=2||seen.has(tr.id)){r.v=share*got.reduce((t,x)=>t+nowVal(x),0);return r}
+    const ns=new Set(seen);ns.add(tr.id);r.sub=[];for(const x of got){const w=worth(rid,x,tr.at||0,o.season,tr.leg,depth+1,ns);r.sub.push(w);r.fp+=share*w.p;r.v+=share*w.v}r.p=p0+r.fp;return r};
+  const worth=(rid,a,at,season,leg,depth,seen)=>{
+    if(a.k==='p'){const p=ptsFor(rid,a.pid,season,leg);if(holds(rid,a.pid,at))return{p,v:V.p[a.pid]||0,tag:''};
+      const o=nextOut(rid,a,at),dAt=dropAt[a.pid+'|'+rid]||0;
+      if(o&&!(dAt>at&&dAt<(o.tr.at||0)))return flipW(rid,a,o,depth,seen,p);
+      return{p,v:V.p[a.pid]||0,tag:dAt>at?'dropped':'gone'}}
+    const o=nextOut(rid,a,at);if(o)return flipW(rid,a,o,depth,seen,0);
+    const g=drafted(a);if(g){if(+g[1]===+rid)return{...worth(rid,{k:'p',pid:g[0]},0,a.s,1,depth,seen),who:g[0]};return{p:0,v:V.p[g[0]]||0,tag:'gone',who:g[0]}}
+    const own=tp.find(z=>+z.season===+a.s&&+z.round===+a.r&&+z.roster_id===+a.o);return{p:0,v:pickVal(V,a.s,a.r),tag:+(own?own.owner_id:a.o)===+rid?'':'gone'}};
+  for(const s of S)for(const tr of s.trades){const at=tr.at||0,sides=tr.rids.map(rid=>({rid,team:nm(s.season,rid),cur:(T[rid]||{}).team,players:[],picks:[],pts:0,val:0,score:0}));const sd=r=>sides.find(x=>x.rid===r);const seen=new Set([tr.id]);
+    for(const [pid,rid] of Object.entries(tr.adds)){const x=sd(rid);if(!x)continue;const w=worth(rid,{k:'p',pid},at,s.season,tr.leg,0,seen);x.players.push({pid,...w,gone:w.tag==='gone'});x.pts+=w.p;x.val+=w.v}
+    for(const pk of tr.picks){const x=sd(pk.to);if(!x)continue;const w=worth(pk.to,{k:'k',s:pk.s,r:pk.r,o:pk.o},at,s.season,tr.leg,0,seen);
+      x.picks.push({...pk,...w,flip:w.tag==='flipped',orig:nm(s.season,pk.o)});x.pts+=w.p;x.val+=w.v}
     sides.forEach(x=>x.score=x.pts+x.val/TRV);const srt=[...sides].sort((a,b)=>b.score-a.score),tot=sides.reduce((a,x)=>a+x.score,0),gap=sides.length>1?srt[0].score-srt[1].score:0;
     out.push({...tr,sides,gap,margin:gap,share:gap/Math.max(1,tot),win:srt[0],lose:srt[sides.length-1],cw:srt[0],cl:srt[sides.length-1]})}
   return out.sort((a,b)=>b.at-a.at)}
 function tradeCard(t,mode,rank){const two=t.sides.length===2,lop=two&&t.gap>=150,ev=t.gap<20,W=t.win,Lz=t.lose;
   const line=two?(mode?pickOf(mode==='fl'?TB.fleece:TB.dis,t.id):lop?pickOf(TB.lop,t.id):ev?pickOf(TB.even,t.id):'').replace(/\{(\w+)\}/g,(m,k)=>`<b>${esc({W:W.team,L:Lz.team,d:int(t.gap),c:int(t.margin||0)}[k])}</b>`):'';
   const res=!two||t.gap<1?'Dead even so far.':mode==='dis'?`😬 <b>${esc(Lz.team)}</b> got fleeced. Winner: <b>${esc(W.team)}</b> (by ${int(t.gap)})`:`Winner: <b>${esc(W.team)}</b> (by ${int(t.gap)})${t.gap>=150?` · <b>${esc(Lz.team)}</b> got fleeced`:''}`;
-  const pv=p=>p.flip?` <small>flipped · counted as a${p.tier==='Early'?'n':''} ${p.tier?p.tier.toLowerCase()+' ':''}${ORD[p.r]} (${int(p.v)})</small>`:p.who?` → ${pn(p.who)} <small>${fmt(p.p)} pts${p.v?' · '+int(p.v):' · gone'}</small>`:` <small>${p.v?'not drafted yet · '+int(p.v):'pick'}</small>`;
-  return`<article class="trade${lop?' lop':''}"><div class="tdh">${rank?`<span class="rank">#${rank}</span>`:''}${t.season} · WEEK ${t.leg}${mode?` · margin ${int(t.margin)}`:''}${lop?' · <span class="pill red">LOPSIDED</span>':''}</div>${t.sides.map(sd=>`<div class="tside${sd===W&&t.gap>=1?' win':''}"><div class="tn">${esc(sd.team)} got</div><ul>${(sd.players.map(p=>`<li>${pn(p.pid)} <small>${fmt(p.p)} pts${p.gone?' · gone':p.v?' · '+int(p.v):''}</small></li>`).join('')+sd.picks.map(p=>`<li>${p.s} R${p.r} pick <small>(${esc(p.orig)}${/s$/i.test(p.orig)?'’':'’s'})</small>${pv(p)}</li>`).join(''))||'<li><small>nothing</small></li>'}</ul><div class="tsc">${fmt(sd.pts)} pts + ${int(sd.val)} value ÷ ${TRV} = <b>${int(sd.score)}</b></div></div>`).join('')}
+  const via=p=>{const v=(p.via||[]).map(x=>x.k==='p'?pn(x.pid):`${x.s} R${x.r}`);return v.length?(v.length>3?v.slice(0,3).join(', ')+` +${v.length-3}`:v.join(', ')):'nothing'};
+  const fl=p=>`flipped ${p.fa?new Date(p.fa).toLocaleDateString('en-US',{month:'short',year:'2-digit'}).replace(' ',' ’'):p.fs} → ${via(p)}${p.with?` <i>(${Math.round(p.share*100)}% share)</i>`:''} · ≈${int(p.v)}${p.fp>=0.5?` + ${fmt(p.fp)} pts`:''}`;
+  const tg=p=>p.tag==='flipped'?' · '+fl(p):p.tag==='dropped'?` · dropped · ${int(p.v)} today`:p.tag==='gone'?` · gone · ${int(p.v)} today`:p.v?' · '+int(p.v):'';
+  const pv=p=>p.who?` → ${pn(p.who)} <small>${fmt(p.p-(p.fp||0))} pts${tg(p)}</small>`:p.tag==='flipped'?` <small>${fl(p)}</small>`:` <small>${p.v?(p.tag==='gone'?'gone · ':'not drafted yet · ')+int(p.v):'pick'}</small>`;
+  return`<article class="trade${lop?' lop':''}"><div class="tdh">${rank?`<span class="rank">#${rank}</span>`:''}${t.season} · WEEK ${t.leg}${mode?` · margin ${int(t.margin)}`:''}${lop?' · <span class="pill red">LOPSIDED</span>':''}</div>${t.sides.map(sd=>`<div class="tside${sd===W&&t.gap>=1?' win':''}"><div class="tn">${esc(sd.team)} got</div><ul>${(sd.players.map(p=>`<li>${pn(p.pid)} <small>${fmt(p.p-(p.fp||0))} pts${tg(p)}</small></li>`).join('')+sd.picks.map(p=>`<li>${p.s} R${p.r} pick <small>(${esc(p.orig)}${/s$/i.test(p.orig)?'’':'’s'})</small>${pv(p)}</li>`).join(''))||'<li><small>nothing</small></li>'}</ul><div class="tsc">${fmt(sd.pts)} pts + ${int(sd.val)} value ÷ ${TRV} = <b>${int(sd.score)}</b></div></div>`).join('')}
    <div class="tv">${res}</div>${line?`<div class="rl">${line}</div>`:''}</article>`}
 // ---- shared list filter (Trade History, team-page trades, Waiver Wire Wins, Worst Drops, Fleece Factory) ----
 // fBar(id,o) renders the bar + registers metadata; the list container is <div data-fl="id"> whose children carry data-i.
