@@ -16,16 +16,16 @@ const j0=u=>fetch(API+u).then(r=>{if(!r.ok)throw new Error(u+' '+r.status);retur
 const ETW=()=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short'}).format(new Date());
 const GD=()=>{const w=ETW();return w==='Sun'||w==='Mon'||w==='Thu'};
 function ttlFor(u){const gd=GD(),m=/\/(matchups|transactions)\/(\d+)$/.exec(u),last=D.cur?+D.cur.lg.settings.last_scored_leg||0:0;
-  if(u==='state/nfl')return[gd?60e3:6e5,0];
-  if(m){const w=+m[2];if(last&&w<last)return[12*36e5,1];return[m[1]==='matchups'?(gd?60e3:5*6e4):(gd?2*6e4:10*6e4),0]}
-  if(/\/users$/.test(u))return[36e5,1];if(/\/rosters$/.test(u))return[gd?2*6e4:10*6e4,0];if(/traded_picks$|_bracket$|\/drafts$/.test(u))return[gd?5*6e4:30*6e4,0];
-  if(/^league\/\d+$/.test(u))return[gd?2*6e4:10*6e4,0];return null}
+  if(u==='state/nfl')return[gd?60e3:6e5,1];
+  if(m){const w=+m[2];if(last&&w<last)return[12*36e5,1];return[m[1]==='matchups'?(gd?60e3:5*6e4):(gd?2*6e4:10*6e4),1]}
+  if(/\/users$/.test(u))return[36e5,1];if(/\/rosters$/.test(u))return[gd?2*6e4:10*6e4,1];if(/traded_picks$|_bracket$|\/drafts$/.test(u))return[gd?5*6e4:30*6e4,1];
+  if(/^league\/\d+$/.test(u))return[gd?2*6e4:10*6e4,1];return null}
 const INF={};const CST={get(k,ls){try{const v=(ls?localStorage:sessionStorage).getItem(k);return v?JSON.parse(v):null}catch(e){return null}},set(k,v,ls){try{(ls?localStorage:sessionStorage).setItem(k,JSON.stringify(v))}catch(e){}}};
 const j=u=>{if(u.indexOf('?_=')>=0)return j0(u);const t=ttlFor(u);if(t){const k='snc:'+u,c=CST.get(k,t[1]);if(c&&Date.now()-c.at<t[0])return Promise.resolve(c.d);
     return INF[u]||(INF[u]=j0(u).then(d=>{delete INF[u];CST.set(k,{at:Date.now(),d},t[1]);return d},e=>{delete INF[u];if(c)return c.d;throw e}))}
   return INF[u]||(INF[u]=j0(u).finally(()=>{delete INF[u]}))};
 const SS=(()=>{try{sessionStorage.setItem('_t','1');sessionStorage.removeItem('_t');return sessionStorage}catch(e){return null}})();
-async function jc(u){if(u.indexOf(LEAGUE)>=0&&ttlFor(u))return j(u);const k='sn:'+u;if(SS){const v=SS.getItem(k);if(v)try{return JSON.parse(v)}catch(e){}}const d=await j(u);if(SS)try{SS.setItem(k,JSON.stringify(d))}catch(e){}return d}
+async function jc(u){if(u.indexOf(LEAGUE)>=0&&ttlFor(u))return j(u);if(/^draft\//.test(u)){const k='snc:'+u,c=CST.get(k,1);if(c&&Date.now()-c.at<30*864e5)return c.d;const d=await j(u);if(d&&(Array.isArray(d)?d.length:d.status==='complete'))CST.set(k,{at:Date.now(),d},1);return d}const k='sn:'+u;if(SS){const v=SS.getItem(k);if(v)try{return JSON.parse(v)}catch(e){}}const d=await j(u);if(SS)try{SS.setItem(k,JSON.stringify(d))}catch(e){}return d}
 const LS={get(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}};
 async function pool(fns,n){const out=new Array(fns.length);let i=0;await Promise.all(Array.from({length:Math.min(n||8,fns.length)},async()=>{while(i<fns.length){const k=i++;out[k]=await fns[k]()}}));return out}
 // ---- players: one big download per week at most; only a slim id -> {n,p,t} subset is kept in localStorage ----
