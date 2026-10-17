@@ -88,3 +88,40 @@ async function seasonAwards(lg,T){const last=+lg.settings.last_scored_leg||0;if(
 {const _r3=R.recap;R.recap=async(el,arg)=>{await _r3(el,arg);const c=await current();if(!(+c.lg.settings.last_scored_leg))return;
   const box=document.createElement('div');box.innerHTML=`<section class="panel">${SPIN('Engraving the season awards…')}</section>`;const rc=el.querySelector('#recap');if(rc)rc.before(box);else el.append(box);
   seasonAwards(c.lg,c.T).then(h=>{box.innerHTML=h}).catch(e=>{console.warn(e);box.innerHTML=''})}}
+// ---------------- RIVALRIES: every manager pair, all seasons via previous_league_id (keyed on Sleeper user IDs, never names) ----------------
+function rivPairs(S,T){const G=games(S,{all:true}),cur=Object.fromEntries(Object.values(T).map(t=>[t.uid,t])),P={};
+  const poSet={};for(const s of S)for(const [a,b] of s.pob||[]){const A=s.teams[a],B=s.teams[b];if(A&&B)poSet[s.season+'|'+[A.uid,B.uid].sort().join('|')]=1}
+  G.forEach(g=>{const [x,y]=[g.a,g.b].sort((p,q)=>String(p.uid).localeCompare(String(q.uid)));if(!cur[x.uid]||!cur[y.uid])return;const k=x.uid+'-'+y.uid;
+    const r=P[k]=P[k]||{k,a:x.uid,b:y.uid,g:[]};const po=g.po&&!!poSet[g.s+'|'+[x.uid,y.uid].sort().join('|')];if(g.po&&!po)return;r.g.push({s:+g.s,w:g.week,pa:x.p,pb:y.p,po})});
+  Object.values(P).forEach(r=>{r.g.sort((p,q)=>p.s-q.s||p.w-q.w);r.aw=r.g.filter(x=>x.pa>x.pb).length;r.bw=r.g.filter(x=>x.pb>x.pa).length;r.n=r.g.length;r.po=r.g.filter(x=>x.po).length;
+    r.mar=r.g.reduce((s,x)=>s+Math.abs(x.pa-x.pb),0)/Math.max(1,r.n);r.close=r.g.filter(x=>Math.abs(x.pa-x.pb)<10).length;
+    r.heat=r.n*1+r.po*3+r.close*1.5-Math.abs(r.aw-r.bw)*0.8+Math.max(0,25-r.mar)/5});return Object.values(P).sort((p,q)=>q.heat-p.heat)}
+const RIVR={even:["Dead even. Neither side will ever admit it.","Too close to call, too petty to drop.","A real rivalry: nobody has an edge, everybody has a grudge."],
+ own:["{W} owns this series. {L} pays rent.","{W} has {L}'s number, and the receipts to prove it.","{L} sees {W} on the schedule and starts drafting excuses."],
+ close:["Games between these two come down to the Monday night kicker.","Average margin {m}. Nobody sleeps on these weeks."]};
+R.rivalry=async(el,arg)=>{el.innerHTML=`<section class="panel">${SPIN('Digging up old grudges…')}</section>`;const [S,c]=await Promise.all([all(),current()]),T=c.T,U=Object.fromEntries(Object.values(T).map(t=>[String(t.uid),t]));
+  const P=rivPairs(S,T),seasons=S.map(s=>s.season);
+  if(!arg){el.innerHTML=`<section class="panel"><h2>⚔️ RIVALRIES</h2><div class="hint">Every current manager pair, ${seasons[0]}–${seasons[seasons.length-1]}, regular season plus winners-bracket playoff meetings. Ranked by heat: games played, playoff meetings, one-score games, and how even the series is.</div>
+    <div class="rv-l">${P.map((r,i)=>{const A=U[r.a],B=U[r.b];return`<a class="rv-i${A.wz||B.wz?' wz':''}" href="#rivalry/${r.k}"><span class="rv-n">${i+1}</span><span class="rv-t"><b>${esc(A.team)}</b> vs <b>${esc(B.team)}</b><small>${r.aw}-${r.bw} in ${r.n} game${r.n>1?'s':''}${r.po?` · ${r.po} playoff`:''} · avg margin ${fmt(r.mar)}</small></span></a>`}).join('')}</div>
+    <div class="hint">Full grid on <a href="#records">Records</a>.</div></section>`;return}
+  const r=P.find(x=>x.k===arg)||P.find(x=>x.k===arg.split('-').reverse().join('-'));if(!r){el.innerHTML=`<section class="panel"><h2>⚔️ RIVALRY</h2><div class="hint">These two have never played. <a href="#rivalry">All rivalries →</a></div></section>`;return}
+  const A=U[r.a],B=U[r.b],side=x=>x.pa>x.pb?A:x.pb>x.pa?B:null,big=t=>{const g=r.g.filter(x=>side(x)===t).sort((p,q)=>Math.abs(q.pa-q.pb)-Math.abs(p.pa-p.pb))[0];return g?`${fmt(Math.max(g.pa,g.pb))}–${fmt(Math.min(g.pa,g.pb))} (${g.s} wk ${g.w})`:'never'};
+  let st=0,sw=null;for(let i=r.g.length-1;i>=0;i--){const w=side(r.g[i]);if(!w)break;if(!sw)sw=w;if(w!==sw)break;st++}
+  const cl=[...r.g].sort((p,q)=>Math.abs(p.pa-p.pb)-Math.abs(q.pa-q.pb))[0],hi=[...r.g].sort((p,q)=>(q.pa+q.pb)-(p.pa+p.pb))[0],pf=r.g.reduce((s,x)=>s+x.pa,0),pb=r.g.reduce((s,x)=>s+x.pb,0);
+  const rr=rng('rv'+r.k+r.n),pk=a=>a[Math.floor(rr()*a.length)],W=r.aw>=r.bw?A:B,L=W===A?B:A,line=Math.abs(r.aw-r.bw)<=1?pk(RIVR.even):pk(RIVR.own).replace(/\{W\}/g,W.team).replace(/\{L\}/g,L.team);
+  el.innerHTML=`<section class="panel rv"><h2>⚔️ RIVALRY</h2>
+   <div class="rv-h"><a class="rv-s" href="#team/${A.rid}" data-fx="${A.rid}">${A.av?`<img class="av" src="${esc(A.av)}" alt="" referrerpolicy="no-referrer">`:''}<b>${esc(A.team)}</b><span class="rv-w">${r.aw}</span></a><span class="rv-vs">VS</span><a class="rv-s" href="#team/${B.rid}" data-fx="${B.rid}">${B.av?`<img class="av" src="${esc(B.av)}" alt="" referrerpolicy="no-referrer">`:''}<b>${esc(B.team)}</b><span class="rv-w">${r.bw}</span></a></div>
+   <p class="rl">${esc(line)}${r.mar<15?' '+esc(pk(RIVR.close).replace('{m}',fmt(r.mar))):''}</p>
+   <div class="tw"><table class="mini"><tbody>
+    <tr><td>Games</td><td><b>${r.n}</b>${r.po?` (${r.po} playoff)`:''}, ${r.g[0].s}–${r.g[r.g.length-1].s}</td></tr>
+    <tr><td>Points</td><td>${fmt(pf)} – ${fmt(pb)} <small class="sub">(${fmt(pf/r.n)} – ${fmt(pb/r.n)} a game)</small></td></tr>
+    <tr><td>Streak</td><td>${sw?`${esc(sw.team)} has won ${st} straight`:'–'}</td></tr>
+    <tr><td>Biggest ${esc(A.team)} win</td><td>${big(A)}</td></tr><tr><td>Biggest ${esc(B.team)} win</td><td>${big(B)}</td></tr>
+    <tr><td>Closest</td><td>${fmt(cl.pa)}–${fmt(cl.pb)} (${cl.s} wk ${cl.w})</td></tr><tr><td>Shootout</td><td>${fmt(hi.pa+hi.pb)} combined (${hi.s} wk ${hi.w})</td></tr></tbody></table></div>
+   <h3>EVERY MEETING</h3><div class="tw"><table class="mini"><thead><tr><th>SEASON</th><th>WK</th><th>${esc(abbr(A.team))}</th><th>${esc(abbr(B.team))}</th><th></th></tr></thead><tbody>${[...r.g].reverse().map(x=>`<tr><td>${x.s}</td><td>${x.w}${x.po?' <span class="pill">PO</span>':''}</td><td class="${x.pa>x.pb?'up':''}">${fmt(x.pa)}</td><td class="${x.pb>x.pa?'up':''}">${fmt(x.pb)}</td><td>${side(x)?esc(abbr(side(x).team)):'tie'}</td></tr>`).join('')}</tbody></table></div>
+   <div class="hint"><a href="#rivalry">← All rivalries</a> · <a href="#records">H2H grid</a></div></section>`};
+// H2H grid detail box: link to the full rivalry page (user-ID route, no names)
+document.addEventListener('click',e=>{const td=e.target.closest&&e.target.closest('.h2x td[data-k]');if(!td)return;setTimeout(()=>{const box=document.getElementById('h2hd');if(!box||box.querySelector('.rvlink'))return;const [a,b]=td.getAttribute('data-k').split('|');const k=[a,b].sort().join('-');box.insertAdjacentHTML('beforeend',` <a class="rvlink" href="#rivalry/${esc(k)}">Full rivalry →</a>`)},0)});
+// History: top rivalries teaser
+{const _h3=R.history;R.history=async el=>{await _h3(el);try{const [S,c]=await Promise.all([all(),current()]),U=Object.fromEntries(Object.values(c.T).map(t=>[String(t.uid),t])),P=rivPairs(S,c.T).slice(0,5);if(!P.length)return;
+  el.insertAdjacentHTML('beforeend',`<section class="panel"><h2>⚔️ TOP RIVALRIES</h2><div class="rv-l">${P.map((r,i)=>`<a class="rv-i" href="#rivalry/${r.k}"><span class="rv-n">${i+1}</span><span class="rv-t"><b>${esc(U[r.a].team)}</b> vs <b>${esc(U[r.b].team)}</b><small>${r.aw}-${r.bw}${r.po?` · ${r.po} playoff`:''} · avg margin ${fmt(r.mar)}</small></span></a>`).join('')}</div><a class="kt" href="#rivalry">Every rivalry →</a></section>`)}catch(e){console.warn(e)}}}
