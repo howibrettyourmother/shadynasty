@@ -10,9 +10,22 @@ const fmt=n=>(+n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFrac
 const int=n=>Math.round(+n||0).toLocaleString('en-US');
 const num=(a,b)=>(+a||0)+(+b||0)/100;
 const clean=s=>String(s||'').replace(/\u{1F3C6}/gu,'').trim();
-const j=u=>fetch(API+u).then(r=>{if(!r.ok)throw new Error(u+' '+r.status);return r.json()});
+const j0=u=>fetch(API+u).then(r=>{if(!r.ok)throw new Error(u+' '+r.status);return r.json()});
+// ---- request cache (perf): in-flight dedupe + TTL by endpoint. Live/game-day data gets short TTLs; finished weeks of this season persist in localStorage.
+// URLs carrying ?_= are explicit cache-busts (live loop, ↻) and always hit the network. ↻ clears every cache key.
+const ETW=()=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short'}).format(new Date());
+const GD=()=>{const w=ETW();return w==='Sun'||w==='Mon'||w==='Thu'};
+function ttlFor(u){const gd=GD(),m=/\/(matchups|transactions)\/(\d+)$/.exec(u),last=D.cur?+D.cur.lg.settings.last_scored_leg||0:0;
+  if(u==='state/nfl')return[gd?60e3:6e5,0];
+  if(m){const w=+m[2];if(last&&w<last)return[12*36e5,1];return[m[1]==='matchups'?(gd?60e3:5*6e4):(gd?2*6e4:10*6e4),0]}
+  if(/\/users$/.test(u))return[36e5,1];if(/\/rosters$/.test(u))return[gd?2*6e4:10*6e4,0];if(/traded_picks$|_bracket$|\/drafts$/.test(u))return[gd?5*6e4:30*6e4,0];
+  if(/^league\/\d+$/.test(u))return[gd?2*6e4:10*6e4,0];return null}
+const INF={};const CST={get(k,ls){try{const v=(ls?localStorage:sessionStorage).getItem(k);return v?JSON.parse(v):null}catch(e){return null}},set(k,v,ls){try{(ls?localStorage:sessionStorage).setItem(k,JSON.stringify(v))}catch(e){}}};
+const j=u=>{if(u.indexOf('?_=')>=0)return j0(u);const t=ttlFor(u);if(t){const k='snc:'+u,c=CST.get(k,t[1]);if(c&&Date.now()-c.at<t[0])return Promise.resolve(c.d);
+    return INF[u]||(INF[u]=j0(u).then(d=>{delete INF[u];CST.set(k,{at:Date.now(),d},t[1]);return d},e=>{delete INF[u];if(c)return c.d;throw e}))}
+  return INF[u]||(INF[u]=j0(u).finally(()=>{delete INF[u]}))};
 const SS=(()=>{try{sessionStorage.setItem('_t','1');sessionStorage.removeItem('_t');return sessionStorage}catch(e){return null}})();
-async function jc(u){const k='sn:'+u;if(SS){const v=SS.getItem(k);if(v)try{return JSON.parse(v)}catch(e){}}const d=await j(u);if(SS)try{SS.setItem(k,JSON.stringify(d))}catch(e){}return d}
+async function jc(u){if(u.indexOf(LEAGUE)>=0&&ttlFor(u))return j(u);const k='sn:'+u;if(SS){const v=SS.getItem(k);if(v)try{return JSON.parse(v)}catch(e){}}const d=await j(u);if(SS)try{SS.setItem(k,JSON.stringify(d))}catch(e){}return d}
 const LS={get(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}};
 async function pool(fns,n){const out=new Array(fns.length);let i=0;await Promise.all(Array.from({length:Math.min(n||8,fns.length)},async()=>{while(i<fns.length){const k=i++;out[k]=await fns[k]()}}));return out}
 // ---- players: one big download per week at most; only a slim id -> {n,p,t} subset is kept in localStorage ----
@@ -155,8 +168,10 @@ R.home=async el=>{const {state,lg,T}=await current();const leg=+state.leg||1,las
   ${rows.map((t,i)=>`<tr class="${i<pt?'po':''}"><td>${i+1}</td><td class="tm"><a href="#team/${t.rid}">${esc(t.team)}</a>${tag(t)}<span class="ow">@${esc(t.owner)}</span></td><td>${rec(t)}</td><td>${fmt(t.pf)}</td><td class="hs">${fmt(t.pa)}</td><td class="hs">${fmt(t.max)}</td></tr>`).join('')}</tbody></table></div><div class="hint">Top ${pt} make the playoffs (highlighted).</div></section>
   ${liveTop?'':liveP}`;
   const dp=el.querySelector('#hk-drop-p'),dl=el.querySelector('#hk-drop-l');
-  Promise.all([all(),values()]).then(([S,V])=>{const d=dropsList(S,V)[0];if(!d||!dp)return;
-    dp.textContent=(PL[d.pid]||{}).n||'Player '+d.pid;dl.innerHTML=`${B(d.team)} cut him in ${d.season}. ${fmt(d.pts)} starter pts for other teams since${d.to?` (mostly ${esc(d.to)})`:''}. Hold your nose.`}).catch(()=>{if(dl)dl.textContent='The evidence is loading slowly. Tap for the full list.'});
+  // perf: the worst-drop hook needs every season since 2021 (~240 requests cold). Cache the answer for 12h and, when cold, start it after first paint.
+  const wdShow=d=>{if(!d||!dp)return;dp.textContent=d.n;dl.innerHTML=`${B(d.team)} cut him in ${d.season}. ${fmt(d.pts)} starter pts for other teams since${d.to?` (mostly ${esc(d.to)})`:''}. Hold your nose.`};
+  const wdc=LS.get('sn:wdrop');if(wdc&&Date.now()-wdc.at<12*36e5)wdShow(wdc.d);
+  else setTimeout(()=>Promise.all([all(),values()]).then(([S,V])=>{const d=dropsList(S,V)[0];if(!d)return;const o={n:(PL[d.pid]||{}).n||'Player '+d.pid,team:d.team,season:d.season,pts:d.pts,to:d.to||''};LS.set('sn:wdrop',{at:Date.now(),d:o});wdShow(o)}).catch(()=>{if(dl)dl.textContent='The evidence is loading slowly. Tap for the full list.'}),1200);
   let i=0;clearInterval(R.tick);R.tick=setInterval(()=>{const t=$('#ticker');if(!t){clearInterval(R.tick);return}const HH=H.concat(D.liveFacts||[],R.facts||[]);i=(i+1)%HH.length;t.classList.remove('in');void t.offsetWidth;t.innerHTML=HH[i];t.classList.add('in')},6000);
   clearTimeout(R.live);if(last<wk){const w=el.querySelector('#lbb');liveBoard(w,wk).catch(e=>console.warn('live board',e));liveLoop(wk)}};
 async function headlines(T,lg){const last=+lg.settings.last_scored_leg||0,out=[],v=(s,x)=>s.replace(/\{(\w+)\}/g,(m,k)=>x[k]!=null?`<b>${esc(x[k])}</b>`:m),J=(Object.values(T).find(t=>t.joe)||{}).team||'Joe';
@@ -926,7 +941,7 @@ async function reportCards(lg,T,week){const M=await jc('league/'+LEAGUE+'/matchu
 // ---- toast + header ↻ refresh + pull-to-refresh (standalone) + refresh when the app comes back after a while ----
 function toast(html,ms,err){let t=$('#toast');if(!t){t=document.createElement('div');t.id='toast';t.setAttribute('role','status');document.body.appendChild(t)}t.className=err?'err on':'on';t.innerHTML=html;clearTimeout(t._h);t._h=setTimeout(()=>{t.className=''},ms||2200);return t}
 function fullRefresh(silent){if(fullRefresh.busy)return fullRefresh.busy;const b=$('#rf');if(b){b.classList.add('busy');b.setAttribute('aria-busy','true')}
-  try{if(SS)for(let i=SS.length-1;i>=0;i--){const k=SS.key(i);if(k&&k.indexOf('sn:')===0)SS.removeItem(k)}localStorage.removeItem('sn:inj3')}catch(e){}
+  try{if(SS)for(let i=SS.length-1;i>=0;i--){const k=SS.key(i);if(k&&(k.indexOf('sn:')===0||k.indexOf('snc:')===0))SS.removeItem(k)}for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&k.indexOf('snc:')===0)localStorage.removeItem(k)}localStorage.removeItem('sn:inj3');localStorage.removeItem('sn:wdrop')}catch(e){}
   D.cur=null;D.all=null;D.chain=null;D.espnOut=null;D.espnAt=0;SLIM.p=null;RAWP.p=null;playersFor.slim=null;weekProj.c={};
   return fullRefresh.busy=route().then(()=>{const bad=/fumbled/.test(($('#view')||{}).textContent||'');
     if(bad){const t=toast('⚠️ Sleeper didn\'t answer. <button class="chip" id="trt">Retry</button>',8000,true),x=t.querySelector('#trt');if(x)x.onclick=()=>{t.className='';fullRefresh()}}
@@ -1092,4 +1107,5 @@ async function teamSched(el,rid){const {lg,T}=await current(),t=T[rid];if(!t)ret
   const trs=[...el.querySelectorAll('tr[data-p]')];injuries(t.players).then(IN=>{const IM=injMap(IN);trs.forEach(tr=>{const p=tr.getAttribute('data-p'),i=IM[p],tm=(IN.tm||{})[p]||(PL[p]||{}).t,td=tr.firstElementChild;if(!td)return;
     if(i)td.insertAdjacentHTML('beforeend',` <span class="pill${i[0]==='Questionable'?'':' red'}" title="${esc(i[1]||'')}">${esc(String(i[0]).toUpperCase().slice(0,4))}</span>`);
     else if(tm&&BYE26[tm]===wk)td.insertAdjacentHTML('beforeend',' <span class="pill bye">BYE</span>')})}).catch(()=>{})}}
-route();   // last: every R.* page above is registered before the first render
+// first render after every script (hq2.js adds pages/sections) has registered: sync scripts all run before DOMContentLoaded
+if(document.readyState==='loading')addEventListener('DOMContentLoaded',()=>route(),{once:true});else route();
