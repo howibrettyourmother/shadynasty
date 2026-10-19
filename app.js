@@ -931,7 +931,15 @@ async function liveBoard(wrap,wk,bust){const {lg,T}=await current();const [M,G,p
   const st=[...new Set(M.flatMap(m=>(m.starters||[]).filter(x=>x&&x!=='0')))];let P={};
   try{const d=await SLIM();P=d.p;if(st.filter(i=>!P[i]).length)throw 0}catch(e){P=await playersFor(st)}
   await Promise.all([injuries(Object.values(T).flatMap(t=>t.players)).catch(()=>null),espnInactives(G,st,P).catch(()=>{})]);
-  wrap.innerHTML=boardHTML(M,T,P,pj,G,injMap());wrap.dataset.live='1';return G}
+  const html=boardHTML(M,T,P,pj,G,injMap());if(wrap._h===html)return G;  // nothing changed: leave the DOM (and scroll/open state) alone
+  if(wrap.dataset.live)await idleUI();if(!wrap.isConnected)return G;
+  const sx=[...wrap.querySelectorAll('*')].filter(x=>x.scrollLeft).map(x=>[x.id||x.className,x.scrollLeft]),op=[...wrap.querySelectorAll('details[open]')].map(d=>d.querySelector('summary')&&d.querySelector('summary').textContent),y=scrollY;
+  wrap.innerHTML=html;wrap._h=html;wrap.dataset.live='1';
+  if(op.length)wrap.querySelectorAll('details').forEach(d=>{const sm=d.querySelector('summary');if(sm&&op.includes(sm.textContent))d.open=true});
+  sx.forEach(([k,v])=>{const x=[...wrap.querySelectorAll('*')].find(e=>(e.id||e.className)===k);if(x)x.scrollLeft=v});if(Math.abs(scrollY-y)>1)scrollTo(0,y);return G}
+// background refreshes wait until you've stopped touching/scrolling for 3s and nothing is focused
+let LAST_IX=0;['touchstart','touchmove','pointerdown','wheel','keydown','scroll'].forEach(ev=>addEventListener(ev,()=>{LAST_IX=Date.now()},{passive:true,capture:true}));
+const idleUI=()=>new Promise(res=>{const run=()=>{const a=document.activeElement;if(Date.now()-LAST_IX<3000||(a&&/^(SELECT|INPUT|TEXTAREA)$/.test(a.tagName))){setTimeout(run,800);return}res()};run()});
 function liveLoop(wk){clearTimeout(R.live);const tick=async()=>{const w=document.getElementById('lbb');if(!w)return;if(document.hidden){R.live=setTimeout(tick,30000);return}
     let G=null;try{G=await liveBoard(w,wk,true)}catch(e){}const now=Date.now(),gs=G?Object.values(G):[],hot=gs.some(g=>g.state==='in'||(g.state==='pre'&&g.kick-now<20*6e4));
     if(gs.length&&gs.every(g=>g.state==='post'))return;R.live=setTimeout(tick,hot?60000:300000)};
@@ -976,9 +984,11 @@ function fullRefresh(silent){if(fullRefresh.busy)return fullRefresh.busy;const b
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&route.at&&Date.now()-route.at>15*6e4)fullRefresh(true)});
 (()=>{const sa=navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);if(!sa)return;let y0=null,ind=null;const TH=80;
   const pull=dy=>{if(!ind){ind=document.createElement('div');ind.id='ptr';document.body.appendChild(ind)}ind.style.opacity=Math.min(1,dy/TH);ind.style.transform='translate(-50%,'+Math.min(dy,TH)*0.6+'px) rotate('+dy*3+'deg)';ind.className=dy>=TH?'go':''};
-  addEventListener('touchstart',e=>{y0=(scrollY<=0&&e.touches.length===1)?e.touches[0].clientY:null},{passive:true});
-  addEventListener('touchmove',e=>{if(y0==null)return;const dy=e.touches[0].clientY-y0;if(dy>8&&scrollY<=0)pull(dy);else if(ind)ind.style.opacity=0},{passive:true});
-  addEventListener('touchend',()=>{if(ind&&ind.className==='go')fullRefresh();if(ind){ind.style.opacity=0;ind.className=''}y0=null},{passive:true})})();
+  // deliberate vertical pulls at the very top only; not from horizontal scrollers/inputs; 15s cooldown
+  let x0=0,last=0;const top=()=>scrollY<=0&&((document.scrollingElement||document.documentElement).scrollTop||0)<=0;
+  addEventListener('touchstart',e=>{y0=null;const t=e.target;if(e.touches.length!==1||!top()||Date.now()-last<15000)return;if(t&&t.closest&&t.closest('.tw,.chips,nav,.tabs,.tf,select,input,summary,[data-sx]'))return;y0=e.touches[0].clientY;x0=e.touches[0].clientX},{passive:true});
+  addEventListener('touchmove',e=>{if(y0==null)return;const dy=e.touches[0].clientY-y0,dx=Math.abs(e.touches[0].clientX-x0);if(dx>24&&dx>dy*0.5){y0=null;if(ind){ind.style.opacity=0;ind.className=''}return}if(dy>8&&top())pull(dy);else if(ind){ind.style.opacity=0;ind.className=''}},{passive:true});
+  addEventListener('touchend',()=>{if(y0!=null&&ind&&ind.className==='go'&&top()){last=Date.now();fullRefresh()}if(ind){ind.style.opacity=0;ind.className=''}y0=null},{passive:true})})();
 // ---- broken headshots/avatars/logos: swap to the league icon instead of a broken-image glyph ----
 document.addEventListener('error',e=>{const t=e.target;if(!t||t.tagName!=='IMG'||t.dataset.fb)return;t.dataset.fb='1';if(/\b(av|mc-av)\b/.test(t.className)){t.src='icons/icon-192.png';t.style.opacity='.45'}else t.style.visibility='hidden'},true);
 // ---- 🧢 JOE EASTER EGG: pick Joe's team in any team filter / dropdown, or tap a chip or H2H cell for him → 1.2s rainbow + pink & gold glitter burst and a rotating dig ----
