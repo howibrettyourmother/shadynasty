@@ -22,3 +22,5 @@ Round 2 (`hq2.js`/`hq2.css`): Race tab Tank Race (4,000-run Monte Carlo of the r
 
 Caching: every Sleeper call goes through one cache with in-flight dedupe and per-endpoint TTLs (game days Sun/Mon/Thu ET: state/live matchups 60 s, rosters 2 min; other days 5-10 min; finished weeks of this season 12 h in localStorage; ?_= busts and ↻ clears everything). The Home "worst drop" hook is cached 12 h and computed after first paint. Finished seasons are summarized once into localStorage; the slim Sleeper players map is kept for a week; values for a day.
 Smoke test: `python3 smoke.py` (serve the folder on :18802 first).
+
+- Wilson Weasels (the heel) gets `heel.js`: a ~3.6s villain entrance (blackout, lightning, red smoke/embers, weasel rising with glowing lenses, title card). Tap to skip; reduced-motion = static card; thunder only if sound is on and after a gesture.

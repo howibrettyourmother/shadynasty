@@ -1060,6 +1060,7 @@ const FX_LAST=["Dead last in the power rankings, {T}.","{T}: bottom of the formu
 const _fxImg={};function fxImg(src){if(!_fxImg[src]){const i=new Image();i.src=src;_fxImg[src]=i}return _fxImg[src]}
 Object.values(TEAM_FX).forEach(t=>{if(t.fly&&t.fly.img)setTimeout(()=>fxImg(t.fly.img),3000)});
 function teamBurst(uid,o){o=o||{};const th=TEAM_FX[uid];if(!th)return;const now=Date.now();if(now-(joeBurst.t||0)<4000)return;joeBurst.t=now;
+  if(uid===BRETT&&window.heelEntrance){joeBurst.t=now+1500;try{heelEntrance(th,o)}catch(e){console.warn('heel',e)}return}  // the heel gets an entrance, not confetti
   const k='sn:td'+uid;let i=0;try{i=+localStorage.getItem(k)||0;localStorage.setItem(k,String((i+1)%th.digs.length))}catch(e){i=Math.floor(Math.random()*th.digs.length)}
   const d=(o.roast?pickOf(FX_LAST,'fl'+uid+Math.floor(Date.now()/4000)).replace('{T}',th.name)+' ':'')+th.digs[i%th.digs.length],tt=toast(th.pass?`<span class="bp"><b>🎫 BOARDING PASS · ${esc(th.name)}</b>${esc(d)}</span>`:`<span class="tsp">${th.ti}</span> ${esc(d)}`,3000);tt.classList.add('tfx');tt.style.setProperty('--tc',th.tc);
   if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
