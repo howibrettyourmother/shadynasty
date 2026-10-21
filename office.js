@@ -1,6 +1,6 @@
 'use strict';
 // 🏛️ LEAGUE OFFICE (#office): bylaws (office/bylaws.json) + live Sleeper settings w/ conflict flags + memos & notices archive (office/office.json). Loaded after app.js.
-const OFV=7,OF={};
+const OFV=8,OF={};
 const ofGet=u=>OF[u]||(OF[u]=fetch(u+'?v='+OFV).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).catch(e=>{delete OF[u];throw e}));
 const SEAL=(c,s)=>`<img class="lo-seal ${c||''}" src="office/seal.svg?v=${OFV}" width="${s||64}" height="${s||64}" alt="Shoebeer Enforcement Division seal">`;
 const ofDate=d=>new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
@@ -43,7 +43,7 @@ function ofSecs(B,flags,q){const ql=(q||'').trim().toLowerCase();let n=0;
   return{html:out,n}}
 R.office=async(el,arg)=>{const [B,O]=await Promise.all([ofGet('office/bylaws.json'),ofGet('office/office.json')]);let lg=null;try{lg=(await current()).lg}catch(e){console.warn(e)}
   const CK=lg?ofChecks(lg):[],flags={};CK.filter(c=>!c.ok).forEach(c=>c.secs.forEach(s=>(flags[s]=flags[s]||[]).push(c)));const nc=CK.filter(c=>!c.ok).length;
-  const docs=O.docs.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.no.localeCompare(a.no));
+  const docs=O.docs.map((d,i)=>[d,i]).sort((a,b)=>b[0].date.localeCompare(a[0].date)||a[1]-b[1]).map(x=>x[0]);/* office.json is newest first; file order breaks same-day ties */
   const sec=ofSecs(B,flags,'');
   el.innerHTML=`<section class="panel lo-hd"><div class="lo-mast">${SEAL('big',96)}<div><h2>🏛️ LEAGUE OFFICE</h2><div class="lo-sub">Office of the Commissioner · Department of Competitive Integrity · <i>Shoebeer Enforcement Division</i></div>
    <div class="hint">Rules, rulings and paperwork. Per §Owner Conduct, trash talking and shit-posting are actively encouraged. Sentient injury reports in your starting lineup are not.</div></div></div>
