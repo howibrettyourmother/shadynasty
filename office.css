@@ -28,3 +28,4 @@
 .lo-set{table-layout:fixed}.lo-set td,.lo-set th{overflow-wrap:anywhere}.lo-set th:nth-child(1){width:26%}.lo-set th:nth-child(2),.lo-set th:nth-child(3){width:33%}.lo-set th:nth-child(4){width:8%}
 @media(max-width:480px){.lo-set{font-size:12px}.lo-set th,.lo-set td{padding:6px 4px}}
 .lo-set td,.lo-set th,.lo-cal td{white-space:normal!important}
+.lo-sec,.lo-doc,#lo-memos,#lo-settings,#lo-bylaws{scroll-margin-top:calc(var(--lo-hd,170px) + 8px)}
