@@ -28,13 +28,6 @@
   "why": "Sleeper: FAAB $100, weekly waivers (Tuesday night), 2-day clear; \"Biannual\" was misleading (it resets twice a year)."
  },
  {
-  "sec": "League Summary",
-  "kind": "Typo / formatting",
-  "from": "Annual Fee: $100",
-  "to": "Annual Fee: $100 (less any applicable LeagueSafe fees)",
-  "why": "Duplicate line merged into a clarification."
- },
- {
   "sec": "General League Calendar",
   "kind": "Sleeper alignment + formatting",
   "from": "Old timeline: daily in-season waivers; Wed 12:05 AM PST / Wed 9 a.m. CT waivers; trading closed after Week 10; playoffs Weeks 14-16; one-off 2022 dates; mismatched brackets \"[NFL Preseason}\" \"[Super Bowl}\", \"9.m.\", \"ToiletBowl\"",
@@ -229,5 +222,61 @@
   "from": "Ties will be broken by who has the most total points scored in a regular season. If there is still a tie then it will be broken by who has the most total points scored against them. If there is still a tie then it will be broken by the head to head record of teams.",
   "to": "Ties will be broken by most regular season points for, then higher points against, then a coin flip. Head-to-head is not used. Commissioners may override via Sleeper custom seeding.",
   "why": "Single tiebreaker order = Sleeper's default for leagues without divisions: overall record, points for, higher points against, coin flip (no head-to-head). Source: support.sleeper.com article 2203518."
+ },
+ {
+  "sec": "League Summary",
+  "kind": "Payment platform",
+  "from": "Less any applicable fees from [former dues platform]",
+  "to": "(removed)",
+  "why": "League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed."
+ },
+ {
+  "sec": "League Summary",
+  "kind": "Typo / formatting",
+  "from": "Annual Fee: $100",
+  "to": "(removed)",
+  "why": "Duplicate of \"League Annual Fee: $100\"."
+ },
+ {
+  "sec": "League Summary",
+  "kind": "Payment platform",
+  "from": "Teams must pay prior to start of regular season via [former dues platform]",
+  "to": "Pay before the regular season starts: Venmo either co-commissioner (Brett or Joe)",
+  "why": "League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed."
+ },
+ {
+  "sec": "General League Calendar",
+  "kind": "Payment platform",
+  "from": "[former dues platform] Payouts [or earlier]",
+  "to": "Prize payouts via Venmo [or earlier]",
+  "why": "League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed."
+ },
+ {
+  "sec": "League Platforms",
+  "kind": "Payment platform",
+  "from": "League fees will be paid through [former dues platform].",
+  "to": "League dues are paid by Venmo to either co-commissioner (Brett or Joe), who take turns managing the money.",
+  "why": "League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed."
+ },
+ {
+  "sec": "Fees & Payouts",
+  "kind": "Payment platform",
+  "from": "League dues are $100/team/year paid to [former dues platform], due on or before the startup draft and by League Reset Day of the successive years. Any third-party platform fees shall be paid by the respective owner and generally consists of 3%.",
+  "to": "League dues are $100/team/year, paid by Venmo to either co-commissioner (Brett or Joe), who take turns managing the money. Pay by League Reset Day each year.",
+  "why": "League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed."
+ },
+ {
+  "sec": "Refunds",
+  "kind": "Payment platform",
+  "from": "Replacement owner pays $60 to [former dues platform]",
+  "to": "Replacement owner Venmos $60 to the co-commissioner holding the money",
+  "why": "League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed."
+ },
+ {
+  "sec": "League Disbanding",
+  "kind": "Payment platform",
+  "from": "all monies held in [former dues platform] shall be distributed",
+  "to": "whatever money the co-commissioners are holding gets split",
+  "why": "League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed."
  }
 ]

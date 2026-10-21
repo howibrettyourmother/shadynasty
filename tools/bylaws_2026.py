@@ -20,7 +20,6 @@ rep('league-summary','23 roster spots with and 2 injury reserve spots during in-
 rep('league-summary','6 team playoff during weeks 14-16; top seeds','6 team playoff during Weeks 15-17; top seeds','Sleeper playoffs start Week 15 (3 rounds).')
 rep('league-summary','6 team playoff during weeks 14-16, seeds','6 team playoff during Weeks 15-17, seeds','Toilet Bowl runs alongside the playoffs, Weeks 15-17.')
 rep('league-summary','Biannual FAAB budget of $100 is given on league start. Resets','FAAB budget of $100, processed weekly on Tuesday nights with a 2-day clear period. Resets','Sleeper: FAAB $100, weekly waivers (Tuesday night), 2-day clear; "Biannual" was misleading (it resets twice a year).')
-rep('league-summary','Annual Fee: $100','Annual Fee: $100 (less any applicable LeagueSafe fees)','Duplicate line merged into a clarification.',T)
 # Calendar table rebuilt
 cal=S['general-league-calendar']['b'][0];old=[r[:] for r in cal['rows']]
 cal['rows']=[['Date','Event'],['August 29th, 2021 @ 7:30 PM EDT','Inaugural League Startup Draft (historical)'],
@@ -77,7 +76,20 @@ rep('tie-breakers','Coin flip','4) Coin flip',W,K)
 add('tie-breakers','4) Coin flip',[P('Commissioners may override seeding through Sleeper custom seeding.')],W,K)
 rep(rr,'Overall Record > Total Points For > Total Points against > Head to Head Record.','Overall Record > Points For > Higher Points Against > Coin Flip (see Tie Breakers).',W,K)
 rep(rr,'Ties will be broken by who has the most total points scored in a regular season. If there is still a tie then it will be broken by who has the most total points scored against them. If there is still a tie then it will be broken by the head to head record of teams.','Ties will be broken by most regular season points for, then higher points against, then a coin flip. Head-to-head is not used. Commissioners may override via Sleeper custom seeding.',W,K)
+K='Payment platform'
+W='League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed.'
+def drop(sec,text,why,kind):
+  bl=S[sec]['b'];n=len(bl);S[sec]['b']=[b for b in bl if b.get('x')!=text];assert len(S[sec]['b'])<n,(sec,text);LOG.append({'sec':S[sec]['title'],'kind':kind,'from':text,'to':'(removed)','why':why})
+drop('league-summary','Less any applicable fees from LeagueSafe',W,K)
+drop('league-summary','Annual Fee: $100','Duplicate of "League Annual Fee: $100".',T)
+rep('league-summary','Teams must pay prior to start of regular season via LeagueSafe','Pay before the regular season starts: Venmo either co-commissioner (Brett or Joe)',W,K)
+rep('general-league-calendar','LeagueSafe Payouts [or earlier]','Prize payouts via Venmo [or earlier]',W,K)
+rep('league-platforms','League fees will be paid through LeagueSafe.','League dues are paid by Venmo to either co-commissioner (Brett or Joe), who take turns managing the money.',W,K)
+rep('fees-and-payouts','League dues are $100/team/year paid to LeagueSafe, due on or before the startup draft and by League Reset Day of the successive years. Any LeagueSafe fees shall be paid by the respective owner and generally consists of 3%.','League dues are $100/team/year, paid by Venmo to either co-commissioner (Brett or Joe), who take turns managing the money. Pay by League Reset Day each year.',W,K)
+rep('refunds','Replacement owner pays $60 to LeagueSafe','Replacement owner Venmos $60 to the co-commissioner holding the money',W,K)
+rep('league-disbanding','all monies held in LeagueSafe shall be distributed','whatever money the co-commissioners are holding gets split',W,K)
 B['updated']='2026-10';B['updated_label']='Last updated October 2026 (aligned to Sleeper settings)'
 B['sections'].append({'id':'changelog','title':'Changelog','b':[P('October 2026: bylaws aligned to the live Sleeper settings (all differences previously approved by the league) and typos/formatting fixed. Changes:')]+[LI(x) for x in dict.fromkeys(f"{c['sec']}: {c['why'] or c['to']}" for c in LOG)]})
-json.dump(B,open('office/bylaws.json','w'),ensure_ascii=False,indent=0);json.dump(LOG,open('office/changelog.json','w'),ensure_ascii=False,indent=1)
+json.dump(B,open('office/bylaws.json','w'),ensure_ascii=False,indent=0);[c.update({k:c[k].replace('LeagueSafe fees','third-party platform fees').replace('LeagueSafe','[former dues platform]') for k in('from','to')}) for c in LOG]
+json.dump(LOG,open('office/changelog.json','w'),ensure_ascii=False,indent=1)
 print(len(LOG),'changes')

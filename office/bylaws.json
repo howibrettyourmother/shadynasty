@@ -83,11 +83,6 @@
 },
 {
 "t": "li",
-"d": 3,
-"x": "Less any applicable fees from LeagueSafe"
-},
-{
-"t": "li",
 "d": 1,
 "x": "Consolation Playoff"
 },
@@ -124,17 +119,12 @@
 {
 "t": "li",
 "d": 1,
-"x": "League Annual Fee: $100 (less any applicable LeagueSafe fees)"
+"x": "League Annual Fee: $100"
 },
 {
 "t": "li",
 "d": 2,
-"x": "Teams must pay prior to start of regular season via LeagueSafe"
-},
-{
-"t": "li",
-"d": 3,
-"x": "Annual Fee: $100 (less any applicable LeagueSafe fees)"
+"x": "Pay before the regular season starts: Venmo either co-commissioner (Brett or Joe)"
 },
 {
 "t": "li",
@@ -209,7 +199,7 @@
 ],
 [
 "January 31 each year",
-"LeagueSafe Payouts [or earlier]"
+"Prize payouts via Venmo [or earlier]"
 ],
 [
 "February 15 each year",
@@ -244,7 +234,7 @@
 {
 "t": "p",
 "d": 0,
-"x": "League fees will be paid through LeagueSafe."
+"x": "League dues are paid by Venmo to either co-commissioner (Brett or Joe), who take turns managing the money."
 }
 ]
 },
@@ -620,7 +610,7 @@
 {
 "t": "li",
 "d": 1,
-"x": "League dues are $100/team/year paid to LeagueSafe, due on or before the startup draft and by League Reset Day of the successive years. Any LeagueSafe fees shall be paid by the respective owner and generally consists of 3%."
+"x": "League dues are $100/team/year, paid by Venmo to either co-commissioner (Brett or Joe), who take turns managing the money. Pay by League Reset Day each year."
 },
 {
 "t": "li",
@@ -1005,7 +995,7 @@
 {
 "t": "li",
 "d": 2,
-"x": "Example: Leaving Owner finds Replacement Owner. Replacement owner pays $60 to LeagueSafe (partial current year, full prepaid year). Leaving owner receives a refund of up to $60."
+"x": "Example: Leaving Owner finds Replacement Owner. Replacement owner Venmos $60 to the co-commissioner holding the money (partial current year, full prepaid year). Leaving owner receives a refund of up to $60."
 },
 {
 "t": "li",
@@ -1350,7 +1340,7 @@
 {
 "t": "p",
 "d": 0,
-"x": "The league may vote to fold or restart with a 10/12 vote except where otherwise stated. If the league folds, all monies held in LeagueSafe shall be distributed equally to all members at time of folding"
+"x": "The league may vote to fold or restart with a 10/12 vote except where otherwise stated. If the league folds, whatever money the co-commissioners are holding gets split equally to all members at time of folding"
 }
 ]
 },
@@ -1484,11 +1474,6 @@
 {
 "t": "li",
 "d": 1,
-"x": "League Summary: Duplicate line merged into a clarification."
-},
-{
-"t": "li",
-"d": 1,
 "x": "General League Calendar: Matches Sleeper: playoff_week_start 15, trade_deadline 14, daily_waivers off, waiver_clear_days 2, taxi_deadline 4, draft_rounds 4."
 },
 {
@@ -1595,6 +1580,41 @@
 "t": "li",
 "d": 1,
 "x": "Regular Season, Playoffs, and Toilet Bowl: Single tiebreaker order = Sleeper's default for leagues without divisions: overall record, points for, higher points against, coin flip (no head-to-head). Source: support.sleeper.com article 2203518."
+},
+{
+"t": "li",
+"d": 1,
+"x": "League Summary: League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed."
+},
+{
+"t": "li",
+"d": 1,
+"x": "League Summary: Duplicate of \"League Annual Fee: $100\"."
+},
+{
+"t": "li",
+"d": 1,
+"x": "General League Calendar: League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed."
+},
+{
+"t": "li",
+"d": 1,
+"x": "League Platforms: League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Fees & Payouts: League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Refunds: League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed."
+},
+{
+"t": "li",
+"d": 1,
+"x": "League Disbanding: League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed."
 }
 ]
 }
