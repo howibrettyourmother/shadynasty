@@ -1,6 +1,6 @@
 'use strict';
 // 🏛️ LEAGUE OFFICE (#office): bylaws (office/bylaws.json) + live Sleeper settings w/ conflict flags + memos & notices archive (office/office.json). Loaded after app.js.
-const OFV=3,OF={};
+const OFV=4,OF={};
 const ofGet=u=>OF[u]||(OF[u]=fetch(u+'?v='+OFV).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).catch(e=>{delete OF[u];throw e}));
 const SEAL=(c,s)=>`<img class="lo-seal ${c||''}" src="office/seal.svg?v=${OFV}" width="${s||64}" height="${s||64}" alt="Shoebeer Enforcement Division seal">`;
 const ofDate=d=>new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
@@ -38,7 +38,7 @@ const ofBlk=(b,q)=>{const hl=t=>{const e=esc(t);if(!q)return e;return e.replace(
 const ofSecText=s=>s.title+' '+s.b.map(b=>b.x||(b.rows||[]).flat().join(' ')).join(' ');
 function ofSecs(B,flags,q){const ql=(q||'').trim().toLowerCase();let n=0;
   const out=B.sections.map((s,i)=>{const hit=!ql||ofRx(ql).test(ofSecText(s));if(hit)n++;const f=flags[s.id]||[];
-    return`<section class="lo-sec${hit?'':' lo-hide'}" id="lo-${s.id}" data-id="${s.id}"><h3><a href="#office/${s.id}">${i?'§'+i+' ':''}${esc(s.title)}</a>${f.length?' <span class="lo-flag">⚠️ SLEEPER OVERRIDES</span>':''}</h3>
+    return`<section class="lo-sec${hit?'':' lo-hide'}" id="lo-${s.id}" data-id="${s.id}"><h3><a href="#office/${s.id}">${i?i+'. ':''}${esc(s.title)}</a>${f.length?' <span class="lo-flag">⚠️ SLEEPER OVERRIDES</span>':''}</h3>
      ${f.length?`<div class="lo-ovr">Live Sleeper settings win here: ${f.map(c=>`<b>${esc(c.label)}</b> is <b>${esc(c.live)}</b>, not ${esc(c.bylaw)}`).join('; ')}.</div>`:''}${s.b.map(b=>ofBlk(b,ql?q.trim():'')).join('')}</section>`}).join('');
   return{html:out,n}}
 R.office=async(el,arg)=>{const [B,O]=await Promise.all([ofGet('office/bylaws.json'),ofGet('office/office.json')]);let lg=null;try{lg=(await current()).lg}catch(e){console.warn(e)}

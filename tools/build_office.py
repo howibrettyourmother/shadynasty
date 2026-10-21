@@ -6,7 +6,7 @@ TOC=['League Summary','General League Calendar','League Platforms','Scoring','Ro
 slug=lambda s:re.sub(r'[^a-z0-9]+','-',s.lower().replace('&','and')).strip('-')
 secs=[{'id':'intro','title':'Preamble','b':[]}];cur=secs[0];skip=False
 for p in d.paragraphs:
-  t=re.sub(r'\s+',' ',p.text).strip()
+  t=re.sub(r'[\u200b-\u200f\u2060\ufeff\ue000-\uf8ff\x00-\x08\x0b-\x1f]','',p.text.replace('\u00a0',' '));t=re.sub(r'\s+',' ',t).strip()
   if not t: continue
   if t=='SHADYNASTY League Bylaws' or t=='Last updated 1 July 2021': continue
   if t=='Contents': skip=True;continue

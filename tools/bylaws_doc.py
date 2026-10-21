@@ -39,7 +39,7 @@ for i,s in enumerate(B['sections']):
   q=d.add_paragraph();q.paragraph_format.space_after=Pt(1);q.add_run(f'{i}. ' if i else '').font.color.rgb=GOLD;link(q,s['title'],'s_'+s['id'].replace('-','_'))
 for i,s in enumerate(B['sections']):
   if i==0: d.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
-  p=d.add_paragraph((f'§{i}  ' if i else '')+s['title'],style='Heading 1');bm(p,'s_'+s['id'].replace('-','_'),i+1)
+  p=d.add_paragraph((f'{i}. ' if i else '')+s['title'],style='Heading 1');bm(p,'s_'+s['id'].replace('-','_'),i+1)
   for b in s['b']:
     if b['t']=='table':
       t=d.add_table(rows=0,cols=2);t.style='Light Grid Accent 1'
@@ -54,6 +54,16 @@ for i,s in enumerate(B['sections']):
     else:
       p=d.add_paragraph();r=p.add_run(b['x'])
       if b['x'].endswith(':') or b['x'].isupper() or len(b['x'])<28: r.bold=True;r.font.color.rgb=NAVY
+# replace Symbol-font PUA bullets (U+F0B7 etc.) in the template numbering with plain Unicode bullets
+NS='{http://schemas.openxmlformats.org/wordprocessingml/2006/main}'
+for lv in d.part.numbering_part.element.iter(NS+'lvl'):
+  t=lv.find(NS+'lvlText')
+  if t is not None and t.get(NS+'val') and any(0xE000<=ord(c)<=0xF8FF for c in t.get(NS+'val')):
+    t.set(NS+'val',{'\uf0b7':'•','o':'◦','\uf0a7':'▪'}.get(t.get(NS+'val'),'•'))
+    rp=lv.find(NS+'rPr')
+    if rp is not None:
+      for f in rp.findall(NS+'rFonts'):
+        for a in list(f.attrib): f.set(a,'Georgia')
 cp=d.core_properties;cp.title='SHADYNASTY League Bylaws (October 2026)';cp.author='SHADYNASTY League Office';cp.comments='';cp.last_modified_by='SHADYNASTY League Office'
 out='/workspace/shadynasty_office/SHADYNASTY_Bylaws_2026.docx';d.save(out)
 subprocess.run(['soffice','--headless','--convert-to','pdf','--outdir','/workspace/shadynasty_office',out],check=True,capture_output=True)
