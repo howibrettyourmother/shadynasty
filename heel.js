@@ -4,7 +4,7 @@
 // with red-glowing lenses and backlight rays, then a title card slam, then fade. Tap anywhere to skip. prefers-reduced-motion -> static card,
 // no flash/shake/particles. Sound (low thunder) only if the site's sound isn't muted AND the page has had a user gesture.
 (function(){
-const LINES=['Boo louder.','Your lineup fears me.','Weasel season.','Hate me harder.','Cheap heat. Real points.','Your trade offer made him laugh.'];
+const LINES=['Boo louder.','Your lineup fears me.','Hate me harder.','Your trade offer made him laugh.','Lock your waiver wire.','Your bench is shaking.'];
 let css=false;function style(){if(css)return;css=true;const s=document.createElement('style');s.textContent=`
 #heel{position:fixed;inset:0;z-index:2147483000;overflow:hidden;pointer-events:auto;cursor:pointer;contain:strict;-webkit-tap-highlight-color:transparent}
 #heel .hlvg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 62%,rgba(60,0,0,.55) 0%,rgba(8,0,0,.92) 55%,#000 100%);opacity:0;transition:opacity .3s ease}
@@ -46,8 +46,8 @@ addEventListener('pointerdown',()=>{heel.gest=1},{capture:true,passive:true});
 function heel(th,o){style();const old=document.getElementById('heel');if(old)old.remove();
   const rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   const line=LINES[(heel.n=(heel.n==null?Math.floor(Math.random()*LINES.length):heel.n+1))%LINES.length];
-  const w=document.createElement('div');w.id='heel';w.setAttribute('role','dialog');w.setAttribute('aria-label','The heel has entered the building. '+line);
-  w.innerHTML=`<div class="hlsk"><div class="hlvg"></div><div class="hlry"></div><canvas></canvas><div class="hlwz"><img alt="" src="img/weasel-av.webp"><i class="hley l"></i><i class="hley r"></i></div><div class="hltt"><b>The heel has entered the building</b><i>${line}</i></div></div><div class="hlfl"></div><div class="hlkp">tap to skip</div>`;
+  const w=document.createElement('div');w.id='heel';w.setAttribute('role','dialog');w.setAttribute('aria-label','Weasel season. '+line);
+  w.innerHTML=`<div class="hlsk"><div class="hlvg"></div><div class="hlry"></div><canvas></canvas><div class="hlwz"><img alt="" src="img/weasel-av.webp"><i class="hley l"></i><i class="hley r"></i></div><div class="hltt"><b>Weasel season</b><i>${line}</i></div></div><div class="hlfl"></div><div class="hlkp">tap to skip</div>`;
   document.body.appendChild(w);let done=false,T=[],raf=0;const later=(f,ms)=>T.push(setTimeout(f,ms));
   const end=fast=>{if(done)return;done=true;T.forEach(clearTimeout);w.classList.add('out');if(fast)w.style.transitionDuration='.18s';setTimeout(()=>{cancelAnimationFrame(raf);w.remove()},fast?200:380)};
   w.addEventListener('click',()=>end(true));addEventListener('keydown',function k(e){if(e.key==='Escape'){end(true);removeEventListener('keydown',k)}});
