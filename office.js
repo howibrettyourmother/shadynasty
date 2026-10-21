@@ -1,6 +1,6 @@
 'use strict';
 // 🏛️ LEAGUE OFFICE (#office): bylaws (office/bylaws.json) + live Sleeper settings w/ conflict flags + memos & notices archive (office/office.json). Loaded after app.js.
-const OFV=6,OF={};
+const OFV=7,OF={};
 const ofGet=u=>OF[u]||(OF[u]=fetch(u+'?v='+OFV).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).catch(e=>{delete OF[u];throw e}));
 const SEAL=(c,s)=>`<img class="lo-seal ${c||''}" src="office/seal.svg?v=${OFV}" width="${s||64}" height="${s||64}" alt="Shoebeer Enforcement Division seal">`;
 const ofDate=d=>new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
