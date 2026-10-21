@@ -114,7 +114,7 @@ function rivalsOf(me){const h=LV.h2h;if(!h)return[];const L=TEAMS.filter(t=>t.id
 SB.rivalsOf=rivalsOf;SB.LV=LV;
 // ================= SERVICE WORKER / OFFLINE =================
 let offline=false;
-if('serviceWorker' in navigator&&location.protocol!='file:'){navigator.serviceWorker.register('sw.js?v=2').then(()=>navigator.serviceWorker.ready).then(async()=>{const c=await caches.open('sb-v2-core-2');const k=await c.keys();offline=k.length>=5;if(cur=='title')paintExtras()}).catch(()=>{})}
+if('serviceWorker' in navigator&&location.protocol!='file:'){let hadC=!!navigator.serviceWorker.controller,rl=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadC&&!rl&&!G){rl=true;location.reload()}});navigator.serviceWorker.register('sw.js?v=3').then(()=>navigator.serviceWorker.ready).then(async()=>{const c=await caches.open('sb-v2-core-3');const k=await c.keys();offline=k.length>=5;if(cur=='title')paintExtras()}).catch(()=>{})}
 // ================= DIFFICULTY-AWARE FORMATION + INJURIES =================
 const _form=form;window.form=form=function(play){const E=_form(play),df=DIFF(),n=NAMES[G.me.id];E.forEach(e=>{if(!e.o){e.spd*=1+df.st*.4;if(e.react!=null)e.react=Math.max(.05,e.react-df.st*.6)}});
   if(n&&n.inj){const set=(e,s)=>{if(!s)return;e.spd*=s=='hurt'?.78:.92;e.inj=s};E.forEach(e=>{if(e.role=='qb')set(e,n.inj.QB);if(e.role=='rb')set(e,n.inj.RB);if(e.role=='wr')set(e,(n.inj.WR||[])[e.wi])})}
@@ -134,7 +134,7 @@ const _km=kickMeter;window.kickMeter=kickMeter=function(kind,dist){if(kind!='xp'
     const l=say('two');msg(l,2);speak(l,1);G.two=1;G.los=98;G.down=1;G.togo=2;G.fd=100;preSnap();$('#pre').querySelectorAll('[data-p="punt"],[data-p="fg"]').forEach(e=>e.remove())}};
 const _punt=punt;window.punt=punt=function(){_punt();speak(say('stall')+' '+$('#msg').textContent)};
 // ================= TWO-MINUTE DRILL CLOCK =================
-const _update=update;window.update=update=function(dt){_update(dt);if(G&&G.drill&&(G.phase=='play'||G.phase=='pre')){G.clock-=dt;if(G.clock<=0&&G.phase=='pre'){G.clock=0;G.phase='after';G.after=.8;bigTxt('TIME!','#ff4a4a');snd('whistle');G.next=()=>final()}}};
+const _update=update;window.update=update=function(dt){if(SB.rotPaused)return;_update(dt);if(G&&G.drill&&(G.phase=='play'||G.phase=='pre')){G.clock-=dt;if(G.clock<=0&&G.phase=='pre'){G.clock=0;G.phase='after';G.after=.8;bigTxt('TIME!','#ff4a4a');snd('whistle');G.next=()=>final()}}};
 const _updHud=updHud;window.updHud=updHud=function(){_updHud();if(G&&G.drill){const c=Math.max(0,G.clock),s=`${(c/60)|0}:${String((c%60)|0).padStart(2,'0')}`;$('#dd').textContent='⏱ '+s+' · '+$('#dd').textContent.replace(/^Q\d · /,'')}if(G&&G.two)$('#dd').textContent='2-PT TRY · from the 2'};
 // ================= PREGAME CARD (lineups, injuries, rivalry, roasts) =================
 function lineupHTML(t){const n=NAMES[t.id];if(!n||!n.list)return`<div class="lb">Lineup: ${LV.src=='none'?'offline, generic squad':'loading…'}</div>`;
@@ -174,10 +174,10 @@ function defense(start,pre){const O=G.opp,df=DIFF(),dB=SV.up.d,el=$('#s-card'),o
     S.last=d;$('#dctl').style.display='none';$('#dbar').style.display='block';snd('hike');
     const z=Math.min(.5,df.zone+dB*.025),c0=.15+R()*(.7-z);const dz=$('#dz');dz.style.left=c0*100+'%';dz.style.width=z*100+'%';
     let k=0,dir=1,t0=performance.now(),done=false,last=t0;const spd=df.nd*(1.1+R()*.3);
-    const tick=now=>{if(done)return;const dt=(now-last)/1000;last=now;k+=dir*spd*dt;if(k>1){k=1;dir=-1}if(k<0){k=0;dir=1}$('#dn').style.left=`calc(${k*100}% - 3px)`;if(now-t0>2600)return fin(false);requestAnimationFrame(tick)};requestAnimationFrame(tick);
+    const tick=now=>{if(done)return;const dt=(now-last)/1000;last=now;if(SB.rotPaused){t0+=now-last+dt*1000;requestAnimationFrame(tick);return}k+=dir*spd*dt;if(k>1){k=1;dir=-1}if(k<0){k=0;dir=1}$('#dn').style.left=`calc(${k*100}% - 3px)`;if(now-t0>2600)return fin(false);requestAnimationFrame(tick)};requestAnimationFrame(tick);
     const tap=e=>{e.preventDefault();fin(k>=c0&&k<=c0+z)};const bar=$('#dbar');bar.addEventListener('pointerdown',tap,{once:true});
     function fin(good){if(done)return;done=true;bar.removeEventListener('pointerdown',tap);resolve(d,p,good)}}
-  function resolve(d,p,good){let y=0,txt='',key=null,end=null;const pn=p=='run'?'a run':'a '+ROUTES[p].toLowerCase()+' route';
+  function resolve(d,p,good){let y=0,txt='',key=null,end=null;if(O.id=='679000405232934912'&&R()<.14){S.over=true;const l=pick(SB.JL.trip);SV.rec.dints++;snd('roar');bigTxt('👠 FUMBLE!','#ff4fd8');SB.joeBurst&&SB.joeBurst();speak(l,1);view(l+' You recover!');return setTimeout(()=>finish('INT'),1300)}const pn=p=='run'?'a run':'a '+ROUTES[p].toLowerCase()+' route';
     if(d=='blitz'){if(p=='run'){y=good?-gain(2,5):gain(3,7);txt=good?'Blitz blows up the run!':'Run squirts past the blitz.';key=good?'dstop':null;if(good)snd('hit')}
       else{const sk=good?(p=='deep'?.92:.6):(p=='deep'?.38:.12);if(R()<sk){y=-gain(5,10);key='dsack';SV.rec.sacks++;snd('sack');bigTxt('SACK!',G.me.c[0])}else{y=p=='deep'?gain(28,50):gain(12,24);key='dbig';snd('bad')}}}
     else if(d==p){if(good&&R()<.55+dB*.05-(df.ai*.1)){key='dint';end='INT';SV.rec.dints++;snd('roar');bigTxt('PICKED!',G.me.c[0]);confetti(G.me,30)}else if(good){key='dstop';snd('hit');y=0}else{y=gain(3,7);txt='Right read, late jump. Tackled after the catch.';snd('catch')}}
@@ -189,7 +189,7 @@ function defense(start,pre){const O=G.opp,df=DIFF(),dB=SV.up.d,el=$('#s-card'),o
     S.over=!!end;view(line.trim());if(end)setTimeout(()=>finish(end),1100)}
   function finish(end){G.odrv++;G.sc[1]+=S.pts;const next=end=='INT'?cl(100-S.pos,10,90):end=='PUNT'?Math.round(12+R()*20):end=='MISS'?Math.max(20,100-S.pos):25;
     const done=G.drv>=4+G.ot&&G.odrv>=4+G.ot,res={TD:'TOUCHDOWN',FG:'FIELD GOAL',MISS:'MISSED FG',PUNT:'FORCED PUNT',INT:'INTERCEPTION!'}[end];
-    if(end=='FG')snd('bad');if(end=='PUNT'||end=='MISS')snd('roar');
+    if(end=='FG')snd('bad');if(end=='TD'&&O.id=='679000405232934912'){SB.joeBurst&&SB.joeBurst();SB.speak(pick(SB.JL.td),1)}if(end=='PUNT'||end=='MISS')snd('roar');
     const line=S.pts?pick(FLAVOR[O.id].opp):pick(FLAVOR[O.id].vs);
     el.innerHTML=`<div class="card"><div class="lb">DEFENSIVE STAND</div><div class="fs">${S.pts==7?'😤':S.pts?'🥅':end=='INT'?'🙌':'🛑'}</div><h2 class="D" style="color:${S.pts?'#ff6a6a':'#7CFC00'}">${res}</h2><p>${esc(line)}</p>
      <div class="D" style="font-size:30px">${esc(G.me.ab)} ${G.sc[0]} – ${G.sc[1]} ${esc(O.ab)}</div><div class="row"><button class="pb" id="cont">${done?(G.sc[0]==G.sc[1]?'OVERTIME →':'FINAL →'):'BACK TO OFFENSE →'}</button></div></div>`;
@@ -240,7 +240,50 @@ window.shop=shop=function(){showScr('s-shop');const h=UPS.map(([k,n,d])=>{const 
   $('#s-shop').innerHTML=`<h2 class="D">LOCKER ROOM</h2><p class="sub">Bank: <b>${SV.coins} 🪙</b>. Coins come from <b>Season mode</b> only (TDs, FGs, wins, double in rivalry games). Upgrades stay with you across seasons. Unlike some GMs here, you can't trade future picks for these.</p><div style="max-width:520px;margin:0 auto">${h}</div><div class="row"><button class="pb red" id="bk2">← MENU</button></div>`;
   $('#s-shop').onclick=e=>{const b=e.target.closest('[data-u]');if(b){const k=b.dataset.u,c=cost(SV.up[k]||0);if(SV.coins>=c){SV.coins-=c;SV.up[k]=(SV.up[k]||0)+1;save();snd('sting');shop()}}if(e.target.id=='bk2')title()}};
 $('#mute').onclick=()=>{SV.mute=!SV.mute;save();setVol();$('#mute').textContent=SV.mute?'🔇':'🔊';if(SV.mute&&VO.ok)speechSynthesis.cancel();else snd('catch')};
+// ================= ROTATE OVERLAY: landscape only =================
+(function(){const st=document.createElement('style');st.textContent=`#rotx{position:fixed;inset:0;z-index:99;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px;background:repeating-linear-gradient(0deg,#0000 0 3px,#0003 3px 4px),radial-gradient(ellipse at top,#1d4a22,#06120a 70%);color:#fff}
+#rotx h2{font-size:clamp(34px,10vw,60px);margin:0;line-height:1;color:#ffe07a;text-shadow:3px 3px 0 #b5121b,6px 6px 0 #000}#rotx p{max-width:320px;margin:0;opacity:.9}
+#rotx .ph{width:70px;height:120px;border:6px solid #ffe07a;border-radius:14px;position:relative;box-shadow:4px 4px 0 #b5121b;animation:rotph 2s ease-in-out infinite}#rotx .ph:after{content:'🏈';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px}
+@keyframes rotph{0%,20%{transform:rotate(0)}55%,85%{transform:rotate(-90deg)}100%{transform:rotate(0)}}`;document.head.appendChild(st);
+  const o=document.createElement('div');o.id='rotx';o.innerHTML=`<div class="ph"></div><h2 class="D">TURN YOUR PHONE SIDEWAYS</h2><p>This game only works in landscape. Holding it upright like that is how you end up starting a guy on bye.</p>`;document.body.appendChild(o);
+  let on=false;const chk=()=>{const p=innerHeight>innerWidth*1.05;if(p==on)return;on=p;o.style.display=p?'flex':'none';SB.rotPaused=p;
+    try{if(p){AU.c&&AU.c.suspend();VO.ok&&speechSynthesis.pause()}else{AU.c&&!SV.mute&&AU.c.resume();VO.ok&&speechSynthesis.resume()}}catch(e){}};
+  addEventListener('resize',chk);addEventListener('orientationchange',()=>setTimeout(chk,150));chk()})();
+
 // season: a rival's coin bonus is handled in final(); start
 title();loadLive2().then(()=>{if(cur=='title')title();else if(cur=='team')teamSel()});
 Object.assign(SB,{newGame,endPlay,snap,DIFFS,records,settings,shop,unlock,AU,get offline(){return offline}});
+})();
+// ================= JOE MODE: his team, or anyone playing against it =================
+(function(){const JOE='679000405232934912',SB=window.__SB;
+const JL={intro:["Year whatever of the rebuild. Rebuilding Morehouse's takes the field, in heels, still two fucking years away.","Ladies and gentlemen, the eternal rebuild. He traded the future for more future and still can't field a goddamn lineup.","Rainbow Warrior? More like Rebuild Warrior. Kickoff!"],
+ td:["Touchdown Morehouse's! Holy shit, a rebuild scored! Somebody check the standings, this never fucking happens.","They scored! Pour one in the stiletto, boys, next year might actually be this year.","Six points for the rebuild! Don't get used to it, he'll trade this guy for a third-round pick by Tuesday."],
+ trip:["FUMBLE! He tripped over his own goddamn heel! Ball's loose!","Down he goes! Ankle rolled in the stiletto, ball on the turf. Peak fucking rebuild.","Tripped on a heel and coughed it up. Even the shoes are tanking for a draft pick."],
+ stall:["Drive's dead. That's the rebuild, baby: all picks, no fucking points.","Stalled again. Wait till next year. He's been saying that shit since the Obama administration... of fantasy football.","Another empty drive. He'll trade the whole offense for futures and call it a process."],
+ score:["Morehouse's gets torched. Trading away every starter for picks has fucking consequences.","Scored on the rebuild. Next year, though. Always next fucking year."]};
+SB.JL=JL;const joeG=()=>G&&(G.me.id==JOE||G.opp.id==JOE),isJ=t=>t&&t.id==JOE;
+const J=TM(JOE);if(J){J.em=['🦄','🌈','✨','👠','💖'];}
+// stilettos + wobble
+const _dm=drawMan;window.drawMan=drawMan=function(e,t){if(!isJ(t)||e.stun>0)return _dm(e,t);let [x,y]=P(e.x,e.y);x=Math.round(x);y=Math.round(y);const sp=hyp(e.vx,e.vy),w=Math.sin(e.anim*5)*Math.min(.22,.05+sp*.03);
+  ctx.save();ctx.translate(x,y);ctx.rotate(w);ctx.translate(-x,-y);_dm(e,t);ctx.translate(x,y);ctx.scale(2,2);const leg=Math.sin(e.anim*3)>0;
+  for(const [fx,up] of [[-2,leg],[1,!leg]]){const fy=up?-1:0;ctx.fillStyle='#ff2d95';ctx.fillRect(fx-1,fy,4,1);ctx.fillRect(fx+2,fy-1,1,1);ctx.fillStyle='#ffd23f';ctx.fillRect(fx-1,fy+1,1,2)}
+  if(e.role=='qb'&&G.shoeyT>0){ctx.fillStyle='#ff2d95';ctx.fillRect(2,-15,4,2);ctx.fillRect(5,-17,1,2);ctx.fillStyle='#ffd23f';ctx.fillRect(2,-13,1,2);ctx.fillStyle='#fff8';ctx.fillRect(3,-16,2,1)}
+  ctx.restore()};
+// heel clacks, glitter trail, tripping
+const _up=update;let clk=0;window.update=update=function(dt){_up(dt);if(!joeG()||SB.rotPaused)return;if(G.shoeyT>0)G.shoeyT-=dt;
+  const b=G.ball;if(b&&(b.st=='air'||(b.st=='held'&&G.phase=='play'))){for(let i=0;i<2;i++)G.parts.push({x:b.x+(R()-.5)*.6,y:b.y+(R()-.5)*.6,vx:(R()-.5)*1.5,vy:(R()-.5)*1.5,t:.5+R()*.4,c:`hsl(${(performance.now()/3+R()*90)%360},100%,${70+R()*25}%)`})}
+  if(G.phase=='play'){clk-=dt;const jo=G.ents.filter(e=>(e.o?isJ(G.me):isJ(G.opp))&&hyp(e.vx,e.vy)>2);if(jo.length&&clk<=0){clk=.16+R()*.08;snd('clack')}
+    const c=G.carrier;if(c&&isJ(G.me)&&hyp(c.vx,c.vy)>3&&!G.two&&R()<dt*.06){const l=pick(JL.trip);floatTxt('👠 TRIPPED!',c);c.stun=9;G.phase='after';G.after=2.6;snd('hit');snd('bad');msg(l,3);SB.speak(l,1);G.next=()=>driveOver('FUMBLE',100-cl(Math.round(c.x),1,99))}}};
+const _snd=snd;window.snd=snd=function(t){if(t!='clack')return _snd(t);SB.sounds.push(t);if(SV.mute)return;try{const AU=SB.AU,c=AU.c;if(!c||c.state!='running')return;const n=c.currentTime;const o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.setValueAtTime(2400+R()*500,n);o.frequency.exponentialRampToValueAtTime(900,n+.03);g.gain.setValueAtTime(.05,n);g.gain.exponentialRampToValueAtTime(.0001,n+.05);o.connect(g);g.connect(AU.m);o.start(n);o.stop(n+.06)}catch(e){}};
+// rainbow + glitter + unicorn TDs, stiletto shoey
+function burst(){const fx=$('#fx');for(let i=0;i<70;i++){const s=document.createElement('span');s.textContent=pick(['🦄','🌈','✨','👠','💖','✨']);s.style.left=R()*100+'%';s.style.animationDuration=(1.4+R()*1.6)+'s';s.style.animationDelay=R()*.5+'s';s.style.fontSize=(18+R()*24)+'px';fx.appendChild(s);setTimeout(()=>s.remove(),3800)}
+  const rb=document.createElement('div');rb.style.cssText='position:fixed;left:-10%;right:-10%;top:12%;height:46vh;border-radius:50% 50% 0 0;pointer-events:none;background:radial-gradient(ellipse at 50% 100%,#0000 52%,#a0f 53%,#33f 57%,#0c6 61%,#ff0 65%,#f80 69%,#f24 73%,#0000 74%);opacity:.85;animation:pop .6s;z-index:3';fx.appendChild(rb);setTimeout(()=>rb.remove(),2200);snd('sting')}
+SB.joeBurst=burst;
+const _cel=celebrate;window.celebrate=celebrate=function(t,line){if(isJ(t)){line=pick(JL.td);G.shoeyT=3;const q=G.ents.find(e=>e.role=='qb');q&&floatTxt('👠🍺 STILETTO SHOEY!',q);_cel(t,line);bigTxt('🌈 TOUCHDOWN 🦄','#ff4fd8');burst();}else _cel(t,line)};
+// announcer: kickoff, stalls, defense trips
+const _ng=newGame;window.newGame=newGame=function(a,b,m){_ng(a,b,m);if(!joeG())return;const l=pick(JL.intro);const p=$('#s-card .card p');if(p)G.rival?p.insertAdjacentHTML('afterend','<p>'+esc(l)+'</p>'):(p.textContent=l);setTimeout(()=>SB.speak(l,1),50)};
+const _do=driveOver;window.driveOver=driveOver=function(why,os){if(joeG()&&isJ(G.me)&&(why=='DOWNS'||why=='PUNT'||why=='MISS'))setTimeout(()=>SB.speak(pick(JL.stall),1),200);
+  if(joeG()&&isJ(G.opp)&&(why=='TD')&&R()<.5)setTimeout(()=>SB.speak(pick(JL.score)),2200);return _do(why,os)};
+SB.newGame=newGame;SB.endPlay=endPlay;
+// defense vs Joe: his guys trip on their heels sometimes
 })();
