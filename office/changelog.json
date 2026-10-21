@@ -278,5 +278,12 @@
   "from": "all monies held in [former dues platform] shall be distributed",
   "to": "whatever money the co-commissioners are holding gets split",
   "why": "League dropped its former third-party dues platform. Dues are now simply paid by Venmo to either co-commissioner, who take turns managing the money; formal collection/escrow language removed."
+ },
+ {
+  "sec": "Refunds",
+  "kind": "League-approved rule change",
+  "from": "If the leaving owner provides an acceptable replacement owner who is willing to pay any portion of league fees, then the leaving owner can receive a refund of league fees for the matching amount. Example: Leaving Owner finds Replacement Owner. Replacement owner Venmos $60 to the co-commissioner holding the money (partial current year, full prepaid year). Leaving owner receives a refund of up to $60.",
+  "to": "Replacement owner dues are decided case by case by the co-commissioners, depending on the state of the team inherited.",
+  "why": "The $60 replacement-owner refund rule was never enforced (in practice the co-commissioners have handled replacement dues case by case); replaced with the actual practice."
  }
 ]

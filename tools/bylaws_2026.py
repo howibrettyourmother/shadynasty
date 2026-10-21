@@ -88,8 +88,14 @@ rep('league-platforms','League fees will be paid through LeagueSafe.','League du
 rep('fees-and-payouts','League dues are $100/team/year paid to LeagueSafe, due on or before the startup draft and by League Reset Day of the successive years. Any LeagueSafe fees shall be paid by the respective owner and generally consists of 3%.','League dues are $100/team/year, paid by Venmo to either co-commissioner (Brett or Joe), who take turns managing the money. Pay by League Reset Day each year.',W,K)
 rep('refunds','Replacement owner pays $60 to LeagueSafe','Replacement owner Venmos $60 to the co-commissioner holding the money',W,K)
 rep('league-disbanding','all monies held in LeagueSafe shall be distributed','whatever money the co-commissioners are holding gets split',W,K)
+bl=S['refunds']['b'];i=next(k for k,b in enumerate(bl) if b.get('x','').startswith('If the leaving owner provides an acceptable replacement owner'))
+old=bl[i]['x']+' '+bl[i+1]['x'];assert bl[i+1]['x'].startswith('Example: Leaving Owner finds');bl[i:i+2]=[LI('Replacement owner dues are decided case by case by the co-commissioners, depending on the state of the team inherited.')]
+LOG.append({'sec':'Refunds','kind':'League-approved rule change','from':old,'to':'Replacement owner dues are decided case by case by the co-commissioners, depending on the state of the team inherited.','why':'The $60 replacement-owner refund rule was never enforced (in practice the co-commissioners have handled replacement dues case by case); replaced with the actual practice.'})
 B['updated']='2026-10';B['updated_label']='Last updated October 2026 (aligned to Sleeper settings)'
-B['sections'].append({'id':'changelog','title':'Changelog','b':[P('October 2026: bylaws aligned to the live Sleeper settings (all differences previously approved by the league) and typos/formatting fixed. Changes:')]+[LI(x) for x in dict.fromkeys(f"{c['sec']}: {c['why'] or c['to']}" for c in LOG)]})
+G={}
+for c in LOG:
+  k=c['why'] or c['to'];G.setdefault(k,[]);(c['sec'] in G[k]) or G[k].append(c['sec'])
+B['sections'].append({'id':'changelog','title':'Changelog','b':[P('October 2026: bylaws aligned to the live Sleeper settings (all differences previously approved by the league), league-approved updates applied, and typos/formatting fixed. Changes:')]+[LI(', '.join(v)+': '+k) for k,v in G.items()]})
 json.dump(B,open('office/bylaws.json','w'),ensure_ascii=False,indent=0);[c.update({k:c[k].replace('LeagueSafe fees','third-party platform fees').replace('LeagueSafe','[former dues platform]') for k in('from','to')}) for c in LOG]
 json.dump(LOG,open('office/changelog.json','w'),ensure_ascii=False,indent=1)
 print(len(LOG),'changes')
