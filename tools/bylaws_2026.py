@@ -67,15 +67,17 @@ rep('teams-ownership-and-replacement','Leaving owners who are encouraged','Leavi
 rep('refunds','banned for banning appropriate behavior','banned for violating the conduct rules','Garbled phrase.',T)
 rep('startup-draft','(or pause for to be determined circumstances)','(or pause for circumstances to be determined)','Grammar.',T)
 rep('rule-changes','Changes will be cataloged and dated in section 27. Changelog.','Changes will be cataloged and dated in the Changelog section below.','The referenced "section 27" did not exist; Changelog section added.',T)
-W='League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped.'
-rep('tie-breakers','Unless otherwise specified, rankings and tie breakers are handled according to this order:','All standings, playoff seeding and Toilet Bowl seeding ties are broken in this order:',W,'League-approved rule change')
-rep('tie-breakers','Winning percentage','1) Record (winning percentage)',W,'League-approved rule change')
-rep('tie-breakers','Total points scored','2) Total points for',W,'League-approved rule change')
-rep('tie-breakers','Head-to-head matchup results','3) Head-to-head record',W,'League-approved rule change')
-rep('tie-breakers','Coin flip','4) Coin flip',W,'League-approved rule change')
-rep(rr,'Overall Record > Total Points For > Total Points against > Head to Head Record.','Record (winning percentage) > Total Points For > Head-to-Head Record > Coin Flip (see Tie Breakers).',W,'League-approved rule change')
-rep(rr,'Ties will be broken by who has the most total points scored in a regular season. If there is still a tie then it will be broken by who has the most total points scored against them. If there is still a tie then it will be broken by the head to head record of teams.','Ties will be broken by most total regular season points for, then head-to-head record, then a coin flip. Points against is not used.',W,'League-approved rule change')
+W="Single tiebreaker order = Sleeper's default for leagues without divisions: overall record, points for, higher points against, coin flip (no head-to-head). Source: support.sleeper.com article 2203518."
+K='Sleeper alignment (tiebreakers)'
+rep('tie-breakers','Unless otherwise specified, rankings and tie breakers are handled according to this order:','All standings, playoff seeding and Toilet Bowl seeding ties are broken in this order (Sleeper default):',W,K)
+rep('tie-breakers','Winning percentage','1) Overall record',W,K)
+rep('tie-breakers','Total points scored','2) Points for',W,K)
+rep('tie-breakers','Head-to-head matchup results','3) Higher points against',W,K)
+rep('tie-breakers','Coin flip','4) Coin flip',W,K)
+add('tie-breakers','4) Coin flip',[P('Commissioners may override seeding through Sleeper custom seeding.')],W,K)
+rep(rr,'Overall Record > Total Points For > Total Points against > Head to Head Record.','Overall Record > Points For > Higher Points Against > Coin Flip (see Tie Breakers).',W,K)
+rep(rr,'Ties will be broken by who has the most total points scored in a regular season. If there is still a tie then it will be broken by who has the most total points scored against them. If there is still a tie then it will be broken by the head to head record of teams.','Ties will be broken by most regular season points for, then higher points against, then a coin flip. Head-to-head is not used. Commissioners may override via Sleeper custom seeding.',W,K)
 B['updated']='2026-10';B['updated_label']='Last updated October 2026 (aligned to Sleeper settings)'
-B['sections'].append({'id':'changelog','title':'Changelog','b':[P('October 2026: bylaws aligned to the live Sleeper settings (all differences previously approved by the league) and typos/formatting fixed. Changes:')]+[LI(f"{c['sec']}: {c['why'] or c['to']}") for c in LOG]})
+B['sections'].append({'id':'changelog','title':'Changelog','b':[P('October 2026: bylaws aligned to the live Sleeper settings (all differences previously approved by the league) and typos/formatting fixed. Changes:')]+[LI(x) for x in dict.fromkeys(f"{c['sec']}: {c['why'] or c['to']}" for c in LOG)]})
 json.dump(B,open('office/bylaws.json','w'),ensure_ascii=False,indent=0);json.dump(LOG,open('office/changelog.json','w'),ensure_ascii=False,indent=1)
 print(len(LOG),'changes')

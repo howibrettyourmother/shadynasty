@@ -463,27 +463,32 @@
 {
 "t": "p",
 "d": 0,
-"x": "All standings, playoff seeding and Toilet Bowl seeding ties are broken in this order:"
+"x": "All standings, playoff seeding and Toilet Bowl seeding ties are broken in this order (Sleeper default):"
 },
 {
 "t": "li",
 "d": 1,
-"x": "1) Record (winning percentage)"
+"x": "1) Overall record"
 },
 {
 "t": "li",
 "d": 1,
-"x": "2) Total points for"
+"x": "2) Points for"
 },
 {
 "t": "li",
 "d": 1,
-"x": "3) Head-to-head record"
+"x": "3) Higher points against"
 },
 {
 "t": "li",
 "d": 1,
 "x": "4) Coin flip"
+},
+{
+"t": "p",
+"d": 0,
+"x": "Commissioners may override seeding through Sleeper custom seeding."
 }
 ]
 },
@@ -509,12 +514,12 @@
 {
 "t": "li",
 "d": 1,
-"x": "To rank teams and determine seeding the following will be considered: Record (winning percentage) > Total Points For > Head-to-Head Record > Coin Flip (see Tie Breakers)."
+"x": "To rank teams and determine seeding the following will be considered: Overall Record > Points For > Higher Points Against > Coin Flip (see Tie Breakers)."
 },
 {
 "t": "li",
 "d": 2,
-"x": "The top 6 regular season records will be in the playoffs. Ties will be broken by most total regular season points for, then head-to-head record, then a coin flip. Points against is not used."
+"x": "The top 6 regular season records will be in the playoffs. Ties will be broken by most regular season points for, then higher points against, then a coin flip. Head-to-head is not used. Commissioners may override via Sleeper custom seeding."
 },
 {
 "t": "li",
@@ -1584,37 +1589,12 @@
 {
 "t": "li",
 "d": 1,
-"x": "Tie Breakers: League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
+"x": "Tie Breakers: Single tiebreaker order = Sleeper's default for leagues without divisions: overall record, points for, higher points against, coin flip (no head-to-head). Source: support.sleeper.com article 2203518."
 },
 {
 "t": "li",
 "d": 1,
-"x": "Tie Breakers: League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
-},
-{
-"t": "li",
-"d": 1,
-"x": "Tie Breakers: League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
-},
-{
-"t": "li",
-"d": 1,
-"x": "Tie Breakers: League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
-},
-{
-"t": "li",
-"d": 1,
-"x": "Tie Breakers: League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
-},
-{
-"t": "li",
-"d": 1,
-"x": "Regular Season, Playoffs, and Toilet Bowl: League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
-},
-{
-"t": "li",
-"d": 1,
-"x": "Regular Season, Playoffs, and Toilet Bowl: League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
+"x": "Regular Season, Playoffs, and Toilet Bowl: Single tiebreaker order = Sleeper's default for leagues without divisions: overall record, points for, higher points against, coin flip (no head-to-head). Source: support.sleeper.com article 2203518."
 }
 ]
 }
