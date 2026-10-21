@@ -110,3 +110,34 @@ const GEN={
  win:["{T} wins! Go talk your shit in the group chat.","Victory! {O} goes home and hits the waiver wire to cope."],
  lose:["{O} wins. Delete the app. Reinstall it. Try again.","You lost to {O}. That's going in the Hall of Shame."]
 };
+// ---------- v2: R-rated booth. Fantasy failures only: trades, benching, choking, waivers. ----------
+Object.assign(GEN,{
+ td:["TOUCHDOWN {T}! {QB} finally throws a ball worth a shit!","Six fucking points! {WR} just made {O}'s secondary look like waiver-wire trash.","Touchdown! {O}'s defense got their asses handed to them.","{QB} to {WR}! Holy shit, somebody on this team actually showed up!","TOUCHDOWN! {O} is gonna be crying in the group chat about this one."],
+ runTd:["{RB} takes it to the fucking house! Nobody laid a finger on him!","{RB} breaks it! Juked those dumbasses right out of their cleats!","{RB} walks in untouched. That defense couldn't tackle a fucking practice dummy."],
+ catch:["{QB} hits {WR} for {Y}. Not bad, not bad at all.","{WR} snags it for {Y}. Strong-ass hands.","Dime from {QB}! {WR} for {Y}, move your ass!"],
+ run:["{RB} pounds it for {Y}.","{RB} slips through for {Y}. Good shit.","{RB} grinds out {Y}. Ugly as hell, but it counts."],
+ loss:["{RB} gets eaten alive. Loss of {Y}. Jesus Christ.","Stuffed in the backfield. That's some bullshit blocking."],
+ inc:["Incomplete. {QB} threw that shit to nobody.","Dropped! {WR} has hands like a goddamn waiver-wire kicker.","Incomplete. That ball had no fucking business being thrown."],
+ pick:["INTERCEPTED! {QB} just shit the bed on live TV!","PICKED OFF! What the fuck was that throw?!","Pick! {QB} looked right at the defender and threw it to him anyway. Bench his ass."],
+ sack:["SACKED! {QB} gets folded like a cheap-ass lawn chair!","Sack! {QB} held it like a guy who won't accept a fair trade offer.","Down goes {QB}! That line blocked like a bunch of dead roster spots."],
+ punt:["Punt. Gutless, but legal.","Punting. The crowd's already booing this chickenshit call."],
+ downs:["Turnover on downs. Should've punted, dumbass.","Stuffed on 4th! Bold-ass strategy. Did not fucking work."],
+ safety:["SAFETY! Tackled in your own end zone. Fucking embarrassing."],
+ fgMiss:["NO GOOD! Cut that kicker before he shanks another one.","Wide as shit! Uglier than a 0.3-point projection."],
+ win:["{T} wins! Go talk your shit in the group chat.","Victory! {O} goes home and rage-adds kickers off waivers.","{T} beat {O}'s ass. Put it on the scoreboard and leave it there."],
+ lose:["{O} wins. Delete the fucking app.","You lost to {O}. Hall of Shame, baby. Front row.","{O} kicked your ass. Somebody check the trade block, this shit is broken."],
+ kickoff:["Welcome to the Shady Bowl, where the trash talk is free and the defense is optional. Let's fucking go!","Kickoff! Two lineups, zero shame, and a whole lot of bad fucking decisions.","Here we go! Grab a drink, this is gonna be ugly as hell."],
+ big:["BIG PLAY! Holy shit, look at that!","Look at that son of a gun go! That defense is fucked!","Chunk play! {O}'s defense is getting torched!"],
+ stall:["Drive's dead. Three and fucking out, basically.","That drive stalled harder than a trade with a guy who never answers.","Stalled out. This offense has the urgency of an abandoned roster."],
+ dsack:["SACK! You buried that bastard!","BLITZ GETS HOME! Quarterback just got planted in the fucking dirt!","Sacked! {O}'s QB is gonna feel that shit on Wednesday."],
+ dint:["PICKED OFF! You jumped that route like it owed you money!","INTERCEPTION! {O} threw it right to you. What a dumbass decision!","Jumped it! That's a pick, and {O} is losing their goddamn mind."],
+ dbig:["Burned! You guessed wrong and they shoved it right up the field.","Big gain for {O}. Your secondary got cooked like a bad trade.","Ooh, that blitz got punished. Wide-ass open."],
+ dstop:["Stuffed! Nice fucking stop.","Broken up! Not today, motherfuckers.","Nothing there. Defense, baby!"],
+ dtd:["{O} scores on you. That defense played like a team with three byes in the lineup.","Touchdown {O}. You got your ass kicked on that drive."],
+ two:["Going for two! Big balls move!","Two-point try. Either genius or dumbass, no in between."],
+ twoGood:["TWO POINT CONVERSION IS GOOD! Ballsy as hell!"],
+ twoBad:["Two-point try fails. Should've kicked it, genius."],
+ onGood:["ONSIDE RECOVERED! Holy shit, sneaky bastards!"],
+ onBad:["Onside kick fails. {O} gets great field position and a free laugh."],
+ drill:["Two minutes. You're down. Time to stop fucking around.","Comeback time! Don't choke like a week 14 playoff lineup."]
+});

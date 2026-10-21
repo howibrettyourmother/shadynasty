@@ -5,7 +5,7 @@ const API='https://api.sleeper.app/v1/',LEAGUE='1312055708249767936',FW=53.3,CY=
 const cv=$('#cv'),ctx=cv.getContext('2d');
 let W=480,H=270,S=1,portrait=false;
 const SAVE_KEY='shadybowl1';
-let SV=Object.assign({team:null,coins:0,up:{arm:0,hands:0,wheels:0,legs:0,d:0},season:null,best:{pts:0,margin:-99,wins:0},mute:false,played:0},JSON.parse(localStorage.getItem(SAVE_KEY)||'{}'));
+let SV=Object.assign({team:null,coins:0,up:{arm:0,hands:0,wheels:0,legs:0,d:0,ol:0},season:null,best:{pts:0,margin:-99,wins:0},mute:false,played:0},JSON.parse(localStorage.getItem(SAVE_KEY)||'{}'));
 const save=()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify(SV))}catch(e){}};
 const TM=id=>TEAMS.find(t=>t.id===id);
 const NAMES={};// owner_id -> {QB,RB,WR:[..]}
@@ -67,7 +67,7 @@ const PLAYS={
 };
 function ent(o){return Object.assign({vx:0,vy:0,anim:R()*9,stun:0,spd:6},o)}
 function form(play){
-  const L=G.los,me=G.me,st=.42+.05*(G.opp.w||3)-(G.opp.wip?.08:0),E=[];
+  const L=G.los,me=G.me,st=.42+.05*(G.opp.w||3)-(G.opp.wip?.08:0)+DIFF().st,E=[];
   const wr=[[L-.6,CY-11.5],[L-.6,CY+11.5],[L-1,CY-6]];
   const qb=ent({o:1,role:'qb',x:L-(play=='run'?1.5:4.5),y:CY,spd:6});E.push(qb);
   const rb=ent({o:1,role:'rb',x:L-(play=='run'?4.5:6),y:CY+1.5,spd:7.4+SV.up.wheels*.25});E.push(rb);
@@ -112,7 +112,7 @@ function aimTarget(dx,dy){const q=G.ball.h,[wx,wy]=dW(-dx,-dy),m=3.1,mx=44+SV.up
 function juke(dir){const c=G.carrier;if(!c||c.jk>0||c.jcd>0)return;c.jk=.38;c.jcd=.7;c.vy=dir*9;snd('juke');floatTxt(pick(GEN.juke),c);G.legs=Math.max(0,G.legs-3)}
 // ---------- play sim ----------
 function moveTo(e,tx,ty,spd,dt){const dx=tx-e.x,dy=ty-e.y,d=hyp(dx,dy)||1;let vx=dx/d*spd,vy=dy/d*spd;if(d<.3)vx=vy=0;const a=Math.min(1,dt*7);e.vx+=(vx-e.vx)*a;e.vy+=(vy-e.vy)*a}
-function throwBall(t){const q=G.ball.h,d=hyp(t[0]-q.x,t[1]-q.y),err=d*.035*(1-SV.up.arm*.12);t=[t[0]+(R()-.5)*err*2,t[1]+(R()-.5)*err*2];
+function throwBall(t){const q=G.ball.h,d=hyp(t[0]-q.x,t[1]-q.y),err=d*.035*(1-SV.up.arm*.1)*DIFF().err;t=[t[0]+(R()-.5)*err*2,t[1]+(R()-.5)*err*2];
   G.ball={st:'air',sx:q.x,sy:q.y,tx:t[0],ty:t[1],t:0,T:.3+d/(19+SV.up.arm*1.6),h:null,x:q.x,y:q.y,z:1.5,peak:1+d*.16};G.thrown=true;snd('throw');
   let best=null,bd=99;G.ents.forEach(e=>{if(e.o&&(e.role=='wr'||e.role=='rb')){const dd=hyp(e.x-t[0],e.y-t[1]);if(dd<bd){bd=dd;best=e}}});G.target=bd<11?best:null}
 function update(dt){
@@ -155,7 +155,7 @@ function update(dt){
   else if(b.st=='held'){b.x=b.h.x;b.y=b.h.y;b.z=1.2}
   // collisions
   if(b.st=='held'){const c=b.h;
-    if(c.role=='qb'&&!car){if(T>2.4&&!G.thrown)G.ents.forEach(d=>{if(!d.o&&d.stun<=0&&hyp(d.x-c.x,d.y-c.y)<.9&&G.phase=='play'){snd('hit');c.stun=9;endPlay('sack',c.x)}})}
+    if(c.role=='qb'&&!car){if(T>(2.4+(SV.up.ol||0)*.3)*DIFF().time&&!G.thrown)G.ents.forEach(d=>{if(!d.o&&d.stun<=0&&hyp(d.x-c.x,d.y-c.y)<.9&&G.phase=='play'){snd('hit');c.stun=9;endPlay('sack',c.x)}})}
     else if(car){
       for(const d of E){if(d.o||d.stun>0)continue;if(hyp(d.x-car.x,d.y-car.y)<.85){
         if(car.jk>0){d.stun=.9;d.vx=d.vy=0;continue}
@@ -227,16 +227,16 @@ function driveOver(why,oppStart){G.phase='card';hud(false);$('#pre').style.displ
    <div class="D" style="font-size:30px">${esc(G.me.ab)} ${G.sc[0]} – ${G.sc[1]} ${esc(O.ab)}</div><div class="row"><button class="pb" id="cont">${done?(G.sc[0]==G.sc[1]?'OVERTIME →':'FINAL →'):'BACK TO OFFENSE →'}</button></div></div>`;
   showScr('s-card');snd(pts?'bad':'whistle');
   $('#cont').onclick=()=>{if(done){if(G.sc[0]==G.sc[1]&&G.ot<3){G.ot++;showScr(null);hud(true);msg('OVERTIME. Somebody finish, for once.',2.4);startDrive(next);return}return final()}showScr(null);hud(true);startDrive(next)}}
-function final(){const won=G.sc[0]>G.sc[1],tie=G.sc[0]==G.sc[1],me=G.me,O=G.opp;let coins=G.coins+(won?25:5);SV.coins+=coins;SV.played++;
+function final(){const won=G.sc[0]>G.sc[1],tie=G.sc[0]==G.sc[1],me=G.me,O=G.opp;let coins=G.mode=='season'?Math.round((G.coins+(won?25:5))*(G.rival?2:1)):0;SV.coins+=coins;SV.played++;
   SV.best.pts=Math.max(SV.best.pts,G.sc[0]);SV.best.margin=Math.max(SV.best.margin,G.sc[0]-G.sc[1]);
   let seasonTxt='';if(G.mode=='season'&&SV.season){const s=SV.season;s.res.push({o:O.id,a:G.sc[0],b:G.sc[1]});s.wk++;if(won)s.w++;else s.l++;SV.best.wins=Math.max(SV.best.wins,s.w);
-    if(s.bowl){s.done=1;seasonTxt=won?(me.heel?'<p><b>The weasel won the Shady Bowl.</b> The league demands a recount. Nobody claps.</p>':`<p>🏆 <b>SHADY BOWL WINNERS.</b> ${esc(me.team)} runs the league. Screenshot it.</p>`):'<p>Lost the Shady Bowl. So close. So very, very funny.</p>'}
+    if(s.bowl){s.done=1;seasonTxt=won?(me.heel?'<p><b>The weasel won the Shady Bowl.</b> The league demands a recount. Nobody claps.</p>':`<p><b>SHADY BOWL WINNERS.</b> ${esc(me.team)} runs this shit now.</p>`):'<p>Lost the Shady Bowl. So close. So very, very funny.</p>'}
     else if(s.wk>=s.sched.length){if(s.w>=7){s.bowl=1;seasonTxt=`<p>${s.w}-${s.l}. You made the <b>SHADY BOWL</b>.</p>`}else{s.done=1;seasonTxt=`<p>${s.w}-${s.l}. Missed the Shady Bowl. Welcome to the Toilet Bowl.</p>`}}
     else seasonTxt=`<p>Season: ${s.w}-${s.l} · Week ${s.wk+1} next</p>`}
   save();const line=won?say('win'):tie?'A tie. Everybody loses, especially the viewers.':say('lose');
   $('#s-card').innerHTML=`<div class="card"><div class="lb">FINAL</div><h1 class="D" style="font-size:44px;text-shadow:3px 3px 0 #000">${won?'W':tie?'T':'L'}</h1>
    <div class="D" style="font-size:34px">${esc(me.ab)} ${G.sc[0]} – ${G.sc[1]} ${esc(O.ab)}</div><p>${esc(line)}</p>${seasonTxt}
-   <div class="lb">Pass ${G.stats.pass} yds · Rush ${G.stats.rush} yds · TD ${G.stats.td} · INT ${G.stats.int}</div><p class="D" style="font-size:22px;color:#ffe07a">+${coins} 🪙 (bank ${SV.coins})</p>
+   <div class="lb">Pass ${G.stats.pass} yds · Rush ${G.stats.rush} yds · TD ${G.stats.td} · INT ${G.stats.int}</div><p class="D" style="font-size:22px;color:#ffe07a">${G.mode=='season'?'+'+coins+' 🪙'+(G.rival?' (rivalry x2)':'')+' · bank '+SV.coins:'Coins are earned in Season mode'}</p>
    <div class="row">${G.mode=='season'&&SV.season&&!SV.season.done?'<button class="pb gr" id="nx">NEXT GAME →</button>':''}<button class="pb" id="again">REMATCH</button><button class="pb blu" id="shop">LOCKER ROOM</button><button class="pb red" id="home">MENU</button></div></div>`;
   showScr('s-card');hud(false);snd(won?'td':'boo');if(won&&!(me.heel&&G.mode=='season'))confetti(me,40);
   const m=G.mode,a=me.id,b=O.id;$('#again').onclick=()=>newGame(a,b,m=='season'?'quick':m);$('#home').onclick=title;$('#shop').onclick=shop;const nx=$('#nx');if(nx)nx.onclick=seasonNext;G=null}
@@ -323,12 +323,12 @@ function drawTitleField(){const t=performance.now()/1000;for(let x=0;x<W;x+=40){
 function showScr(id){document.querySelectorAll('.scr').forEach(s=>s.style.display='none');if(id)$('#'+id).style.display='block';cur=id?id.slice(2):'game'}
 function avatar(t){return `https://sleepercdn.com/avatars/thumbs/${t.av}`}
 function title(){G=null;hud(false);$('#pre').style.display='none';$('#kick').style.display='none';showScr('s-title');cur='title';const me=SV.team&&TM(SV.team),wk=me&&MATCH[me.id]&&TM(MATCH[me.id]);const s=SV.season;
-  $('#s-title').innerHTML=`<div class="lb">SHADYNASTY ARCADE</div><h1 class="D">SHADY<br>BOWL</h1><p class="sub">Retro pixel football. Sling it deep, juke the league, get roasted. Defense is simulated, because nobody in this league plays any.</p>
+  $('#s-title').innerHTML=`<div class="lb">SHADYNASTY ARCADE</div><h1 class="D">SHADY<br>BOWL</h1><p class="sub">Retro pixel football. Sling it deep, juke the league, get roasted. Now you play defense too, which is more than anyone in this league does.</p>
   <div class="menu">${me?`<div class="card" style="margin:0;border-color:${me.c[0]}"><img src="${avatar(me)}" alt="" style="width:40px;height:40px;border-radius:50%;vertical-align:middle;margin-right:8px"><b class="D" style="font-size:20px">${esc(me.team)}</b> <a href="#" id="chg">change</a></div>`:''}
   ${me?`<button class="pb" id="qg">QUICK GAME<small>vs a random leaguemate</small></button>`:`<button class="pb" id="pk">PICK YOUR TEAM →</button>`}
   ${wk?`<button class="pb red" id="wk">THIS WEEK: ${esc(wk.ab)}<small>Week ${WEEK} real matchup vs ${esc(wk.team)}</small></button>`:''}
   ${me?`<button class="pb blu" id="ss">${s&&!s.done&&s.team==me.id?`SEASON · ${s.w}-${s.l}${s.bowl?' · SHADY BOWL':' · WK '+(s.wk+1)}`:'NEW SEASON'}<small>11 games vs the league, 7 wins = Shady Bowl</small></button><button class="pb gr" id="sh">LOCKER ROOM<small>${SV.coins} 🪙 · upgrades</small></button>`:''}
-  </div><div class="card"><b>HOW TO PLAY</b><p style="text-align:left;margin:8px 0 0">🏈 Pick a play. <b>Throw:</b> drag back from anywhere like a slingshot, aim the dotted arc ahead of a receiver, release. Lead them, they'll adjust.<br>🏃 <b>With the ball:</b> drag to steer, tap or swipe to <b>juke</b> (dodges a tackle). Watch your Legs bar.<br>🥅 4th down: punt, kick (tap in the box) or go for it. 4 drives each, defense is a quick sim.<br>⌨️ Desktop: mouse drag to throw · arrows steer · Space juke · 1-4 plays.</p></div>
+  </div><div class="card"><b>HOW TO PLAY</b><p style="text-align:left;margin:8px 0 0">🏈 Pick a play. <b>Throw:</b> drag back from anywhere like a slingshot, aim the dotted arc ahead of a receiver, release. Lead them, they'll adjust.<br>🏃 <b>With the ball:</b> drag to steer, tap or swipe to <b>juke</b> (dodges a tackle). Watch your Legs bar.<br>🥅 4th down: punt, kick (tap in the box) or go for it. 4 drives each. On D: tap BLITZ or jump a route, then tap the timing bar.<br>⌨️ Desktop: mouse drag to throw · arrows steer · Space juke · 1-4 plays.</p></div>
   <div class="lb">Best: ${SV.best.pts} pts · best margin ${SV.best.margin>-99?(SV.best.margin>0?'+':'')+SV.best.margin:'-'} · best season ${SV.best.wins} W · games ${SV.played}</div>
   <div class="row"><button class="ib" id="mute2" style="width:auto;padding:0 12px">${SV.mute?'🔇 SOUND OFF':'🔊 SOUND ON'}</button><a href="../../#arcade" class="pb red" style="text-decoration:none;display:flex;align-items:center;min-height:40px">← ARCADE</a></div>`;
   const on=(i,f)=>{const e=$('#'+i);if(e)e.onclick=ev=>{ev.preventDefault();f()}};
@@ -347,7 +347,7 @@ $('#mute').onclick=()=>{SV.mute=!SV.mute;save();$('#mute').textContent=SV.mute?'
 // ---------- loop ----------
 let last=performance.now();
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;try{update(dt);render()}catch(e){console.error(e)}if(msgT>0){msgT-=dt;if(msgT<=0)$('#msg').style.display='none'}if(G&&G.phase!='card'&&G.phase!='kick'&&cur=='game')updHud();requestAnimationFrame(loop)}
-requestAnimationFrame(loop);title();loadLive().then(()=>{if(cur=='title')title();else if(cur=='team')teamSel()});
+requestAnimationFrame(loop);
 // test hooks
 window.__SB={aimDrag(tx,ty){const q=G.ball.h,wx=(tx-q.x)/3.1,wy=(ty-q.y)/3.1;return portrait?[-wy*S*K,wx*S*K]:[-wx*S*K,-wy*S*K]},toCss(x,y){const p=P(x,y);return [p[0]*S,p[1]*S]},get G(){return G},snap,throwBall,juke,newGame,TEAMS,endPlay};
 // iOS: block pinch/double-tap zoom, rubber-band scroll and long-press callouts during play
