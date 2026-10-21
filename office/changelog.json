@@ -173,5 +173,54 @@
   "from": "Changes will be cataloged and dated in section 27. Changelog.",
   "to": "Changes will be cataloged and dated in the Changelog section below.",
   "why": "The referenced \"section 27\" did not exist; Changelog section added."
+ },
+ {
+  "sec": "Tie Breakers",
+  "kind": "League-approved rule change",
+  "from": "Unless otherwise specified, rankings and tie breakers are handled according to this order:",
+  "to": "All standings, playoff seeding and Toilet Bowl seeding ties are broken in this order:",
+  "why": "League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
+ },
+ {
+  "sec": "Tie Breakers",
+  "kind": "League-approved rule change",
+  "from": "Winning percentage",
+  "to": "1) Record (winning percentage)",
+  "why": "League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
+ },
+ {
+  "sec": "Tie Breakers",
+  "kind": "League-approved rule change",
+  "from": "Total points scored",
+  "to": "2) Total points for",
+  "why": "League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
+ },
+ {
+  "sec": "Tie Breakers",
+  "kind": "League-approved rule change",
+  "from": "Head-to-head matchup results",
+  "to": "3) Head-to-head record",
+  "why": "League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
+ },
+ {
+  "sec": "Tie Breakers",
+  "kind": "League-approved rule change",
+  "from": "Coin flip",
+  "to": "4) Coin flip",
+  "why": "League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
+ },
+ {
+  "sec": "Regular Season, Playoffs, and Toilet Bowl",
+  "kind": "League-approved rule change",
+  "from": "Overall Record > Total Points For > Total Points against > Head to Head Record.",
+  "to": "Record (winning percentage) > Total Points For > Head-to-Head Record > Coin Flip (see Tie Breakers).",
+  "why": "League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
+ },
+ {
+  "sec": "Regular Season, Playoffs, and Toilet Bowl",
+  "kind": "League-approved rule change",
+  "from": "Ties will be broken by who has the most total points scored in a regular season. If there is still a tie then it will be broken by who has the most total points scored against them. If there is still a tie then it will be broken by the head to head record of teams.",
+  "to": "Ties will be broken by most total regular season points for, then head-to-head record, then a coin flip. Points against is not used.",
+  "why": "League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
  }
 ]

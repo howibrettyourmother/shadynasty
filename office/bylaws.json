@@ -463,27 +463,27 @@
 {
 "t": "p",
 "d": 0,
-"x": "Unless otherwise specified, rankings and tie breakers are handled according to this order:"
+"x": "All standings, playoff seeding and Toilet Bowl seeding ties are broken in this order:"
 },
 {
 "t": "li",
 "d": 1,
-"x": "Winning percentage"
+"x": "1) Record (winning percentage)"
 },
 {
 "t": "li",
 "d": 1,
-"x": "Total points scored"
+"x": "2) Total points for"
 },
 {
 "t": "li",
 "d": 1,
-"x": "Head-to-head matchup results"
+"x": "3) Head-to-head record"
 },
 {
 "t": "li",
 "d": 1,
-"x": "Coin flip"
+"x": "4) Coin flip"
 }
 ]
 },
@@ -509,12 +509,12 @@
 {
 "t": "li",
 "d": 1,
-"x": "To rank teams and determine seeding the following will be considered: Overall Record > Total Points For > Total Points against > Head to Head Record."
+"x": "To rank teams and determine seeding the following will be considered: Record (winning percentage) > Total Points For > Head-to-Head Record > Coin Flip (see Tie Breakers)."
 },
 {
 "t": "li",
 "d": 2,
-"x": "The top 6 regular season records will be in the playoffs. Ties will be broken by who has the most total points scored in a regular season. If there is still a tie then it will be broken by who has the most total points scored against them. If there is still a tie then it will be broken by the head to head record of teams."
+"x": "The top 6 regular season records will be in the playoffs. Ties will be broken by most total regular season points for, then head-to-head record, then a coin flip. Points against is not used."
 },
 {
 "t": "li",
@@ -1580,6 +1580,41 @@
 "t": "li",
 "d": 1,
 "x": "Rule Changes: The referenced \"section 27\" did not exist; Changelog section added."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Tie Breakers: League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Tie Breakers: League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Tie Breakers: League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Tie Breakers: League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Tie Breakers: League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Regular Season, Playoffs, and Toilet Bowl: League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Regular Season, Playoffs, and Toilet Bowl: League-approved single tiebreaker order (Oct 2026): record, points for, head-to-head, coin flip; points against dropped."
 }
 ]
 }
