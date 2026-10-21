@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>SHADYNASTY SHADY BOWL</title>
+<meta name="theme-color" content="#06120a">
+<meta name="description" content="Retro pixel football for the SHADYNASTY league. Pick your team, sling it deep, juke the league, roast everybody.">
+<meta property="og:title" content="SHADYNASTY SHADY BOWL"><meta property="og:type" content="website">
+<meta property="og:image" content="https://howibrettyourmother.github.io/shadynasty/img/th/bowl-800.webp">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" type="image/png" href="../../chug/favicon-32.png"><link rel="apple-touch-icon" href="../../chug/icon-180.png">
+<style>
+@font-face{font-family:Anton;src:url(../../chug/anton.woff) format('woff');font-display:swap}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{margin:0;height:100%;background:#06120a;color:#fff;overflow:hidden;font:600 15px/1.25 -apple-system,system-ui,Arial,sans-serif;overscroll-behavior:none}
+#cv{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;image-rendering:pixelated;touch-action:none;display:block}
+.D{font-family:Anton,Impact,sans-serif;letter-spacing:.04em;font-weight:400}
+#hud{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 6px) 8px 6px;display:none;align-items:center;gap:6px;pointer-events:none;background:linear-gradient(#000c,#0000)}
+#hud .sb{display:flex;align-items:center;gap:6px;font-size:20px}
+#hud .sb b{padding:2px 7px;border-radius:6px;font-weight:400}
+#hud .dd{font-size:13px;opacity:.95;flex:1;text-align:center}
+#hud .legs{width:56px;height:8px;background:#0008;border:1px solid #fff6;border-radius:4px;overflow:hidden}#hud .legs i{display:block;height:100%;background:#7CFC00}
+.ib{pointer-events:auto;width:40px;height:40px;border-radius:10px;border:2px solid #fff4;background:#0009;color:#fff;font-size:18px}
+#pre{position:fixed;left:0;right:0;bottom:0;padding:8px 8px calc(env(safe-area-inset-bottom) + 10px);display:none;gap:8px;justify-content:center;flex-wrap:wrap}
+.pb{min-width:84px;min-height:58px;padding:6px 12px;border-radius:12px;border:0;font:400 19px/1 Anton,Impact,sans-serif;letter-spacing:.05em;color:#1a1200;background:linear-gradient(#ffe07a,#e3a400);box-shadow:0 4px 0 #8a6200;touch-action:manipulation}
+.pb small{display:block;font:600 10px/1.1 -apple-system,Arial;letter-spacing:0;margin-top:3px;opacity:.75}
+.pb.red{background:linear-gradient(#ff5a5a,#b5121b);color:#fff;box-shadow:0 4px 0 #6d0a10}.pb.blu{background:linear-gradient(#7fd3ff,#1e70d0);color:#fff;box-shadow:0 4px 0 #0b3f7a}.pb.gr{background:linear-gradient(#9cff7a,#2fa400);box-shadow:0 4px 0 #1a6200}
+.pb:active{transform:translateY(3px);box-shadow:0 1px 0 #0006}
+#msg{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 86px);transform:translateX(-50%);width:min(92vw,560px);text-align:center;padding:8px 12px;border-radius:12px;background:#000c;border:2px solid #ffe07a;font-size:15px;display:none;pointer-events:none}
+#big{position:fixed;left:0;right:0;top:32%;text-align:center;font-size:clamp(40px,12vw,96px);pointer-events:none;display:none;text-shadow:4px 4px 0 #000,-2px -2px 0 #000;animation:pop .5s}
+@keyframes pop{0%{transform:scale(.2) rotate(-8deg)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+#fx{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+#fx span{position:absolute;top:-40px;font-size:28px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+.scr{position:fixed;inset:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 20px);background:radial-gradient(ellipse at top,#1d4a22,#06120a 70%);display:none;text-align:center}
+.scr h1{font-size:clamp(44px,13vw,84px);margin:4px 0 0;line-height:.95;color:#ffe07a;text-shadow:4px 4px 0 #b5121b,8px 8px 0 #000}
+.scr h2{font-size:26px;margin:10px 0 6px;color:#ffe07a}
+.sub{opacity:.85;margin:6px auto 14px;max-width:520px}
+.menu{display:grid;gap:10px;max-width:420px;margin:0 auto}
+.menu .pb{width:100%;min-height:62px;font-size:22px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;max-width:900px;margin:0 auto}
+.tc{position:relative;border:0;border-radius:14px;padding:10px 8px;color:#fff;text-align:center;min-height:118px;box-shadow:0 4px 0 #0008;font:600 13px/1.2 -apple-system,Arial}
+.tc img{width:46px;height:46px;border-radius:50%;border:3px solid #fff;background:#222;display:block;margin:0 auto 6px}
+.tc b{display:block;font:400 17px/1.05 Anton,Impact,sans-serif;letter-spacing:.03em;text-shadow:2px 2px 0 #000}
+.tc small{opacity:.85;text-shadow:1px 1px 0 #000}
+.tc .tag{position:absolute;top:6px;right:6px;font-size:10px;padding:2px 5px;border-radius:5px;background:#000a}
+.tc.wip{background-image:repeating-linear-gradient(45deg,#0000 0 12px,#ffd23f55 12px 24px)!important}
+.card{max-width:520px;margin:10px auto;background:#000a;border:3px solid #ffe07a;border-radius:16px;padding:14px}
+.card .fs{font-size:48px;margin:4px 0}
+.lb{opacity:.8;font-size:13px;margin-top:10px}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+#kick{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 100px);transform:translateX(-50%);width:min(86vw,420px);display:none;text-align:center}
+#kick .bar{position:relative;height:34px;border-radius:10px;background:linear-gradient(90deg,#b5121b,#e3a400 30%,#2fa400 45%,#2fa400 55%,#e3a400 70%,#b5121b);border:3px solid #fff}
+#kick .zone{position:absolute;top:0;bottom:0;border:3px solid #fff;background:#fff3}
+#kick .nd{position:absolute;top:-8px;bottom:-8px;width:6px;background:#fff;box-shadow:0 0 0 2px #000}
+.up{display:flex;align-items:center;gap:10px;justify-content:space-between;background:#0008;border-radius:12px;padding:10px;margin:8px 0;text-align:left}
+.up .pips{letter-spacing:2px;color:#ffe07a}
+a{color:#ffe07a}
+#rot{display:none}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="hud"><button class="ib" id="quit" aria-label="Menu">☰</button><div class="sb D" id="sb"></div><div class="dd" id="dd"></div><div class="legs" title="Legs (stamina)"><i id="legs"></i></div><button class="ib" id="mute" aria-label="Sound">🔊</button></div>
+<div id="pre"></div><div id="msg"></div><div id="big" class="D"></div><div id="fx"></div>
+<div id="kick"><div class="D" id="ktitle" style="font-size:20px;margin-bottom:6px">TAP TO KICK</div><div class="bar"><div class="zone" id="kz"></div><div class="nd" id="kn"></div></div></div>
+<div class="scr" id="s-title"></div><div class="scr" id="s-team"></div><div class="scr" id="s-card"></div><div class="scr" id="s-shop"></div>
+<script src="lines.js?v=1"></script>
+<script src="game.js?v=1"></script>
+</body>
+</html>
