@@ -46,8 +46,8 @@ function resize(){const iw=innerWidth,ih=innerHeight;portrait=ih>iw*1.05;S=Math.
 addEventListener('resize',resize);resize();
 // ---------- game state ----------
 let G=null,cur='title';
-const cam={x:30,y:CY};
-function P(x,y){return portrait?[W/2+(y-cam.y)*K,H/2+12-(x-cam.x)*K]:[W/2+(x-cam.x)*K,H/2+(y-cam.y)*K]}
+const cam={x:30,y:CY};let zm=1;
+function P(x,y){const k=K*zm;return portrait?[W/2+(y-cam.y)*k,H/2+12-(x-cam.x)*k]:[W/2+(x-cam.x)*k,H/2+(y-cam.y)*k]}
 function dW(dx,dy){dx/=S*K;dy/=S*K;return portrait?[-dy,dx]:[dx,dy]}// css px delta -> world delta
 const nameOf=(id,k,i)=>{const n=NAMES[id];if(!n)return k=='WR'?['WR1','WR2','the slot'][i||0]:k=='QB'?'the QB':'the RB';return k=='WR'?(n.WR[i||0]||'the slot'):n[k]};
 function say(key,extra,team){const T=G.me,O=G.opp,src=team&&FLAVOR[team.id]&&FLAVOR[team.id][key]?FLAVOR[team.id][key]:GEN[key];let s=pick(src);
@@ -177,9 +177,20 @@ function resolveCatch(){const b=G.ball,E=G.ents;let r=null,dr=99,d=null,dd=99;
   if(dr<reach){let p=.93+SV.up.hands*.012;if(dd<dr+.5&&dd<1.6)p=.48+SV.up.hands*.05;if(R()<p){b.st='held';b.h=r;G.carrier=r;r.route=null;snd('catch');G.catchX=b.tx;floatTxt('CATCH!',r);if(r.x>=100)endPlay('td',100);return}
     if(dd<1.6&&R()<.5)floatTxt('BROKEN UP!',d)}
   b.st='dead';endPlay('inc')}
-function camUpd(dt){let f=G.ball&&G.ball.st!='dead'?{x:G.ball.x,y:G.ball.y}:{x:G.los,y:CY};if(G.phase=='pre')f={x:G.los+2,y:CY};
-  const half=(portrait?W:H)/K/2,tx=f.x+(portrait?5:6),a=Math.min(1,dt*4);cam.x+=(tx-cam.x)*a;
-  if(half*2>=FW+6)cam.y=CY;else{const ty=cl(f.y,half-3,FW-half+3);cam.y+=(ty-cam.y)*a}}
+function camUpd(dt){const b=G.ball,a=Math.min(1,dt*4),vD=(portrait?H-40:W)/K,vA=(portrait?W:H-30)/K;
+  // pass phase (QB holding or ball in air): fit QB + all receivers (+ ball/aim spot) on screen by panning/zooming out
+  const passing=G.phase=='play'&&G.play!='run'&&b&&((b.st=='held'&&b.h.role=='qb')||b.st=='air');
+  if(passing){const pts=[[b.x,b.y]];G.ents.forEach(e=>{if(e.o&&(e.role=='wr'||e.role=='rb'||e.role=='qb'))pts.push([e.x+e.vx*.4,e.y+e.vy*.4])});if(b.st=='air')pts.push([b.tx,b.ty]);
+    let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;pts.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1])});
+    const pd=4,tz=cl(Math.min(vD/(x1-x0+pd*2),vA/(y1-y0+pd*2)),.42,1);zm+=(tz-zm)*Math.min(1,dt*3);
+    cam.x+=((x0+x1)/2+1-cam.x)*a;const halfA=vA/zm/2;const ty=halfA*2>=FW+6?CY:cl((y0+y1)/2,halfA-3,FW-halfA+3);cam.y+=(ty-cam.y)*a;return}
+  zm+=(1-zm)*Math.min(1,dt*3);
+  let f=b&&b.st!='dead'?{x:b.x,y:b.y}:{x:G.los,y:CY};if(G.phase=='pre')f={x:G.los+2,y:CY};
+  const c=G.carrier&&G.phase=='play'?G.carrier:null,halfD=vD/zm/2,half=(portrait?W:H)/(K*zm)/2,lead=c?Math.min(halfD*.45,6+Math.max(0,c.vx)*.5):(portrait?5:6),tx=f.x+lead;
+  cam.x+=(tx-cam.x)*Math.min(1,dt*(c?6:4));
+  if(c){const m=halfD-3;cam.x=cl(cam.x,c.x-m+lead*.5,c.x+m-2)}// hard keep carrier in frame
+  cam.x=cl(cam.x,-12+halfD*.3,112-halfD*.3);
+  if(half*2>=FW+6)cam.y=CY;else{const ty2=cl(f.y,half-3,FW-half+3);cam.y+=(ty2-cam.y)*a}}
 function floatTxt(s,e){G.parts.push({x:e.x,y:e.y,vx:0,vy:0,t:1,txt:s})}
 // ---------- play results ----------
 function endPlay(kind,spot){if(G.phase!='play')return;G.phase='after';G.after=1.7;snd(kind=='td'?'td':kind=='int'||kind=='sack'?'bad':'whistle');
@@ -263,15 +274,30 @@ function render(){ctx.fillStyle='#173d1c';ctx.fillRect(0,0,W,H);if(!G)return dra
   // pre-snap route preview
   // particles under
   G.parts.forEach(p=>{if(!p.txt){const [x,y]=P(p.x,p.y);ctx.fillStyle=p.c;ctx.fillRect(x|0,y|0,2,2)}});
-  // aim preview
-  if(G.phase=='play'&&ptr.down&&G.ball.st=='held'&&G.ball.h.role=='qb'&&G.play!='run'){const dx=ptr.x-ptr.sx,dy=ptr.y-ptr.sy;if(hyp(dx,dy)>18){const q=G.ball.h,t=aimTarget(dx,dy),d=hyp(t[0]-q.x,t[1]-q.y);
-    for(let i=1;i<=14;i++){const k=i/14,[x,y]=P(q.x+(t[0]-q.x)*k,q.y+(t[1]-q.y)*k),z=4*(1+d*.16)*k*(1-k)*K*.5;ctx.fillStyle=i%2?'#fff':'#ffe07a';ctx.fillRect(x-1,(y-z-1)|0,3,3)}
-    const [x,y]=P(t[0],t[1]);ctx.strokeStyle='#ffe07a';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,7,0,7);ctx.stroke();ctx.lineWidth=1;ctx.fillStyle='#ffe07a';ctx.fillRect(x-1,y-1,2,2)}}
   if(G.ball.st=='air'){const [x,y]=P(G.ball.tx,G.ball.ty);ctx.strokeStyle='#fff9';ctx.beginPath();ctx.arc(x,y,3+Math.sin(performance.now()/80)*1,0,7);ctx.stroke()}
   // players sorted by screen y
   const L=G.ents.slice().sort((a,b)=>P(a.x,a.y)[1]-P(b.x,b.y)[1]);L.forEach(e=>drawMan(e,e.o?me:op));
   // ball
-  const b=G.ball;if(b&&b.st=='air'){const [x,y]=P(b.x,b.y);const by=(y-b.z*K*.5)|0;ctx.fillStyle='#0005';ctx.fillRect(x-3,y,6,2);ctx.fillStyle='#5a2d0c';ctx.fillRect(x-4,by-1,8,5);ctx.fillStyle='#8b4513';ctx.fillRect(x-3,by,6,3);ctx.fillStyle='#fff';ctx.fillRect(x-1,by+1,3,1)}
+  const b=G.ball;if(b&&b.st=='air'){const [x,y]=P(b.x,b.y);const by=(y-b.z*K*zm*.5)|0;ctx.fillStyle='#0005';ctx.fillRect(x-3,y,6,2);ctx.fillStyle='#5a2d0c';ctx.fillRect(x-4,by-1,8,5);ctx.fillStyle='#8b4513';ctx.fillRect(x-3,by,6,3);ctx.fillStyle='#fff';ctx.fillRect(x-1,by+1,3,1)}
+  // aim preview: thick outlined dotted arc, pulsing reticle, nearest receiver highlight, finger-offset gauge
+  if(G.phase=='play'&&ptr.down&&G.ball.st=='held'&&G.ball.h.role=='qb'&&G.play!='run'){const dx=ptr.x-ptr.sx,dy=ptr.y-ptr.sy;if(hyp(dx,dy)>18){const q=G.ball.h,t=aimTarget(dx,dy),d=hyp(t[0]-q.x,t[1]-q.y),mx=44+SV.up.arm*3,pw=d/mx,now=performance.now();
+    let best=null,bd=99;G.ents.forEach(e=>{if(e.o&&(e.role=='wr'||e.role=='rb')){const dd=hyp(e.x-t[0],e.y-t[1]);if(dd<bd){bd=dd;best=e}}});
+    const col=bd<3?'#3dff6e':bd<7?'#ffe000':'#ff4a4a',[tx,ty]=P(t[0],t[1]),pu=Math.sin(now/110);
+    if(best){const [bx,by]=P(best.x,best.y);ctx.save();ctx.strokeStyle='#000';ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(bx,by+1,8+pu,4+pu*.5,0,0,7);ctx.stroke();ctx.strokeStyle=col;ctx.lineWidth=2;ctx.stroke();
+      ctx.fillStyle=col;ctx.strokeStyle='#000';ctx.lineWidth=1.5;const ay=by-17+pu*2;ctx.beginPath();ctx.moveTo(bx-5,ay-6);ctx.lineTo(bx+5,ay-6);ctx.lineTo(bx,ay);ctx.closePath();ctx.stroke();ctx.fill();ctx.restore()}
+    ctx.save();const n=18;for(let pass=0;pass<2;pass++)for(let i=1;i<n;i++){const k=i/n,[x,y]=P(q.x+(t[0]-q.x)*k,q.y+(t[1]-q.y)*k),z=4*(1+d*.16)*k*(1-k)*K*zm*.5;ctx.beginPath();ctx.arc(x,y-z,pass?2.2:3.6,0,7);
+      if(pass){ctx.fillStyle=i%2?'#fff':col;ctx.shadowColor=col;ctx.shadowBlur=6;ctx.fill()}else{ctx.fillStyle='#000c';ctx.fill()}}
+    ctx.shadowBlur=0;const r=9+pu*2.5;ctx.lineWidth=4;ctx.strokeStyle='#000';ctx.beginPath();ctx.arc(tx,ty,r,0,7);ctx.stroke();ctx.lineWidth=2;ctx.strokeStyle=col;ctx.stroke();
+    ctx.globalAlpha=.25+.15*pu;ctx.fillStyle=col;ctx.fill();ctx.globalAlpha=1;ctx.lineWidth=2;ctx.strokeStyle='#000';[[-1,0],[1,0],[0,-1],[0,1]].forEach(([u,v])=>{ctx.beginPath();ctx.moveTo(tx+u*(r-3),ty+v*(r-3));ctx.lineTo(tx+u*(r+5),ty+v*(r+5));ctx.stroke()});
+    ctx.strokeStyle=col;ctx.lineWidth=1;[[-1,0],[1,0],[0,-1],[0,1]].forEach(([u,v])=>{ctx.beginPath();ctx.moveTo(tx+u*(r-3),ty+v*(r-3));ctx.lineTo(tx+u*(r+5),ty+v*(r+5));ctx.stroke()});
+    // slingshot band + gauge offset up-left of the finger so it is never covered
+    const fx=ptr.x/S,fy=ptr.y/S,sx=ptr.sx/S,sy=ptr.sy/S;ctx.setLineDash([3,3]);ctx.strokeStyle='#fff8';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(fx,fy);ctx.stroke();ctx.setLineDash([]);
+    let gx=fx-38,gy=fy-62;if(gy<34)gy=fy+40;gx=cl(gx,6,W-56);const lab=bd<3?'OPEN':bd<7?'TIGHT':'NOBODY';
+    ctx.fillStyle='#000b';ctx.fillRect(gx-2,gy-11,54,22);ctx.fillStyle='#333';ctx.fillRect(gx+2,gy+3,46,5);ctx.fillStyle=pw>.95?'#ff4a4a':col;ctx.fillRect(gx+2,gy+3,46*Math.min(1,pw),5);
+    ctx.font='bold 8px monospace';ctx.textAlign='left';ctx.fillStyle=col;ctx.fillText(Math.round(d)+'yd '+lab,gx+2,gy-4);ctx.restore()}}
+  // off-screen receiver arrows
+  if(G.phase=='play'&&G.play!='run')G.ents.forEach(e=>{if(!e.o||!(e.role=='wr'||e.role=='rb')||e===G.carrier)return;const [x,y]=P(e.x,e.y),m=12;if(x>=0&&y>=0&&x<=W&&y<=H)return;
+    const ax=cl(x,m,W-m),ay=cl(y,m+24,H-m),an=Math.atan2(y-ay,x-ax);ctx.save();ctx.translate(ax,ay);ctx.rotate(an);ctx.fillStyle=me.c[0];ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(9,0);ctx.lineTo(-6,-7);ctx.lineTo(-6,7);ctx.closePath();ctx.stroke();ctx.fill();ctx.restore()});
   // floating text
   ctx.font='bold 10px monospace';G.parts.forEach(p=>{if(p.txt){const [x,y]=P(p.x,p.y);ctx.fillStyle='#000';ctx.fillText(p.txt,x+1,y-20-(1-p.t)*14+1);ctx.fillStyle='#ffe07a';ctx.fillText(p.txt,x,y-20-(1-p.t)*14)}});
   // hint
