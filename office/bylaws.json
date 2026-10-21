@@ -1,0 +1,1402 @@
+{
+"updated": "2021-07-01",
+"sections": [
+{
+"id": "intro",
+"title": "Preamble",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "Welcome to the SHADYNASTY Football League, a dynasty Superflex fantasy football league. Please read the bylaws below."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Please at least make yourself familiar with the League Summary cover sheet. It will appropriately summarize the most important points."
+},
+{
+"t": "p",
+"d": 0,
+"x": "For further questions or more exacting information please ask the commissioners or peruse the bylaws."
+},
+{
+"t": "p",
+"d": 0,
+"x": "The purpose of these bylaws is to (1) ensure a fair and fun league for all owners, (2) ensure the long term viability of the league. If a rule is not explicitly stated, the commissioners will be responsible for interpreting these criteria and new rules will be subsequently documented in these bylaws. If this document disagrees with league site settings, site settings will prevail until corrected."
+},
+{
+"t": "p",
+"d": 0,
+"x": "WELCOME TO THE THUNDERDOME, BITCHES"
+}
+]
+},
+{
+"id": "league-summary",
+"title": "League Summary",
+"b": [
+{
+"t": "li",
+"d": 1,
+"x": "12 teams playing a 14 week regular season with 3 weeks of playoffs"
+},
+{
+"t": "li",
+"d": 1,
+"x": "23 roster spots with and 2 injury reserve spots during in-season"
+},
+{
+"t": "li",
+"d": 1,
+"x": "11 starters - 1QB/2RB/3WR/1TE/2FLEX/1SUPERFLEX/DST"
+},
+{
+"t": "li",
+"d": 1,
+"x": "1PPR, 6 points for all TD (Exception: QB Passing TD = 4)"
+},
+{
+"t": "li",
+"d": 1,
+"x": "All regular season games are Head2Head"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Winners Playoff for Championship Prize"
+},
+{
+"t": "li",
+"d": 2,
+"x": "6 team playoff during weeks 14-16; top seeds determined by record (Tiebreaker: most points)"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Top 2 seeds get bye first week"
+},
+{
+"t": "li",
+"d": 2,
+"x": "1st place: ~$800; 2nd place: ~$300; 3rd place: ~$100"
+},
+{
+"t": "li",
+"d": 3,
+"x": "Less any applicable fees from LeagueSafe"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Consolation Playoff"
+},
+{
+"t": "li",
+"d": 2,
+"x": "6 team playoff during weeks 14-16, seeds determined by record (Tiebreaker: most points)"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Top 2 seeds get bye first week"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Winner of Toilet Bowl is given the compensatory pick 2.13 in the upcoming rookie/FA draft"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Draft order determined by inverse of season long “Optimal Points” except for playoff teams whose draft order is determined by inverse of playoff finish"
+},
+{
+"t": "li",
+"d": 1,
+"x": "League utilizes Free Agent Acquisition Budget (FAAB) for waivers."
+},
+{
+"t": "li",
+"d": 2,
+"x": "Biannual FAAB budget of $100 is given on league start. Resets at beginning of regular season and beginning of offseason."
+},
+{
+"t": "li",
+"d": 1,
+"x": "League Annual Fee: $100"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Teams must pay prior to start of regular season via LeagueSafe"
+},
+{
+"t": "li",
+"d": 3,
+"x": "Annual Fee: $100"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Team Names"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Each owner’s team name must be consistent throughout any given year and can only be changed in the offseason. It is highly recommended to pick and keep one name to give a true feel for a dynasty."
+}
+]
+},
+{
+"id": "general-league-calendar",
+"title": "General League Calendar",
+"b": [
+{
+"t": "table",
+"rows": [
+[
+"Date",
+"Event"
+],
+[
+"August 29th, 2021 @ 7:30 PM EDT",
+"Inaugural League Startup Draft"
+],
+[
+"[NFL Preseason}",
+"Waivers to cycle weekly on Wednesday @ 12:05 AM PST (Sleeper Default)"
+],
+[
+"[Kickoff of Final Preseason Week]",
+"Cutdown Deadline to 23 roster spots + IR"
+],
+[
+"[NFL Week 1]",
+"Regular season daily waivers cycle starts"
+],
+[
+"[NFL Week 10]",
+"Trading Closed End of Week 10"
+],
+[
+"[NFL Week 14]",
+"First Round of Playoffs & ToiletBowl"
+],
+[
+"[NFL Week 15]",
+"Second Round of Playoffs & ToiletBowl"
+],
+[
+"[NFL Week 16]",
+"Championship & ToiletBowl Championship"
+],
+[
+"[Tuesday after NFL Week 17]",
+"Trading Reopens"
+],
+[
+"[NFL Playoffs]",
+"Waivers to cycle weekly on Wednesdays 9a.m. CT"
+],
+[
+"[Super Bowl}",
+"Waivers enters offseason cycle [Last day of the month 9.m. CT]"
+],
+[
+"Jan 31 2022",
+"LeagueSafe Payouts [or earlier]"
+],
+[
+"Feb 15, 2022",
+"League Reset: Roster Limits increased to 25"
+],
+[
+"[2 weeks post NFL Draft]",
+"Rookie/FA draft begins, Taxi Squad unlocks"
+],
+[
+"[2 weeks post Rookie Draft]",
+"Cutdown Deadline to 23 roster spots"
+]
+]
+}
+]
+},
+{
+"id": "league-platforms",
+"title": "League Platforms",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "League will be hosted on Sleeper"
+},
+{
+"t": "p",
+"d": 0,
+"x": "Communications will be hosted on Sleeper."
+},
+{
+"t": "p",
+"d": 0,
+"x": "League fees will be paid through LeagueSafe."
+}
+]
+},
+{
+"id": "scoring",
+"title": "Scoring",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "The following scoring rules apply to all players:"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Any touchdown: 6 points each (Exception: QB Passing TD = 4 pts)"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Passing yards: 0.04 points each"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Rushing yards: 0.1 points each"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Receiving yards: 0.1 points each"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Interceptions: -1 points each"
+},
+{
+"t": "li",
+"d": 1,
+"x": "2 point conversions: 2 points each"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Fumbles: -1 point each"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Fumbles lost: -2 point each"
+},
+{
+"t": "p",
+"d": 0,
+"x": "QB-specific scoring:"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Passing TD: 4 points"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Rushing/Receiving TD: 6 points"
+},
+{
+"t": "p",
+"d": 0,
+"x": "WR-specific scoring:"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Receptions: 1 point each"
+},
+{
+"t": "p",
+"d": 0,
+"x": "RB-specific scoring:"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Receptions: 1 point each"
+},
+{
+"t": "p",
+"d": 0,
+"x": "TE-specific scoring:"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Receptions: 1 point each"
+}
+]
+},
+{
+"id": "rosters",
+"title": "Rosters",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "Since this is a dynasty league, all players will be kept until the owner involves that player in a transaction, either a trade or an add/drop."
+},
+{
+"t": "p",
+"d": 0,
+"x": "In-season, each team will have up to 23 roster spots, and 2 IR spots."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Roster limit will expand 2 spots to 25 spaces (but there shall be no Injury Reserve) during offseason"
+},
+{
+"t": "p",
+"d": 0,
+"x": "2 IR spots shall be allocated to each team, and shall be used as follows"
+},
+{
+"t": "li",
+"d": 1,
+"x": "The NFL’s Official Injury Status must be either IR, Suspended, Out, Covid-19, or DNR (Holdout). IR must be in-season."
+},
+{
+"t": "li",
+"d": 1,
+"x": "IR locked during offseason and should be emptied."
+}
+]
+},
+{
+"id": "lineups",
+"title": "Lineups",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "Scoring lineups 11 players: 1QB : 2RB : 3WR : 1TE : 2FLEX : 1SUPERFLEX : DST"
+},
+{
+"t": "p",
+"d": 0,
+"x": "Each owner is expected to make an honest attempt at starting their most optimal valid lineup for each week of the season."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Starting a lineup you don’t expect to score well impacts the entire league, please use best judgment."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Each team must start players who are reasonably expected to play at least one snap in an NFL game that week."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Players are locked at the kickoff of their game."
+}
+]
+},
+{
+"id": "tie-breakers",
+"title": "Tie Breakers",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "Unless otherwise specified, rankings and tie breakers are handled according to this order:"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Winning percentage"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Total points scored"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Head-to-head matchup results"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Coin flip"
+}
+]
+},
+{
+"id": "regular-season-playoffs-and-toilet-bowl",
+"title": "Regular Season, Playoffs, and Toilet Bowl",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "The season consists of 13 Regular Season Weeks (Weeks 1-13) and 3 Playoff Weeks (Weeks 14-16)"
+},
+{
+"t": "p",
+"d": 0,
+"x": "During the regular season and fantasy playoffs, owners will be matched up in head to head format."
+},
+{
+"t": "p",
+"d": 0,
+"x": "The top 6 teams from the regular season will compete in a bracket style playoff tournament with high seeds facing off against low seeds."
+},
+{
+"t": "li",
+"d": 1,
+"x": "To rank teams and determine seeding the following will be considered: Overall Record > Total Points For > Total Points against > Head to Head Record."
+},
+{
+"t": "li",
+"d": 2,
+"x": "The top 6 regular season records will be in the playoffs. Ties will be broken by who has the most total points scored in a regular season. If there is still a tie then it will be broken by who has the most total points scored against them. If there is still a tie then it will be broken by the head to head record of teams."
+},
+{
+"t": "li",
+"d": 1,
+"x": "The playoffs will occur over 3 weeks (weeks 14, 15, and 16), concluding in Week 16 of the NFL regular season."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Week 14/Round 1:"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Seeds #1 and #2 receive a bye."
+},
+{
+"t": "li",
+"d": 2,
+"x": "Seeds #3 and #6 will play each other. Winner advances to compete against #2 seed"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Seeds #4 and #5 will play each other. Winner advances to compete against #1 seed"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Week 15/Round 2:"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Seed #1 plays the winner of the #4 vs #5 seeds. Winner advances to the championship. Loser advances to the 3rd place matchup."
+},
+{
+"t": "li",
+"d": 2,
+"x": "Seed #2 plays the winner of the #3 vs #6 seeds. Winner advances to the championship. Loser advances to the 3rd place matchup."
+},
+{
+"t": "li",
+"d": 2,
+"x": "Losing teams of the #3 vs #6 seeds and the #4 vs #5 seeds will compete for 5th place."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Week 16/Round 3:"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Championship match between the undefeated teams in the playoffs."
+},
+{
+"t": "li",
+"d": 3,
+"x": "The winner and loser of the championship will be awarded their corresponding payouts."
+},
+{
+"t": "li",
+"d": 2,
+"x": "3rd place match between remaining teams in playoffs."
+},
+{
+"t": "li",
+"d": 3,
+"x": "The winner will receive the corresponding 3rd place payout."
+},
+{
+"t": "li",
+"d": 1,
+"x": "See appendix for example bracket."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Toilet Bowl will be a consolation style bracket mirroring the playoff bracket but composed of the bottom 6 teams with seeds determined in the same manner as detailed in 7.3.1."
+},
+{
+"t": "li",
+"d": 1,
+"x": "The winner of the Toilet Bowl will be awarded the 2.13 as a compensation pick in the corresponding year’s upcoming rookie draft."
+}
+]
+},
+{
+"id": "fees-and-payouts",
+"title": "Fees & Payouts",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "FEES:"
+},
+{
+"t": "li",
+"d": 1,
+"x": "League dues are $100/team/year paid to LeagueSafe, due on or before the startup draft and by League Reset Day of the successive years. Any LeagueSafe fees shall be paid by the respective owner and generally consists of 3%."
+},
+{
+"t": "li",
+"d": 1,
+"x": "League dues must be paid for respective years of future picks involved in trades."
+},
+{
+"t": "li",
+"d": 2,
+"x": "If a trade involves a pick 3 years in the future, owners in trade must pay for dues up through the corresponding year."
+},
+{
+"t": "li",
+"d": 1,
+"x": "League dues are to be paid by the start of each year."
+},
+{
+"t": "li",
+"d": 2,
+"x": "This gives ample time to find a replacement if someone leaves."
+},
+{
+"t": "li",
+"d": 2,
+"x": "Any owner who does not pay by the specified due date will be replaced immediately."
+},
+{
+"t": "li",
+"d": 2,
+"x": "No transactions or other league activity will be allowed until all league fees are paid."
+},
+{
+"t": "li",
+"d": 1,
+"x": "The total amount collected in dues each year will total $1200."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Playoff Bracket Prizes"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Total: $1200 in prizes"
+},
+{
+"t": "li",
+"d": 2,
+"x": "1st place: $800"
+},
+{
+"t": "li",
+"d": 2,
+"x": "2nd place: $300"
+},
+{
+"t": "li",
+"d": 2,
+"x": "3rd place: $100"
+}
+]
+},
+{
+"id": "trading",
+"title": "Trading",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "Owners may trade startup picks, players, FAAB, and rookie draft picks."
+},
+{
+"t": "p",
+"d": 0,
+"x": "This league supports the spirit of “Trades will not be vetoed, except in clear cases of collusion.” Trades will be binding when completed on Sleeper platform and accepted by active parties."
+},
+{
+"t": "p",
+"d": 0,
+"x": "If a trade has been offered or accepted in error, the owner making the error must notify the Commissioner and the other team immediately (i.e. within 10 minutes of the trade acceptance) to request that the trade be voided. Trades may only be voided due to legitimate error that is reported in a timely manner - trades may not be voided due to buyers remorse, sellers remorse, or failure to perform due diligence. The Commissioner reserves the right to allow a trade to stand if the error is not deemed credible."
+},
+{
+"t": "p",
+"d": 0,
+"x": "No conditional, delayed, or two-part trades."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Trading will be locked from Week 10 completion until the end of playoffs. At the conclusion of playoffs trades will be reopened."
+}
+]
+},
+{
+"id": "free-agent-acquisition-waivers",
+"title": "Free Agent Acquisition/Waivers",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "All dropped players shall go onto waivers. Owners can blind bid on these players from their Free Agency Auction Budget (FAAB)."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Each owner starts the season with $100 FAAB to spend on Free Agents. The minimum increment of bid is $1, and the minimum bid is $0. Highest bid on a Free Agent wins."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Traditional rolling waiver system used in conjunction to act as tie breaker in tied bids; this includes bids of $0."
+},
+{
+"t": "p",
+"d": 0,
+"x": "FAAB$ will be reset twice per year."
+},
+{
+"t": "li",
+"d": 1,
+"x": "At the start of the NFL regular season (First regular season kickoff)"
+},
+{
+"t": "li",
+"d": 1,
+"x": "At the League Reset Day (start of NFL offseason/after Super Bowl)"
+}
+]
+},
+{
+"id": "tanking",
+"title": "Tanking",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "Draft order for non-playoff teams is determined by inverse of end of season optimal/potential points to assess true value/quality of teams."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Potential points are based on if teams had started their optimal lineup every week."
+}
+]
+},
+{
+"id": "annual-rookie-fa-draft",
+"title": "Annual Rookie/FA Draft",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "The rookie/FA draft will start each year 2 weeks after the NFL draft."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Draft order for subsequent seasons will be set in reverse order of Potential Points (as calculated by Sleeper Week 1-14) for non playoff teams. Otherwise determined by playoff finish. Pick 2.13 shall be awarded to the Toilet Bowl winner and will need to be manually designated."
+},
+{
+"t": "p",
+"d": 0,
+"x": "The draft will be conducted via Sleeper"
+},
+{
+"t": "p",
+"d": 0,
+"x": "If an owner misses a pick, the pick will be bypassed and the next owner will go on the clock by swapping picks with the absent owner. If an owner is bypassed 3 times the pick is forfeit and the commissioner will manually select a retired player to fill the pick. If any owner is required to forfeit a second pick in the same draft, the owner will be banned from the league and the draft shall be paused pending search of a new owner. The new owner shall be permitted to make replacement picks for both of the forfeited picks from the available players (no roll-back)."
+},
+{
+"t": "p",
+"d": 0,
+"x": "All players who are not selected in the draft, including rookies, will be considered free agents"
+},
+{
+"t": "p",
+"d": 0,
+"x": "If an owner withdraws from the league during the draft, the draft will stop until a replacement owner is found. The draft will resume when the replacement owner has been found without penalizing the new owner."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Dropping players during the draft is not allowed, as it could impact draft strategy."
+}
+]
+},
+{
+"id": "startup-draft",
+"title": "Startup Draft",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "The league will initially select players via a 23 round startup draft"
+},
+{
+"t": "p",
+"d": 0,
+"x": "The draft will be conducted via Sleeper"
+},
+{
+"t": "p",
+"d": 0,
+"x": "All NFL players are eligible to be selected."
+},
+{
+"t": "p",
+"d": 0,
+"x": "If an owner misses a pick, the pick will be bypassed and the next owner will go on the clock by swapping picks with the absent owner. If an owner is bypassed 3 times the pick is forfeit and the commissioner will manually select a retired player to fill the pick. If any owner is required to forfeit a second pick in the same draft, the owner will be banned from the league and the draft shall be paused pending search of a new owner. The new owner shall be permitted to make replacement picks for both of the forfeited picks from the available players (no roll-back)."
+},
+{
+"t": "p",
+"d": 0,
+"x": "If an owner leaves the league during the draft, the draft will be paused until a replacement owner is found."
+},
+{
+"t": "p",
+"d": 0,
+"x": "The commissioner may adjust (or pause for to be determined circumstances) the draft clock depending on how the draft is progressing."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Dropping players during the draft is not allowed, as it could impact draft strategy."
+}
+]
+},
+{
+"id": "unintentional-roster-moves",
+"title": "Unintentional Roster Moves",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "Occasionally, mistakes happen. In the event of an unintentional roster move, owners must notify the commissioner promptly."
+},
+{
+"t": "p",
+"d": 0,
+"x": "For unintentional drops, owners must notify the commissioner by the end of the day."
+},
+{
+"t": "li",
+"d": 1,
+"x": "If the unintentional drop happens and waivers run before notification is made, player(s) will remain with the owner(s) with the successful bid, except in cases of top-tier players."
+},
+{
+"t": "p",
+"d": 0,
+"x": "In the event the player dropped was a top-tier player, commissioner will assume the drop was in error and place the player back on the appropriate roster."
+}
+]
+},
+{
+"id": "computer-failure",
+"title": "Computer Failure",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "In the event that an owner is unable to submit a roster change due to a computer failure, the owner must contact the commissioner with their roster change, prior to involved player(s) locking."
+},
+{
+"t": "li",
+"d": 1,
+"x": "In the event of a request made before a lock, but the commissioner cannot address it before the lock, the commissioner will inform the owner’s opponent of the situation, and retroactively set the roster."
+}
+]
+},
+{
+"id": "teams-ownership-and-replacement",
+"title": "Teams, Ownership, and Replacement",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "The League is structured as 12 teams in one division."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Each owner’s team name must be consistent throughout any given year and can only be changed in the offseason."
+},
+{
+"t": "li",
+"d": 1,
+"x": "It is highly recommended to pick and keep one name to give a true feel for a dynasty."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Replacement owners may rename their team upon joining the league."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Replacement Process"
+},
+{
+"t": "li",
+"d": 1,
+"x": "If any fines or consequences were leveraged against a previous owner and applicable to the current or future seasons, those will not be inherited by the new owner."
+},
+{
+"t": "li",
+"d": 2,
+"x": "Example: If the previous owner lost their 1st round rookie pick for the upcoming rookie/FA draft due to penalty, the pick would be reinstated in the appropriate location for the new owner."
+},
+{
+"t": "li",
+"d": 2,
+"x": "Assets that have been traded away will not be returned."
+},
+{
+"t": "li",
+"d": 1,
+"x": "The Commissioner shall find a replacement owner using whatever means necessary to keep the league stable."
+},
+{
+"t": "li",
+"d": 2,
+"x": "Leaving owners who are encouraged to assist in finding their replacements but are not required to. Commissioner has to approve the replacement(s)."
+}
+]
+},
+{
+"id": "team-abandonment",
+"title": "Team Abandonment",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "Any team will be considered abandoned if:"
+},
+{
+"t": "li",
+"d": 1,
+"x": "An owner notifies the commissioner or league that they aren’t able or willing to continue playing."
+},
+{
+"t": "li",
+"d": 1,
+"x": "An owner fails to pay league dues by the appointed deadline."
+},
+{
+"t": "li",
+"d": 1,
+"x": "An owner fails to participate in off-season activities such as the draft, without first contacting the commissioner."
+},
+{
+"t": "li",
+"d": 1,
+"x": "An owner has not responded to multiple trades, messages, or emails from the commissioner."
+},
+{
+"t": "p",
+"d": 0,
+"x": "If a team is abandoned mid-year, commissioner will attempt to find a replacement owner."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Under no circumstances does an abandoned team's previous owner have any right to prize money during that season, or in subsequent seasons."
+}
+]
+},
+{
+"id": "refunds",
+"title": "Refunds",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "League fees are refundable with the following conditions:"
+},
+{
+"t": "li",
+"d": 1,
+"x": "If the leaving owner provides an acceptable replacement owner who is willing to pay any portion of league fees, then the leaving owner can receive a refund of league fees for the matching amount."
+},
+{
+"t": "li",
+"d": 2,
+"x": "Example: Leaving Owner finds Replacement Owner. Replacement owner pays $60 to LeagueSafe (partial current year, full prepaid year). Leaving owner receives a refund of up to $60."
+},
+{
+"t": "li",
+"d": 1,
+"x": "If the commissioner has to find replacement owner(s), then any potential refund will be based on how many people are leaving and if any of those openings have to be subsidized."
+},
+{
+"t": "li",
+"d": 2,
+"x": "Example: If 3 people are leaving ($120 in prepaid refunds possible) and replacements need a total of $30 in subsidies, then the 3 leaving owners would split what's left and get $30 each. ($90 remaining after subsidy, divided by 3 owners)."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Refunded fees cannot exceed amount the leaving owner has paid into the league for that team."
+},
+{
+"t": "p",
+"d": 0,
+"x": "If an owner(s) is banned for banning appropriate behavior as listed in bylaws then they forfeit dues paid. These dues will remain with the orphaned team(s) and contribute toward the new owner’s dues."
+}
+]
+},
+{
+"id": "anti-competitive-behavior",
+"title": "Anti-competitive Behavior",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "Collusion and anti-competitive behavior is strictly forbidden."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Any owner engaging in anti-competitive behavior will be promptly removed from the league."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Anti-competitive behavior includes, but is not limited to:"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Making trades that result in making one team worse and another team better with the intent of consolidating better players on one team."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Agreeing to share winnings by acting in concert."
+},
+{
+"t": "li",
+"d": 1,
+"x": "‘Loaning’ players, delayed deals, bad/or two-part trades. Examples of prohibited moves include:"
+},
+{
+"t": "li",
+"d": 2,
+"x": "\"I'll trade you my backup QB, but you have to give him back after your bye week.\""
+},
+{
+"t": "li",
+"d": 2,
+"x": "\"You trade me player A this week and I'll trade you player B next week.\""
+},
+{
+"t": "li",
+"d": 2,
+"x": "\"Here's a 3 player for 3 player trade, but I don't want to give you my RB until next week. Let's trade the other 2 for 2 now and agree to swap the remaining players next week.\""
+},
+{
+"t": "li",
+"d": 1,
+"x": "An owner who, for any reason, cuts/drops/dumps players who are obviously valuable."
+}
+]
+},
+{
+"id": "activity-rules",
+"title": "Activity Rules",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "Owners are expected to be active year round."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Reasonable levels of activity:"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Logging in at least one (1) time each week during the regular season."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Logging in at least one (1) time every month during the off-season."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Logging in at least one (1) time every day during the rookie/FA draft."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Voting in each poll on the league website."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Participation in league discussion via Sleeper"
+},
+{
+"t": "p",
+"d": 0,
+"x": "Nobody wants to police this, so please be present in league votes and be a part of the community. If there are frequently borderline abandoned or otherwise inactive teams, the commissioner will communicate changes to this rule subset to enact at the next upcoming League Reset Day."
+}
+]
+},
+{
+"id": "owner-conduct-and-responsibilities",
+"title": "Owner Conduct & Responsibilities",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "RESPONSIBILITIES"
+},
+{
+"t": "li",
+"d": 1,
+"x": "It is the responsibility of each owner to ensure their understanding of league rules as outlined throughout this entire document."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Be active. Be involved. Set lineups. Propose trades. Respond to trades promptly. Participate in Sleeper discussions. It makes the experience better for everyone and increases league longevity."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Owners are responsible for responding to emails and private messages from the Commissioner, Executive Council, and other league members in a timely manner."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Each owner may only control or co-own one team in the league."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Penalty for violating owner responsibilities not outlined elsewhere in the ruleset:"
+},
+{
+"t": "li",
+"d": 2,
+"x": "1st offense or less severe incident: Warning"
+},
+{
+"t": "li",
+"d": 2,
+"x": "2nd offense or more severe incident: Loss of earliest owned rookie pick (e.g. 1st round) and forfeit the right to any prize winnings for the season."
+},
+{
+"t": "li",
+"d": 2,
+"x": "3rd offense or extremely severe incident: Removed from league and forfeit the right to the team and any prize winnings."
+},
+{
+"t": "p",
+"d": 0,
+"x": "CONDUCT"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Trash talking and shit-posting are actively encouraged"
+},
+{
+"t": "li",
+"d": 1,
+"x": "The Commissioner shall be the moderator of all chat channels."
+}
+]
+},
+{
+"id": "commissioner-responsibilities",
+"title": "Commissioner Responsibilities",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "Brett Wilson and Joe Morehouse are the Co-Commissioners."
+},
+{
+"t": "li",
+"d": 1,
+"x": "The Commissioner will act in good faith and at all times in the best interest of the league to maintain a fun, fair, and competitive environment."
+},
+{
+"t": "li",
+"d": 1,
+"x": "The commissioner is responsible for interpreting league rules, settling league disputes, and handling day-to-day operations."
+},
+{
+"t": "li",
+"d": 1,
+"x": "The commissioner reserves the right to protect the integrity of the league, especially in cases of collusion, cheating, or intentional sabotage of the league."
+},
+{
+"t": "li",
+"d": 1,
+"x": "In the rare instance that a situation arises that is not covered by the bylaws, the Commissioner has the right to rule on the issue in the best interest of the league and these rulings are final, binding, and cannot be appealed."
+},
+{
+"t": "li",
+"d": 1,
+"x": "The commissioner explicitly shall not make executive decisions that alter what is set in the bylaws for:"
+},
+{
+"t": "li",
+"d": 2,
+"x": "League payout settings"
+},
+{
+"t": "li",
+"d": 2,
+"x": "League scoring settings"
+},
+{
+"t": "li",
+"d": 2,
+"x": "League roster settings"
+},
+{
+"t": "li",
+"d": 1,
+"x": "The commissioner shall be empowered to complete the following:"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Exercise executive decision rights in all cases of uncertainty for situations occurring in the current year and/or requiring immediate decisions"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Set lineups and perform team/roster moves for owners by request (in case of emergency, subject to the commissioner’s availability)"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Finalize league calendar dates and times, and ensure calendar is updated and followed"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Collect league dues and monetary fines, enforce payment deadlines, and facilitate payouts as per this document"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Ensure that actions that require dues to be paid are completed only if dues are up to date"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Investigate inactivity, rules violations, and owner misconduct, and assign sanctions at his discretion"
+},
+{
+"t": "li",
+"d": 3,
+"x": "Inactivity and misconduct sanctions can be appealed to the council within 24 hours of assigned sanction"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Apply sanctions at his discretion, from the following list of sanctions - in order of severity:"
+},
+{
+"t": "li",
+"d": 3,
+"x": "Official Public Warning"
+},
+{
+"t": "li",
+"d": 3,
+"x": "Suspension of chat privileges for a specified period"
+},
+{
+"t": "li",
+"d": 3,
+"x": "Retroactive cancellation of trades and forfeits declared for any affected games"
+},
+{
+"t": "li",
+"d": 3,
+"x": "Suspension of transaction rights for a specified period"
+},
+{
+"t": "li",
+"d": 3,
+"x": "Fine of $25 FAAB"
+},
+{
+"t": "li",
+"d": 3,
+"x": "Fine of $50 FAAB"
+},
+{
+"t": "li",
+"d": 4,
+"x": "All FAAB fines shall be taken from the current season’s budget if possible - if not possible the following season’s budget will be reduced. If the owner is booted from the league, all “following-season” penalties shall be removed."
+},
+{
+"t": "li",
+"d": 3,
+"x": "Removal of owner from league (aka “Ban”)"
+},
+{
+"t": "li",
+"d": 3,
+"x": "Other sanctions may be added by majority vote from Executive Council"
+}
+]
+},
+{
+"id": "league-disbanding",
+"title": "League Disbanding",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "In the event that the entire league disbands and owners agree to dissolve the league, every reasonable effort will be made to return any remaining funds to the owners."
+},
+{
+"t": "p",
+"d": 0,
+"x": "The league may vote to fold or restart with a 10/12 vote except where otherwise stated. If the league folds, all monies held in LeagueSafe shall be distributed equally to all members at time of folding"
+}
+]
+},
+{
+"id": "final-rule",
+"title": "Final Rule",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "These written rules serve as the final source of truth."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Discussions had on messaging apps, email, etc. do not supersede these written rules."
+},
+{
+"t": "li",
+"d": 1,
+"x": "The commissioner will do their best to accurately answer questions, but may not be in a situation to review the written rules before providing an answer. It is highly probable that the commissioner, as the person who wrote the rules, will provide an accurate answer. However, it is possible the commissioner will occasionally be mistaken. Before making any important decision, owners should personally review the rules to ensure understanding."
+}
+]
+},
+{
+"id": "rule-changes",
+"title": "Rule Changes",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "The commissioner reserves the right to adjust rules as necessary."
+},
+{
+"t": "p",
+"d": 0,
+"x": "The rules for each season shall be finalized by League Reset of each year and distributed to each owner."
+},
+{
+"t": "p",
+"d": 0,
+"x": "If an owner has an idea for a new rule or rule change, the owner may bring that idea to the commissioner. The commissioner will make a determination from there on how to proceed."
+},
+{
+"t": "li",
+"d": 1,
+"x": "A proposed rule change may not be voted on more than once per year."
+},
+{
+"t": "p",
+"d": 0,
+"x": "No rule change shall reasonably disadvantage any owner without their consent - if such a rule is passed, the disadvantaged owner may appeal to the Commissioner and Executive Council to postpone the implementation of such a rule by one or more full seasons."
+},
+{
+"t": "p",
+"d": 0,
+"x": "For binary votes, 7 votes out of 12 are required in favour for a successful change. For non-binary votes, if no majority (7/12) vote is achieved, the top two options by vote shall be subsequently voted on in a binary vote."
+},
+{
+"t": "p",
+"d": 0,
+"x": "If any vote fails, the existing rule shall continue to take effect."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Any ratified rules which would impact the competitive balance of the league (e.g. starting lineup changes, large scoring changes, etc.) will be put into effect after two rookie/FA drafts have occurred to allow owners ample time to prepare."
+},
+{
+"t": "p",
+"d": 0,
+"x": "All ratified rules which do not impact team strategy will be enforced immediately."
+},
+{
+"t": "p",
+"d": 0,
+"x": "In the event that there is a vote where a decision must be made that ends in a tie, the commissioner vote will act as the tie breaker."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Changes will be cataloged and dated in section 27. Changelog."
+}
+]
+},
+{
+"id": "appendix",
+"title": "Appendix",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "Playoff Bracket Example:"
+},
+{
+"t": "img",
+"src": "office/img/bracket-example.gif",
+"alt": "Example six-team playoff bracket with two first-round byes"
+}
+]
+}
+]
+}
