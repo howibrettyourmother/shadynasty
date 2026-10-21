@@ -1,0 +1,24 @@
+name: shady bowl announcer clips
+on:
+  push:
+    branches: [main]
+    paths: ['arcade/shady-bowl/lines.js', 'tools/shady_bowl_vo.py']
+  schedule:
+    - cron: '41 */6 * * *'   # new week results, renamed teams, new starters
+  workflow_dispatch:
+concurrency: { group: shady-bowl-vo, cancel-in-progress: false }
+permissions: { contents: write }
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get install -y -qq ffmpeg >/dev/null && pip install -q edge-tts
+      - run: python3 tools/shady_bowl_vo.py
+      - name: commit
+        run: |
+          git config user.name 'shadynasty-bot'; git config user.email 'actions@users.noreply.github.com'
+          git add -A arcade/shady-bowl/vo
+          git commit -qm 'shady bowl: re-render announcer clips' || exit 0
+          for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 5; done; exit 1

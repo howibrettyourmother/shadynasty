@@ -141,3 +141,16 @@ Object.assign(GEN,{
  onBad:["Onside kick fails. {O} gets great field position and a free laugh."],
  drill:["Two minutes. You're down. Time to stop fucking around.","Comeback time! Don't choke like a week 14 playoff lineup."]
 });
+
+// Joe's team (Rebuilding Morehouse's): footwear gag + endless-rebuild roasts only.
+const JOE_LINES={intro:["Year whatever of the rebuild. Rebuilding Morehouse's takes the field, in heels, still two fucking years away.","Ladies and gentlemen, the eternal rebuild. He traded the future for more future and still can't field a goddamn lineup.","Rainbow Warrior? More like Rebuild Warrior. Kickoff!"],
+ td:["Touchdown Morehouse's! Holy shit, a rebuild scored! Somebody check the standings, this never fucking happens.","They scored! Pour one in the stiletto, boys, next year might actually be this year.","Six points for the rebuild! Don't get used to it, he'll trade this guy for a third-round pick by Tuesday."],
+ trip:["FUMBLE! He tripped over his own goddamn heel! Ball's loose!","Down he goes! Ankle rolled in the stiletto, ball on the turf. Peak fucking rebuild.","Tripped on a heel and coughed it up. Even the shoes are tanking for a draft pick."],
+ stall:["Drive's dead. That's the rebuild, baby: all picks, no fucking points.","Stalled again. Wait till next year. He's been saying that shit since the Obama administration... of fantasy football.","Another empty drive. He'll trade the whole offense for futures and call it a process."],
+ score:["Morehouse's gets torched. Trading away every starter for picks has fucking consequences.","Scored on the rebuild. Next year, though. Always next fucking year."]};
+// rivalry intros: {W}-{L} is the all-time record from the player's side
+const RIVAL={own:["{T} owns {O}, {W} and {L} all-time. Rent-free, every fucking week.","{O} has won {L} out of all these. That's not a rivalry, that's a hostage situation."],
+ owned:["{O} has your number. You're {W} and {L} against them. Today you shove it up their ass or eat it again.","{W} and {L} against these assholes. Nemesis energy. Do not fucking choke."],
+ even:["Dead even at {W} and {L}. Somebody's getting bragging rights and somebody's getting roasted."]};
+// literal strings the announcer reads that are not in GEN / FLAVOR (pre-rendered too)
+const VO_EXTRA=["Rivalry game!","Final!","Final.","Overtime! Somebody finish this shit.","Announcer is on. Let us fucking go.","Blitz blows up the run!","Run squirts past the blitz.","Right read, late jump. Tackled after the catch.","They ran a slant route. You guessed wrong.","They ran an out route. You guessed wrong.","They ran a deep route. You guessed wrong.","They ran a run. You guessed wrong.","You recover!","Extra point good.","Time!","the QB","the RB","the slot","WR1","WR2"];

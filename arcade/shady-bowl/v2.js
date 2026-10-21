@@ -47,8 +47,40 @@ function pickVoice(){if(!VO.ok)return;const vs=speechSynthesis.getVoices().filte
   VO.v=vs.sort((a,b)=>sc(b)-sc(a))[0]}
 if(VO.ok){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
 function clean(s){return String(s).replace(/[\u{1F000}-\u{1FFFF}\u2600-\u27BF\uFE0F]/gu,'').replace(/\bTD\b/g,'touchdown').replace(/\bINT\b/g,'interception').replace(/\byds\b/g,'yards').replace(/\s+/g,' ').trim()}
-function speak(text,pri){const t=clean(text);if(!t)return;SB.spoken.push(t);if(!VO.ok||!SV.voice||SV.mute)return;try{if(pri)speechSynthesis.cancel();else if(speechSynthesis.pending)return;
+function tts(text,pri){const t=clean(text);if(!t)return;if(!VO.ok||!SV.voice||SV.mute)return;try{if(pri)speechSynthesis.cancel();else if(speechSynthesis.pending)return;
   const u=new SpeechSynthesisUtterance(t);if(VO.v)u.voice=VO.v;u.lang='en-US';u.rate=VO.v&&/Google/.test(VO.v.name)?1.02:1.1;u.pitch=.68;u.volume=Math.min(1,SV.vol+.15);speechSynthesis.speak(u)}catch(e){}}
+
+// ---- pre-rendered neural announcer clips (vo/index.json), stitched for names/numbers; TTS only as last resort ----
+const NORM=s=>String(s).toLowerCase().replace(/[\u2018\u2019]/g,"'").replace(/[^a-z0-9' ]+/g,' ').replace(/'/g,'').replace(/\s+/g,' ').trim();
+const VX={idx:null,buf:new Map(),reg:new Map(),src:[],end:0,rev:null};SB.VX=VX;
+fetch('vo/index.json').then(r=>r.json()).then(j=>{VX.idx=j;precache(j)}).catch(()=>{});
+fetch('vo/roast.json').then(r=>r.ok?r.json():null).then(j=>{if(j&&j.lines&&j.lines.length){VX.roast=j}}).catch(()=>{});
+function precache(j){if(!('caches' in window))return;const urls=[...new Set(Object.values(j.keys))].map(f=>'vo/'+f);caches.open('sb-vo-1').then(async c=>{for(let i=0;i<urls.length;i+=20){await Promise.all(urls.slice(i,i+20).map(u=>c.match(u).then(m=>m||c.add(u)).catch(()=>{})));await new Promise(r=>setTimeout(r,30))}VX.cached=true}).catch(()=>{})}
+SB.fmt=function(tpl,vars){const s=tpl.replace(/\{(\w+)\}/g,(m,k)=>vars[k]!=null?vars[k]:m);VX.reg.set(s,{tpl,vars});if(VX.reg.size>200)VX.reg.delete(VX.reg.keys().next().value);return s};
+window.say=say=function(key,extra,team){const T=G.me,O=G.opp,src=team&&FLAVOR[team.id]&&FLAVOR[team.id][key]?FLAVOR[team.id][key]:GEN[key];
+  return SB.fmt(pick(src),{T:T.team,O:O.team,QB:nameOf(T.id,'QB'),RB:nameOf(T.id,'RB'),WR:extra&&extra.rb?nameOf(T.id,'RB'):nameOf(T.id,'WR',extra&&extra.wi),Y:extra&&extra.y!=null?extra.y:''})};
+const GENERIC={QB:'the QB',RB:'the RB',WR:'the slot'};
+function key(k){const K=VX.idx&&VX.idx.keys;return K&&K[k]?k:null}
+function slot(k,v){if(k=='T'||k=='O'||k=='QB'||k=='RB'||k=='WR'){return key('name:'+NORM(v))||(GENERIC[k]&&key('name:'+NORM(GENERIC[k])))||key('seg:'+NORM(v))}if(/^-?\d+$/.test(String(v)))return key('num:'+Math.abs(+v));return key('seg:'+NORM(v))}
+function lit(t){const out=[];const w=key('seg:'+NORM(t))||key('roast:'+NORM(t));if(w)return[w];for(const s of t.split(/(?<=[.!?])\s+/)){if(!NORM(s))continue;const k=key('seg:'+NORM(s))||key('roast:'+NORM(s));out.push(k||{tts:s})}return out}
+function plan(text){let rest=text;const items=[];const regs=[...VX.reg.keys()].filter(s=>s&&text.includes(s)).sort((a,b)=>b.length-a.length);
+  while(rest){let best=-1,bs=null;for(const s of regs){const i=rest.indexOf(s);if(i>=0&&(best<0||i<best||(i==best&&s.length>bs.length))){best=i;bs=s}}
+    if(best<0){if(NORM(rest))items.push(...lit(rest));break}
+    const pre=rest.slice(0,best);if(NORM(pre))items.push(...lit(pre));const {tpl,vars}=VX.reg.get(bs);
+    for(const part of tpl.split(/(\{\w+\})/)){const m=part.match(/^\{(\w+)\}$/);if(m){const v=vars[m[1]];if(v===''||v==null)continue;const k=slot(m[1],v);items.push(k||{tts:String(v)})}else if(NORM(part))items.push(key('seg:'+NORM(part))||{tts:part})}
+    rest=rest.slice(best+bs.length)}return items}
+SB.plan=plan;
+function load(k){const f=VX.idx.keys[k];if(VX.buf.has(f))return VX.buf.get(f);const p=fetch('vo/'+f).then(r=>r.arrayBuffer()).then(a=>new Promise((res,rej)=>AU.c.decodeAudioData(a,res,rej)));VX.buf.set(f,p);p.catch(()=>VX.buf.delete(f));return p}
+function bus(){if(VX.bus)return VX.bus;const c=AU.c,dry=c.createGain(),cv=c.createConvolver(),wet=c.createGain(),n=c.sampleRate*1.4,ir=c.createBuffer(2,n,c.sampleRate);for(let ch=0;ch<2;ch++){const d=ir.getChannelData(ch);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3.2)*(i<c.sampleRate*.02?.3:1)}
+  cv.buffer=ir;wet.gain.value=.22;dry.gain.value=1.35;const comp=c.createDynamicsCompressor();comp.threshold.value=-18;comp.ratio.value=3;dry.connect(comp);dry.connect(cv);cv.connect(wet);wet.connect(comp);comp.connect(AU.m);return VX.bus=dry}
+function duck(t0,t1){const g=AU.crowd&&AU.crowd.g;if(!g)return;g.gain.cancelScheduledValues(t0);g.gain.setTargetAtTime(.015,t0,.08);g.gain.setTargetAtTime(.05,t1,.4)}
+function speak(text,pri){const t=clean(text);if(!t)return;SB.spoken.push(t);if(SV.mute||!SV.voice)return;
+  const c=ac();if(!VX.idx||!c){return tts(t,pri)}const items=plan(String(text).replace(/\s*\([^)]*\)/g,''));SB.lastPlan=items;const miss=items.filter(x=>typeof x!='string').length;
+  if(!items.length||miss>items.length/2)return tts(t,pri);
+  if(pri){VX.src.forEach(s=>{try{s.stop()}catch(e){}});VX.src=[];VX.end=0;if(VO.ok)speechSynthesis.cancel()}else if(VX.end>c.currentTime+.3)return;
+  const ks=items.filter(x=>typeof x=='string');SB.clipsPlayed=(SB.clipsPlayed||0)+ks.length;
+  Promise.all(ks.map(k=>load(k).catch(()=>null))).then(bs=>{bs=bs.filter(Boolean);if(!bs.length)return tts(t,pri);let at=Math.max(c.currentTime+.03,VX.end);const t0=at;
+    bs.forEach(b=>{const s=c.createBufferSource();s.buffer=b;s.playbackRate.value=1.02;s.connect(bus());s.start(at);VX.src.push(s);s.onended=()=>{VX.src=VX.src.filter(x=>x!==s)};at+=b.duration/1.02-.06});VX.end=at;duck(t0,at)})}
 SB.speak=speak;
 // unlock on first tap (iOS)
 let unlocked=false;function unlock(){if(unlocked)return;unlocked=true;try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
@@ -75,6 +107,7 @@ async function loadLive2(){
       NAMES[r.owner_id]={QB:q?nm(q):'the QB',RB:b?nm(b):'the RB',WR:w.map(nm),inj:{QB:q&&inj(q),RB:b&&inj(b),WR:w.map(inj)},raw:{QB:q&&P[q].i,RB:b&&P[b].i,WR:w.map(x=>P[x].i||null)},list:st.map(x=>({n:P[x].n,p:pos(x),i:P[x].i||(P[x].s=='Injured Reserve'?'IR':null)}))}});
     try{const ms=await j(API2+'league/'+LG+'/matchups/'+WEEK);const by={};ms.forEach(m=>{(by[m.matchup_id]=by[m.matchup_id]||[]).push(rid[m.roster_id])});Object.values(by).forEach(p=>{if(p.length==2){MATCH[p[0]]=p[1];MATCH[p[1]]=p[0]}})}catch(e){}
     try{await roasts(state,rid,P)}catch(e){}
+    if(SB.VX&&SB.VX.roast&&(!LV.roast||SB.VX.roast.wk>=LV.roast.wk))LV.roast=SB.VX.roast;
     LV.src='live';saveCache();
     rivalry().then(()=>{saveCache();if(cur=='title')title()}).catch(()=>{});
   }catch(e){LV.src=Object.keys(NAMES).length?'cache':'none'}}
@@ -114,7 +147,7 @@ function rivalsOf(me){const h=LV.h2h;if(!h)return[];const L=TEAMS.filter(t=>t.id
 SB.rivalsOf=rivalsOf;SB.LV=LV;
 // ================= SERVICE WORKER / OFFLINE =================
 let offline=false;
-if('serviceWorker' in navigator&&location.protocol!='file:'){let hadC=!!navigator.serviceWorker.controller,rl=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadC&&!rl&&!G){rl=true;location.reload()}});navigator.serviceWorker.register('sw.js?v=3').then(()=>navigator.serviceWorker.ready).then(async()=>{const c=await caches.open('sb-v2-core-3');const k=await c.keys();offline=k.length>=5;if(cur=='title')paintExtras()}).catch(()=>{})}
+if('serviceWorker' in navigator&&location.protocol!='file:'){let hadC=!!navigator.serviceWorker.controller,rl=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadC&&!rl&&!G){rl=true;location.reload()}});navigator.serviceWorker.register('sw.js?v=4').then(()=>navigator.serviceWorker.ready).then(async()=>{const c=await caches.open('sb-v2-core-4');const k=await c.keys();offline=k.length>=5;if(cur=='title')paintExtras()}).catch(()=>{})}
 // ================= DIFFICULTY-AWARE FORMATION + INJURIES =================
 const _form=form;window.form=form=function(play){const E=_form(play),df=DIFF(),n=NAMES[G.me.id];E.forEach(e=>{if(!e.o){e.spd*=1+df.st*.4;if(e.react!=null)e.react=Math.max(.05,e.react-df.st*.6)}});
   if(n&&n.inj){const set=(e,s)=>{if(!s)return;e.spd*=s=='hurt'?.78:.92;e.inj=s};E.forEach(e=>{if(e.role=='qb')set(e,n.inj.QB);if(e.role=='rb')set(e,n.inj.RB);if(e.role=='wr')set(e,(n.inj.WR||[])[e.wi])})}
@@ -141,7 +174,7 @@ function lineupHTML(t){const n=NAMES[t.id];if(!n||!n.list)return`<div class="lb"
   return`<div style="text-align:left;font-size:12px;line-height:1.45">${n.list.filter(p=>/QB|RB|WR|TE/.test(p.p)).map(p=>`${p.p} ${esc(p.n)}${p.i?` <b style="color:${INJ(p.i)=='hurt'?'#ff6a6a':'#ffd23f'}">${INJ(p.i)=='hurt'?'🤕 '+esc(p.i)+' · HURT':'⚠ '+esc(p.i)+' · LIMITED'}</b>`:''}`).join('<br>')}</div>`}
 const _newGame=newGame;window.newGame=newGame=function(a,b,mode){_newGame(a,b,mode);crowdOn(true);if(mode=='drill'){const base=pick([10,13,14,17,20]);G.sc=[base,base+pick([4,5,6])];G.drill=1;G.clock=120;G.drv=4;G.odrv=4}G.snapLos=G.los;const riv=rivalsOf(a).find(x=>x.t.id==b);G.rival=riv||null;
   G.phase='card';hud(false);$('#pre').style.display='none';$('#msg').style.display='none';const me=G.me,O=G.opp,r=riv&&riv.r;
-  const rl=riv?pick(riv.r.w>riv.r.l?[`${me.team} owns ${O.team}, ${r.w}-${r.l} all-time. Rent-free, every fucking week.`,`${O.team} is ${r.l}-${r.w} against ${me.team}. That's not a rivalry, that's a hostage situation.`]:riv.r.w<riv.r.l?[`${O.team} has your number, ${r.l}-${r.w} all-time. Today you shove it up their ass or eat it again.`,`${r.w}-${r.l} against these assholes. Nemesis energy. Do not fucking choke.`]:[`Dead even at ${r.w}-${r.l}. Somebody's getting bragging rights and somebody's getting roasted.`]):'';
+  const rk=riv?(r.w>r.l?'own':r.w<r.l?'owned':'even'):null,rl=riv?SB.fmt(pick(RIVAL[rk]),{T:me.team,O:O.team,W:r.w,L:r.l}):'';
   const ro=roastFor([a,b]).slice(0,2),intro=riv?rl:(ro[0]||say('kickoff')),D=DIFF();
   $('#s-card').innerHTML=`<div class="card" style="${riv?'border-color:#ff3b3b;box-shadow:0 0 24px #ff3b3b88':''}">${riv?`<div class="D" style="background:linear-gradient(90deg,#b5121b,#ff5a5a,#b5121b);color:#fff;border-radius:8px;padding:4px;font-size:20px;animation:pop .5s">🔥 RIVALRY GAME 🔥 · DOUBLE COINS · RECORD ON THE LINE</div>`:''}
    <div class="lb">${mode=='week'?'WEEK '+WEEK+' REAL MATCHUP':mode=='season'?'SEASON GAME':mode=='drill'?'TWO-MINUTE DRILL':'QUICK GAME'} · ${D.n}</div><h2 class="D">${esc(me.team)} vs ${esc(O.team)}</h2>
@@ -177,7 +210,7 @@ function defense(start,pre){const O=G.opp,df=DIFF(),dB=SV.up.d,el=$('#s-card'),o
     const tick=now=>{if(done)return;const dt=(now-last)/1000;last=now;if(SB.rotPaused){t0+=now-last+dt*1000;requestAnimationFrame(tick);return}k+=dir*spd*dt;if(k>1){k=1;dir=-1}if(k<0){k=0;dir=1}$('#dn').style.left=`calc(${k*100}% - 3px)`;if(now-t0>2600)return fin(false);requestAnimationFrame(tick)};requestAnimationFrame(tick);
     const tap=e=>{e.preventDefault();fin(k>=c0&&k<=c0+z)};const bar=$('#dbar');bar.addEventListener('pointerdown',tap,{once:true});
     function fin(good){if(done)return;done=true;bar.removeEventListener('pointerdown',tap);resolve(d,p,good)}}
-  function resolve(d,p,good){let y=0,txt='',key=null,end=null;if(O.id=='679000405232934912'&&R()<.14){S.over=true;const l=pick(SB.JL.trip);SV.rec.dints++;snd('roar');bigTxt('👠 FUMBLE!','#ff4fd8');SB.joeBurst&&SB.joeBurst();speak(l,1);view(l+' You recover!');return setTimeout(()=>finish('INT'),1300)}const pn=p=='run'?'a run':'a '+ROUTES[p].toLowerCase()+' route';
+  function resolve(d,p,good){let y=0,txt='',key=null,end=null;if(O.id=='679000405232934912'&&R()<.14){S.over=true;const l=pick(SB.JL.trip);SV.rec.dints++;snd('roar');bigTxt('👠 FUMBLE!','#ff4fd8');SB.joeBurst&&SB.joeBurst();speak(l,1);view(l+' You recover!');return setTimeout(()=>finish('INT'),1300)}const pn=p=='run'?'a run':(p=='out'?'an ':'a ')+ROUTES[p].toLowerCase()+' route';
     if(d=='blitz'){if(p=='run'){y=good?-gain(2,5):gain(3,7);txt=good?'Blitz blows up the run!':'Run squirts past the blitz.';key=good?'dstop':null;if(good)snd('hit')}
       else{const sk=good?(p=='deep'?.92:.6):(p=='deep'?.38:.12);if(R()<sk){y=-gain(5,10);key='dsack';SV.rec.sacks++;snd('sack');bigTxt('SACK!',G.me.c[0])}else{y=p=='deep'?gain(28,50):gain(12,24);key='dbig';snd('bad')}}}
     else if(d==p){if(good&&R()<.55+dB*.05-(df.ai*.1)){key='dint';end='INT';SV.rec.dints++;snd('roar');bigTxt('PICKED!',G.me.c[0]);confetti(G.me,30)}else if(good){key='dstop';snd('hit');y=0}else{y=gain(3,7);txt='Right read, late jump. Tackled after the catch.';snd('catch')}}
@@ -256,12 +289,7 @@ Object.assign(SB,{newGame,endPlay,snap,DIFFS,records,settings,shop,unlock,AU,get
 })();
 // ================= JOE MODE: his team, or anyone playing against it =================
 (function(){const JOE='679000405232934912',SB=window.__SB;
-const JL={intro:["Year whatever of the rebuild. Rebuilding Morehouse's takes the field, in heels, still two fucking years away.","Ladies and gentlemen, the eternal rebuild. He traded the future for more future and still can't field a goddamn lineup.","Rainbow Warrior? More like Rebuild Warrior. Kickoff!"],
- td:["Touchdown Morehouse's! Holy shit, a rebuild scored! Somebody check the standings, this never fucking happens.","They scored! Pour one in the stiletto, boys, next year might actually be this year.","Six points for the rebuild! Don't get used to it, he'll trade this guy for a third-round pick by Tuesday."],
- trip:["FUMBLE! He tripped over his own goddamn heel! Ball's loose!","Down he goes! Ankle rolled in the stiletto, ball on the turf. Peak fucking rebuild.","Tripped on a heel and coughed it up. Even the shoes are tanking for a draft pick."],
- stall:["Drive's dead. That's the rebuild, baby: all picks, no fucking points.","Stalled again. Wait till next year. He's been saying that shit since the Obama administration... of fantasy football.","Another empty drive. He'll trade the whole offense for futures and call it a process."],
- score:["Morehouse's gets torched. Trading away every starter for picks has fucking consequences.","Scored on the rebuild. Next year, though. Always next fucking year."]};
-SB.JL=JL;const joeG=()=>G&&(G.me.id==JOE||G.opp.id==JOE),isJ=t=>t&&t.id==JOE;
+const JL=JOE_LINES;SB.JL=JL;const joeG=()=>G&&(G.me.id==JOE||G.opp.id==JOE),isJ=t=>t&&t.id==JOE;
 const J=TM(JOE);if(J){J.em=['🦄','🌈','✨','👠','💖'];}
 // stilettos + wobble
 const _dm=drawMan;window.drawMan=drawMan=function(e,t){if(!isJ(t)||e.stun>0)return _dm(e,t);let [x,y]=P(e.x,e.y);x=Math.round(x);y=Math.round(y);const sp=hyp(e.vx,e.vy),w=Math.sin(e.anim*5)*Math.min(.22,.05+sp*.03);
