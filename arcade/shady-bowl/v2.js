@@ -144,10 +144,10 @@ async function rivalry(){let id=LG;const C=JSON.parse(localStorage.getItem('sb2h
 function rivalsOf(me){const h=LV.h2h;if(!h)return[];const L=TEAMS.filter(t=>t.id!=me).map(t=>({t,r:h[me+'|'+t.id]})).filter(x=>x.r&&x.r.n>=2);
   const top=L.slice().sort((a,b)=>b.r.n-a.r.n||Math.abs(a.r.w-a.r.l)-Math.abs(b.r.w-b.r.l)).slice(0,3);const nem=L.slice().sort((a,b)=>a.r.w/a.r.n-b.r.w/b.r.n||b.r.l-a.r.l)[0];if(nem&&!top.includes(nem))top.push(nem);
   return top.map(x=>Object.assign({nem:x===nem},x))}
-SB.rivalsOf=rivalsOf;SB.LV=LV;
+SB.rivalsOf=rivalsOf;SB.roastFor=roastFor;SB.LV=LV;
 // ================= SERVICE WORKER / OFFLINE =================
 let offline=false;
-if('serviceWorker' in navigator&&location.protocol!='file:'){let hadC=!!navigator.serviceWorker.controller,rl=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadC&&!rl&&!G){rl=true;location.reload()}});navigator.serviceWorker.register('sw.js?v=4').then(()=>navigator.serviceWorker.ready).then(async()=>{const c=await caches.open('sb-v2-core-4');const k=await c.keys();offline=k.length>=5;if(cur=='title')paintExtras()}).catch(()=>{})}
+if('serviceWorker' in navigator&&location.protocol!='file:'){let hadC=!!navigator.serviceWorker.controller,rl=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadC&&!rl&&!G){rl=true;location.reload()}});navigator.serviceWorker.register('sw.js?v=5').then(()=>navigator.serviceWorker.ready).then(async()=>{const c=await caches.open('sb-v3-core-1');const k=await c.keys();offline=k.length>=5;if(cur=='title')paintExtras()}).catch(()=>{})}
 // ================= DIFFICULTY-AWARE FORMATION + INJURIES =================
 const _form=form;window.form=form=function(play){const E=_form(play),df=DIFF(),n=NAMES[G.me.id];E.forEach(e=>{if(!e.o){e.spd*=1+df.st*.4;if(e.react!=null)e.react=Math.max(.05,e.react-df.st*.6)}});
   if(n&&n.inj){const set=(e,s)=>{if(!s)return;e.spd*=s=='hurt'?.78:.92;e.inj=s};E.forEach(e=>{if(e.role=='qb')set(e,n.inj.QB);if(e.role=='rb')set(e,n.inj.RB);if(e.role=='wr')set(e,(n.inj.WR||[])[e.wi])})}

@@ -1,6 +1,6 @@
 // Shady Bowl service worker: game shell cache-first, league data network-first with cached fallback.
-const CORE='sb-v2-core-4',DATA='sb-v2-data-1';
-const FILES=['./','index.html','lines.js?v=6','game.js?v=6','v2.js?v=4','vo/index.json','manifest.json','icon-192.png','icon-512.png','apple-touch-icon.png','../../chug/anton.woff'];
+const CORE='sb-v3-core-1',DATA='sb-v2-data-1';
+const FILES=['./','index.html','lines.js?v=7','game.js?v=7','v2.js?v=5','v3.js?v=1','vo/index.json','manifest.json','icon-192.png','icon-512.png','apple-touch-icon.png','../../chug/anton.woff'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CORE).then(c=>Promise.all(FILES.map(f=>c.add(f).catch(()=>{})))).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith('sb-')&&k!=CORE&&k!=DATA&&k!='sb-vo-1').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!='GET')return;const u=new URL(r.url);

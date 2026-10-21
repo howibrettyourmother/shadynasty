@@ -154,3 +154,9 @@ const RIVAL={own:["{T} owns {O}, {W} and {L} all-time. Rent-free, every fucking 
  even:["Dead even at {W} and {L}. Somebody's getting bragging rights and somebody's getting roasted."]};
 // literal strings the announcer reads that are not in GEN / FLAVOR (pre-rendered too)
 const VO_EXTRA=["Rivalry game!","Final!","Final.","Overtime! Somebody finish this shit.","Announcer is on. Let us fucking go.","Blitz blows up the run!","Run squirts past the blitz.","Right read, late jump. Tackled after the catch.","They ran a slant route. You guessed wrong.","They ran an out route. You guessed wrong.","They ran a deep route. You guessed wrong.","They ran a run. You guessed wrong.","You recover!","Extra point good.","Time!","the QB","the RB","the slot","WR1","WR2"];
+Object.assign(GEN,{
+ replayTd:["Let's see that again! Look at this shit, right through the whole goddamn defense!","Instant replay! Watch the defense whiff like a guy drafting a kicker in round three.","Run it back! Yeah, that's a touchdown, and it's still fucking beautiful."],
+ replayInt:["Let's go to the replay. Oh no. Oh, fuck no. He threw it right to him.","Instant replay of the worst decision since that last-minute trade deadline panic.","Roll the tape. Bench his ass, look at that throw."],
+ halfUp:["Halftime, and you're up. Don't get cocky, this league chokes in the second half every fucking year.","Up at the half. Protect the lead like it's your last waiver claim."],
+ halfDown:["Halftime and you're getting your ass kicked. Make some adjustments, coach.","Down at the half. This is the part where you stop fucking around."],
+ halfTie:["All tied up at the half. Two lineups, zero separation, a whole lot of bullshit."]});
