@@ -18,11 +18,11 @@ const TEAMS=[
 // opp: this team scored ON you. vs: this team got stuffed by you. intro: kickoff line.
 const FLAVOR={
 '603082868373135360':{
- td:["The heel scores. Throw your beer at the screen, it won't help.","Touchdown Weasels. The crowd boos so loud the scoreboard rattles.","Brett celebrates by updating the website about it. Again.","Cheap heat, cheap TD. The weasel tips the eat-shit hat."],
- fail:["The weasel coughs it up and 50,000 people cheer. Best moment of their lives.","Even the heel gets humbled. Screenshot it, nobody will believe you.","Brett's offense stalls. He's already typing the excuse post."],
- opp:["The weasel scores on you and blows a kiss to the booing section.","Weasels score. The heel's music hits. Everybody hates it."],
+ td:["Weasels score. Throw your beer at the screen, it won't help.","Touchdown Weasels. The crowd boos so loud the scoreboard rattles.","Brett celebrates by updating the website about it. Again.","Touchdown. The weasel tips the eat-shit hat to the booing section."],
+ fail:["The weasel coughs it up and 50,000 people cheer. Best moment of their lives.","Even the weasel gets humbled. Screenshot it, nobody will believe you.","Brett's offense stalls. He's already typing the excuse post."],
+ opp:["The weasel scores on you and blows a kiss to the booing section.","Weasels score. His walk-up music hits. Everybody hates it."],
  vs:["You stuffed the Weasels. Somewhere, a league chat explodes with joy.","Weasels go three-and-out. The crowd chants something not printable."],
- intro:"The heel enters the arena to a chorus of boos. He loves it."},
+ intro:"The weasel enters the arena in the eat-shit hat to a chorus of boos. He loves it."},
 '679000405232934912':{
  td:["Touchdown Morehouse’s! Quick, trade the scorer for a 2029 4th before he gets good.","A TD for the rebuild! Glitter cannons fire. Year 5 is gonna be the year, baby!","Joe scores and immediately asks if the touchdown is 'a long-term asset'.","Rainbows! Glitter! Six points that Joe will still somehow sell for picks."],
  fail:["Pardon the dust, this offense is under construction. Forever.","Joe calls it a 'development drive'. Everyone else calls it a punt.","Another rebuilding drive. Projected completion date: never.","That drive was traded for a future 3rd round pick. Nobody asked."],
