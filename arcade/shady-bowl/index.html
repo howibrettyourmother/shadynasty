@@ -22,7 +22,7 @@ html,body{margin:0;height:100%;background:#06120a;color:#fff;overflow:hidden;fon
 #hud .sb b{padding:2px 7px;border-radius:6px;font-weight:400}
 #hud .dd{font-size:13px;opacity:.95;flex:1;text-align:center}
 #hud .legs{width:56px;height:8px;background:#0008;border:1px solid #fff6;border-radius:4px;overflow:hidden}#hud .legs i{display:block;height:100%;background:#7CFC00}
-.ib{pointer-events:auto;width:40px;height:40px;border-radius:10px;border:2px solid #fff4;background:#0009;color:#fff;font-size:18px}
+.ib{pointer-events:auto;width:46px;height:46px;touch-action:manipulation;border-radius:10px;border:2px solid #fff4;background:#0009;color:#fff;font-size:18px}
 #pre{position:fixed;left:0;right:0;bottom:0;padding:8px 8px calc(env(safe-area-inset-bottom) + 10px);display:none;gap:8px;justify-content:center;flex-wrap:wrap}
 .pb{min-width:84px;min-height:58px;padding:6px 12px;border-radius:12px;border:0;font:400 19px/1 Anton,Impact,sans-serif;letter-spacing:.05em;color:#1a1200;background:linear-gradient(#ffe07a,#e3a400);box-shadow:0 4px 0 #8a6200;touch-action:manipulation}
 .pb small{display:block;font:600 10px/1.1 -apple-system,Arial;letter-spacing:0;margin-top:3px;opacity:.75}
@@ -59,6 +59,13 @@ html,body{margin:0;height:100%;background:#06120a;color:#fff;overflow:hidden;fon
 .up .pips{letter-spacing:2px;color:#ffe07a}
 a{color:#ffe07a}
 #rot{display:none}
+html,body{position:fixed;inset:0;width:100%;-webkit-touch-callout:none;-webkit-text-size-adjust:100%;touch-action:none}
+#hud{padding-left:calc(env(safe-area-inset-left) + 8px);padding-right:calc(env(safe-area-inset-right) + 8px)}
+#pre{padding-left:calc(env(safe-area-inset-left) + 8px);padding-right:calc(env(safe-area-inset-right) + 8px)}
+.scr{padding-left:calc(env(safe-area-inset-left) + 14px);padding-right:calc(env(safe-area-inset-right) + 14px);touch-action:pan-y}
+@media (max-height:430px){.scr h1{font-size:clamp(36px,9vh,64px)}.menu{grid-template-columns:1fr 1fr;max-width:640px}.menu .pb{min-height:52px;font-size:19px}#hud .dd{font-size:12px}.pb{min-height:50px}}
+@media (max-width:430px){#hud .dd{font-size:11px;line-height:1.15}#hud .sb{font-size:17px}#hud .legs{width:40px}}
+@media (max-width:380px){.grid{grid-template-columns:repeat(2,1fr)}.pb{min-width:72px;font-size:17px}}
 </style>
 </head>
 <body>
@@ -68,6 +75,6 @@ a{color:#ffe07a}
 <div id="kick"><div class="D" id="ktitle" style="font-size:20px;margin-bottom:6px">TAP TO KICK</div><div class="bar"><div class="zone" id="kz"></div><div class="nd" id="kn"></div></div></div>
 <div class="scr" id="s-title"></div><div class="scr" id="s-team"></div><div class="scr" id="s-card"></div><div class="scr" id="s-shop"></div>
 <script src="lines.js?v=3"></script>
-<script src="game.js?v=3"></script>
+<script src="game.js?v=4"></script>
 </body>
 </html>

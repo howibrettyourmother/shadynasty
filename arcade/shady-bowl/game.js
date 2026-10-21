@@ -182,7 +182,7 @@ function camUpd(dt){const b=G.ball,a=Math.min(1,dt*4),vD=(portrait?H-40:W)/K,vA=
   const passing=G.phase=='play'&&G.play!='run'&&b&&((b.st=='held'&&b.h.role=='qb')||b.st=='air');
   if(passing){const pts=[[b.x,b.y]];G.ents.forEach(e=>{if(e.o&&(e.role=='wr'||e.role=='rb'||e.role=='qb'))pts.push([e.x+e.vx*.4,e.y+e.vy*.4])});if(b.st=='air')pts.push([b.tx,b.ty]);
     let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;pts.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1])});
-    const pd=4,tz=cl(Math.min(vD/(x1-x0+pd*2),vA/(y1-y0+pd*2)),.42,1);zm+=(tz-zm)*Math.min(1,dt*3);
+    const pd=4,tz=cl(Math.min(vD/(x1-x0+pd*2),vA/(y1-y0+pd*2)),.55,1);zm+=(tz-zm)*Math.min(1,dt*3);
     cam.x+=((x0+x1)/2+1-cam.x)*a;const halfA=vA/zm/2;const ty=halfA*2>=FW+6?CY:cl((y0+y1)/2,halfA-3,FW-halfA+3);cam.y+=(ty-cam.y)*a;return}
   zm+=(1-zm)*Math.min(1,dt*3);
   let f=b&&b.st!='dead'?{x:b.x,y:b.y}:{x:G.los,y:CY};if(G.phase=='pre')f={x:G.los+2,y:CY};
@@ -350,3 +350,8 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;try{update(dt
 requestAnimationFrame(loop);title();loadLive().then(()=>{if(cur=='title')title();else if(cur=='team')teamSel()});
 // test hooks
 window.__SB={aimDrag(tx,ty){const q=G.ball.h,wx=(tx-q.x)/3.1,wy=(ty-q.y)/3.1;return portrait?[-wy*S*K,wx*S*K]:[-wx*S*K,-wy*S*K]},toCss(x,y){const p=P(x,y);return [p[0]*S,p[1]*S]},get G(){return G},snap,throwBall,juke,newGame,TEAMS,endPlay};
+// iOS: block pinch/double-tap zoom, rubber-band scroll and long-press callouts during play
+['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
+document.addEventListener('touchmove',e=>{if(e.touches.length>1||!e.target.closest('.scr'))e.preventDefault()},{passive:false});
+document.addEventListener('contextmenu',e=>e.preventDefault());
