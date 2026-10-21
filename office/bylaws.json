@@ -1,5 +1,5 @@
 {
-"updated": "2021-07-01",
+"updated": "2026-10",
 "sections": [
 {
 "id": "intro",
@@ -44,7 +44,7 @@
 {
 "t": "li",
 "d": 1,
-"x": "23 roster spots with and 2 injury reserve spots during in-season"
+"x": "23 roster spots and 2 injury reserve spots during the season"
 },
 {
 "t": "li",
@@ -69,7 +69,7 @@
 {
 "t": "li",
 "d": 2,
-"x": "6 team playoff during weeks 14-16; top seeds determined by record (Tiebreaker: most points)"
+"x": "6 team playoff during Weeks 15-17; top seeds determined by record (Tiebreaker: most points)"
 },
 {
 "t": "li",
@@ -94,7 +94,7 @@
 {
 "t": "li",
 "d": 2,
-"x": "6 team playoff during weeks 14-16, seeds determined by record (Tiebreaker: most points)"
+"x": "6 team playoff during Weeks 15-17, seeds determined by record (Tiebreaker: most points)"
 },
 {
 "t": "li",
@@ -119,12 +119,12 @@
 {
 "t": "li",
 "d": 2,
-"x": "Biannual FAAB budget of $100 is given on league start. Resets at beginning of regular season and beginning of offseason."
+"x": "FAAB budget of $100, processed weekly on Tuesday nights with a 2-day clear period. Resets at beginning of regular season and beginning of offseason."
 },
 {
 "t": "li",
 "d": 1,
-"x": "League Annual Fee: $100"
+"x": "League Annual Fee: $100 (less any applicable LeagueSafe fees)"
 },
 {
 "t": "li",
@@ -134,7 +134,7 @@
 {
 "t": "li",
 "d": 3,
-"x": "Annual Fee: $100"
+"x": "Annual Fee: $100 (less any applicable LeagueSafe fees)"
 },
 {
 "t": "li",
@@ -161,11 +161,11 @@
 ],
 [
 "August 29th, 2021 @ 7:30 PM EDT",
-"Inaugural League Startup Draft"
+"Inaugural League Startup Draft (historical)"
 ],
 [
-"[NFL Preseason}",
-"Waivers to cycle weekly on Wednesday @ 12:05 AM PST (Sleeper Default)"
+"[NFL Preseason]",
+"Waivers process weekly on Tuesday nights (FAAB, 2-day clear period)"
 ],
 [
 "[Kickoff of Final Preseason Week]",
@@ -173,23 +173,27 @@
 ],
 [
 "[NFL Week 1]",
-"Regular season daily waivers cycle starts"
+"Regular season begins (Weeks 1-14); FAAB resets to $100; weekly Tuesday-night waivers continue"
 ],
 [
-"[NFL Week 10]",
-"Trading Closed End of Week 10"
+"[NFL Week 4]",
+"Taxi squad deadline"
 ],
 [
 "[NFL Week 14]",
-"First Round of Playoffs & ToiletBowl"
+"Final regular season week; Trading closes at the end of Week 14"
 ],
 [
 "[NFL Week 15]",
-"Second Round of Playoffs & ToiletBowl"
+"First Round of Playoffs & Toilet Bowl"
 ],
 [
 "[NFL Week 16]",
-"Championship & ToiletBowl Championship"
+"Second Round of Playoffs & Toilet Bowl"
+],
+[
+"[NFL Week 17]",
+"Championship & Toilet Bowl Championship"
 ],
 [
 "[Tuesday after NFL Week 17]",
@@ -197,23 +201,23 @@
 ],
 [
 "[NFL Playoffs]",
-"Waivers to cycle weekly on Wednesdays 9a.m. CT"
+"Waivers continue to process weekly on Tuesday nights"
 ],
 [
-"[Super Bowl}",
-"Waivers enters offseason cycle [Last day of the month 9.m. CT]"
+"[After the Super Bowl]",
+"Waivers enter offseason cycle [last day of the month, 9 a.m. CT]"
 ],
 [
-"Jan 31 2022",
+"January 31 each year",
 "LeagueSafe Payouts [or earlier]"
 ],
 [
-"Feb 15, 2022",
-"League Reset: Roster Limits increased to 25"
+"February 15 each year",
+"League Reset: Roster Limits increased to 25; FAAB resets to $100"
 ],
 [
 "[2 weeks post NFL Draft]",
-"Rookie/FA draft begins, Taxi Squad unlocks"
+"Rookie/FA draft (4 rounds) begins, Taxi Squad unlocks"
 ],
 [
 "[2 weeks post Rookie Draft]",
@@ -276,7 +280,7 @@
 {
 "t": "li",
 "d": 1,
-"x": "Interceptions: -1 points each"
+"x": "Interceptions thrown: -1 point each"
 },
 {
 "t": "li",
@@ -291,7 +295,7 @@
 {
 "t": "li",
 "d": 1,
-"x": "Fumbles lost: -2 point each"
+"x": "Fumbles lost: -2 points each"
 },
 {
 "t": "p",
@@ -337,6 +341,26 @@
 "t": "li",
 "d": 1,
 "x": "Receptions: 1 point each"
+},
+{
+"t": "p",
+"d": 0,
+"x": "Team defense (DST) scoring (from Sleeper):"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Sack: 1 point; Interception: 2 points; Fumble recovery: 2 points; Forced fumble: 1 point"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Defensive, special teams or fumble-return TD: 6 points; Safety: 2 points; Blocked kick: 2 points"
+},
+{
+"t": "li",
+"d": 2,
+"x": "Points allowed: 0 = 10; 1-6 = 7; 7-13 = 4; 14-20 = 1; 21-27 = 0; 28-34 = -1; 35+ = -4"
 }
 ]
 },
@@ -367,12 +391,37 @@
 {
 "t": "li",
 "d": 1,
-"x": "The NFL’s Official Injury Status must be either IR, Suspended, Out, Covid-19, or DNR (Holdout). IR must be in-season."
+"x": "The NFL’s Official Injury Status must be IR, Out, Suspended, COVID-19, or DNR (Holdout). Doubtful and NA players are not IR-eligible. IR must be in-season."
 },
 {
 "t": "li",
 "d": 1,
 "x": "IR locked during offseason and should be emptied."
+},
+{
+"t": "p",
+"d": 0,
+"x": "Taxi Squad"
+},
+{
+"t": "li",
+"d": 1,
+"x": "Each team has 4 taxi squad slots."
+},
+{
+"t": "li",
+"d": 1,
+"x": "2026 season: taxi squad is limited to first-year rookies."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Starting with the 2027 season (league-approved): players in their first or second NFL season are taxi-eligible."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Taxi squad deadline: Week 4. Taxi squad unlocks with the rookie/FA draft."
 }
 ]
 },
@@ -445,7 +494,7 @@
 {
 "t": "p",
 "d": 0,
-"x": "The season consists of 13 Regular Season Weeks (Weeks 1-13) and 3 Playoff Weeks (Weeks 14-16)"
+"x": "The season consists of 14 Regular Season Weeks (Weeks 1-14) and 3 Playoff Weeks (Weeks 15-17)"
 },
 {
 "t": "p",
@@ -470,12 +519,12 @@
 {
 "t": "li",
 "d": 1,
-"x": "The playoffs will occur over 3 weeks (weeks 14, 15, and 16), concluding in Week 16 of the NFL regular season."
+"x": "The playoffs will occur over 3 weeks (Weeks 15, 16, and 17), concluding in Week 17 of the NFL regular season."
 },
 {
 "t": "li",
 "d": 1,
-"x": "Week 14/Round 1:"
+"x": "Week 15/Round 1:"
 },
 {
 "t": "li",
@@ -495,7 +544,7 @@
 {
 "t": "li",
 "d": 1,
-"x": "Week 15/Round 2:"
+"x": "Week 16/Round 2:"
 },
 {
 "t": "li",
@@ -515,7 +564,7 @@
 {
 "t": "li",
 "d": 1,
-"x": "Week 16/Round 3:"
+"x": "Week 17/Round 3:"
 },
 {
 "t": "li",
@@ -545,7 +594,7 @@
 {
 "t": "p",
 "d": 0,
-"x": "Toilet Bowl will be a consolation style bracket mirroring the playoff bracket but composed of the bottom 6 teams with seeds determined in the same manner as detailed in 7.3.1."
+"x": "Toilet Bowl will be a consolation style bracket mirroring the playoff bracket but composed of the bottom 6 teams with seeds determined in the same manner as the playoff seeding above."
 },
 {
 "t": "li",
@@ -657,7 +706,7 @@
 {
 "t": "p",
 "d": 0,
-"x": "Trading will be locked from Week 10 completion until the end of playoffs. At the conclusion of playoffs trades will be reopened."
+"x": "Trading will be locked from Week 14 completion until the end of playoffs. At the conclusion of playoffs trades will be reopened."
 }
 ]
 },
@@ -668,12 +717,12 @@
 {
 "t": "p",
 "d": 0,
-"x": "All dropped players shall go onto waivers. Owners can blind bid on these players from their Free Agency Auction Budget (FAAB)."
+"x": "All dropped players shall go onto waivers. Owners can blind bid on these players from their Free Agent Acquisition Budget (FAAB)."
 },
 {
 "t": "li",
 "d": 1,
-"x": "Each owner starts the season with $100 FAAB to spend on Free Agents. The minimum increment of bid is $1, and the minimum bid is $0. Highest bid on a Free Agent wins."
+"x": "Each owner starts the season with $100 FAAB to spend on Free Agents. Waivers process weekly on Tuesday nights, and dropped players stay on waivers for 2 days before clearing. The minimum increment of bid is $1, and the minimum bid is $0. Highest bid on a Free Agent wins."
 },
 {
 "t": "li",
@@ -730,7 +779,7 @@
 {
 "t": "p",
 "d": 0,
-"x": "The draft will be conducted via Sleeper"
+"x": "The draft will be conducted via Sleeper and is 4 rounds."
 },
 {
 "t": "p",
@@ -786,7 +835,7 @@
 {
 "t": "p",
 "d": 0,
-"x": "The commissioner may adjust (or pause for to be determined circumstances) the draft clock depending on how the draft is progressing."
+"x": "The commissioner may adjust (or pause for circumstances to be determined) the draft clock depending on how the draft is progressing."
 },
 {
 "t": "p",
@@ -889,7 +938,7 @@
 {
 "t": "li",
 "d": 2,
-"x": "Leaving owners who are encouraged to assist in finding their replacements but are not required to. Commissioner has to approve the replacement(s)."
+"x": "Leaving owners are encouraged to assist in finding their replacements but are not required to. Commissioner has to approve the replacement(s)."
 }
 ]
 },
@@ -971,7 +1020,7 @@
 {
 "t": "p",
 "d": 0,
-"x": "If an owner(s) is banned for banning appropriate behavior as listed in bylaws then they forfeit dues paid. These dues will remain with the orphaned team(s) and contribute toward the new owner’s dues."
+"x": "If an owner(s) is banned for violating the conduct rules as listed in bylaws then they forfeit dues paid. These dues will remain with the orphaned team(s) and contribute toward the new owner’s dues."
 }
 ]
 },
@@ -1378,7 +1427,7 @@
 {
 "t": "p",
 "d": 0,
-"x": "Changes will be cataloged and dated in section 27. Changelog."
+"x": "Changes will be cataloged and dated in the Changelog section below."
 }
 ]
 },
@@ -1397,6 +1446,143 @@
 "alt": "Example six-team playoff bracket with two first-round byes"
 }
 ]
+},
+{
+"id": "changelog",
+"title": "Changelog",
+"b": [
+{
+"t": "p",
+"d": 0,
+"x": "October 2026: bylaws aligned to the live Sleeper settings (all differences previously approved by the league) and typos/formatting fixed. Changes:"
+},
+{
+"t": "li",
+"d": 1,
+"x": "League Summary: Removed stray \"with\"."
+},
+{
+"t": "li",
+"d": 1,
+"x": "League Summary: Sleeper playoffs start Week 15 (3 rounds)."
+},
+{
+"t": "li",
+"d": 1,
+"x": "League Summary: Toilet Bowl runs alongside the playoffs, Weeks 15-17."
+},
+{
+"t": "li",
+"d": 1,
+"x": "League Summary: Sleeper: FAAB $100, weekly waivers (Tuesday night), 2-day clear; \"Biannual\" was misleading (it resets twice a year)."
+},
+{
+"t": "li",
+"d": 1,
+"x": "League Summary: Duplicate line merged into a clarification."
+},
+{
+"t": "li",
+"d": 1,
+"x": "General League Calendar: Matches Sleeper: playoff_week_start 15, trade_deadline 14, daily_waivers off, waiver_clear_days 2, taxi_deadline 4, draft_rounds 4."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Scoring: Grammar; clarifies it is a QB interception."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Scoring: Grammar."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Scoring: Bylaws listed a DST starter but no DST scoring; documented exactly as configured in Sleeper (no rule change)."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Rosters: Sleeper reserve settings: Out/Suspended/DNR/COVID allowed; Doubtful and NA not allowed."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Rosters: Bylaws had no taxi rules; Sleeper: 4 slots, rookies only (taxi_years 1, vets not allowed), deadline Week 4. 2027 two-year eligibility was approved by the league (Sleeper to be changed to 2 years for 2027)."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Regular Season, Playoffs, and Toilet Bowl: Sleeper playoff_week_start = 15; also fixes the contradiction with the 14-week League Summary."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Regular Season, Playoffs, and Toilet Bowl: Sleeper playoff weeks 15-17."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Regular Season, Playoffs, and Toilet Bowl: Round 1 is Week 15."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Regular Season, Playoffs, and Toilet Bowl: Round 2 is Week 16."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Regular Season, Playoffs, and Toilet Bowl: Championship is Week 17."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Regular Season, Playoffs, and Toilet Bowl: Dangling section reference \"7.3.1\" (document has no numbered sections)."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Trading: Sleeper trade_deadline = 14."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Free Agent Acquisition/Waivers: Sleeper: FAAB $100, weekly waiver day (Tuesday night), waiver_clear_days 2, daily waivers off."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Free Agent Acquisition/Waivers: Name made consistent with the League Summary."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Annual Rookie/FA Draft: Sleeper draft_rounds = 4 (not previously stated)."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Teams, Ownership, and Replacement: Grammar."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Refunds: Garbled phrase."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Startup Draft: Grammar."
+},
+{
+"t": "li",
+"d": 1,
+"x": "Rule Changes: The referenced \"section 27\" did not exist; Changelog section added."
 }
 ]
+}
+],
+"updated_label": "Last updated October 2026 (aligned to Sleeper settings)"
 }

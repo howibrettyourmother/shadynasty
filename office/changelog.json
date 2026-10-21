@@ -1,0 +1,177 @@
+[
+ {
+  "sec": "League Summary",
+  "kind": "Typo / formatting",
+  "from": "23 roster spots with and 2 injury reserve spots during in-season",
+  "to": "23 roster spots and 2 injury reserve spots during the season",
+  "why": "Removed stray \"with\"."
+ },
+ {
+  "sec": "League Summary",
+  "kind": "Sleeper alignment",
+  "from": "6 team playoff during weeks 14-16; top seeds",
+  "to": "6 team playoff during Weeks 15-17; top seeds",
+  "why": "Sleeper playoffs start Week 15 (3 rounds)."
+ },
+ {
+  "sec": "League Summary",
+  "kind": "Sleeper alignment",
+  "from": "6 team playoff during weeks 14-16, seeds",
+  "to": "6 team playoff during Weeks 15-17, seeds",
+  "why": "Toilet Bowl runs alongside the playoffs, Weeks 15-17."
+ },
+ {
+  "sec": "League Summary",
+  "kind": "Sleeper alignment",
+  "from": "Biannual FAAB budget of $100 is given on league start. Resets",
+  "to": "FAAB budget of $100, processed weekly on Tuesday nights with a 2-day clear period. Resets",
+  "why": "Sleeper: FAAB $100, weekly waivers (Tuesday night), 2-day clear; \"Biannual\" was misleading (it resets twice a year)."
+ },
+ {
+  "sec": "League Summary",
+  "kind": "Typo / formatting",
+  "from": "Annual Fee: $100",
+  "to": "Annual Fee: $100 (less any applicable LeagueSafe fees)",
+  "why": "Duplicate line merged into a clarification."
+ },
+ {
+  "sec": "General League Calendar",
+  "kind": "Sleeper alignment + formatting",
+  "from": "Old timeline: daily in-season waivers; Wed 12:05 AM PST / Wed 9 a.m. CT waivers; trading closed after Week 10; playoffs Weeks 14-16; one-off 2022 dates; mismatched brackets \"[NFL Preseason}\" \"[Super Bowl}\", \"9.m.\", \"ToiletBowl\"",
+  "to": "Weekly Tuesday-night FAAB waivers (2-day clear); taxi deadline Week 4; trading closes after Week 14; playoffs/Toilet Bowl Weeks 15-17; recurring annual dates; brackets and typos fixed",
+  "why": "Matches Sleeper: playoff_week_start 15, trade_deadline 14, daily_waivers off, waiver_clear_days 2, taxi_deadline 4, draft_rounds 4."
+ },
+ {
+  "sec": "Scoring",
+  "kind": "Typo / formatting",
+  "from": "Interceptions: -1 points each",
+  "to": "Interceptions thrown: -1 point each",
+  "why": "Grammar; clarifies it is a QB interception."
+ },
+ {
+  "sec": "Scoring",
+  "kind": "Typo / formatting",
+  "from": "Fumbles lost: -2 point each",
+  "to": "Fumbles lost: -2 points each",
+  "why": "Grammar."
+ },
+ {
+  "sec": "Scoring",
+  "kind": "Sleeper alignment",
+  "from": "",
+  "to": "Team defense (DST) scoring (from Sleeper): / Sack: 1 point; Interception: 2 points; Fumble recovery: 2 points; Forced fumble: 1 point / Defensive, special teams or fumble-return TD: 6 points; Safety: 2 points; Blocked kick: 2 points / Points allowed: 0 = 10; 1-6 = 7; 7-13 = 4; 14-20 = 1; 21-27 = 0; 28-34 = -1; 35+ = -4",
+  "why": "Bylaws listed a DST starter but no DST scoring; documented exactly as configured in Sleeper (no rule change)."
+ },
+ {
+  "sec": "Rosters",
+  "kind": "Sleeper alignment",
+  "from": "The NFL’s Official Injury Status must be either IR, Suspended, Out, Covid-19, or DNR (Holdout). IR must be in-season.",
+  "to": "The NFL’s Official Injury Status must be IR, Out, Suspended, COVID-19, or DNR (Holdout). Doubtful and NA players are not IR-eligible. IR must be in-season.",
+  "why": "Sleeper reserve settings: Out/Suspended/DNR/COVID allowed; Doubtful and NA not allowed."
+ },
+ {
+  "sec": "Rosters",
+  "kind": "Sleeper alignment",
+  "from": "",
+  "to": "Taxi Squad / Each team has 4 taxi squad slots. / 2026 season: taxi squad is limited to first-year rookies. / Starting with the 2027 season (league-approved): players in their first or second NFL season are taxi-eligible. / Taxi squad deadline: Week 4. Taxi squad unlocks with the rookie/FA draft.",
+  "why": "Bylaws had no taxi rules; Sleeper: 4 slots, rookies only (taxi_years 1, vets not allowed), deadline Week 4. 2027 two-year eligibility was approved by the league (Sleeper to be changed to 2 years for 2027)."
+ },
+ {
+  "sec": "Regular Season, Playoffs, and Toilet Bowl",
+  "kind": "Sleeper alignment",
+  "from": "The season consists of 13 Regular Season Weeks (Weeks 1-13) and 3 Playoff Weeks (Weeks 14-16)",
+  "to": "The season consists of 14 Regular Season Weeks (Weeks 1-14) and 3 Playoff Weeks (Weeks 15-17)",
+  "why": "Sleeper playoff_week_start = 15; also fixes the contradiction with the 14-week League Summary."
+ },
+ {
+  "sec": "Regular Season, Playoffs, and Toilet Bowl",
+  "kind": "Sleeper alignment",
+  "from": "The playoffs will occur over 3 weeks (weeks 14, 15, and 16), concluding in Week 16 of the NFL regular season.",
+  "to": "The playoffs will occur over 3 weeks (Weeks 15, 16, and 17), concluding in Week 17 of the NFL regular season.",
+  "why": "Sleeper playoff weeks 15-17."
+ },
+ {
+  "sec": "Regular Season, Playoffs, and Toilet Bowl",
+  "kind": "Sleeper alignment",
+  "from": "Week 14/Round 1:",
+  "to": "Week 15/Round 1:",
+  "why": "Round 1 is Week 15."
+ },
+ {
+  "sec": "Regular Season, Playoffs, and Toilet Bowl",
+  "kind": "Sleeper alignment",
+  "from": "Week 15/Round 2:",
+  "to": "Week 16/Round 2:",
+  "why": "Round 2 is Week 16."
+ },
+ {
+  "sec": "Regular Season, Playoffs, and Toilet Bowl",
+  "kind": "Sleeper alignment",
+  "from": "Week 16/Round 3:",
+  "to": "Week 17/Round 3:",
+  "why": "Championship is Week 17."
+ },
+ {
+  "sec": "Regular Season, Playoffs, and Toilet Bowl",
+  "kind": "Typo / formatting",
+  "from": "seeds determined in the same manner as detailed in 7.3.1.",
+  "to": "seeds determined in the same manner as the playoff seeding above.",
+  "why": "Dangling section reference \"7.3.1\" (document has no numbered sections)."
+ },
+ {
+  "sec": "Trading",
+  "kind": "Sleeper alignment",
+  "from": "Trading will be locked from Week 10 completion until the end of playoffs.",
+  "to": "Trading will be locked from Week 14 completion until the end of playoffs.",
+  "why": "Sleeper trade_deadline = 14."
+ },
+ {
+  "sec": "Free Agent Acquisition/Waivers",
+  "kind": "Sleeper alignment",
+  "from": "Each owner starts the season with $100 FAAB to spend on Free Agents.",
+  "to": "Each owner starts the season with $100 FAAB to spend on Free Agents. Waivers process weekly on Tuesday nights, and dropped players stay on waivers for 2 days before clearing.",
+  "why": "Sleeper: FAAB $100, weekly waiver day (Tuesday night), waiver_clear_days 2, daily waivers off."
+ },
+ {
+  "sec": "Free Agent Acquisition/Waivers",
+  "kind": "Typo / formatting",
+  "from": "Free Agency Auction Budget (FAAB)",
+  "to": "Free Agent Acquisition Budget (FAAB)",
+  "why": "Name made consistent with the League Summary."
+ },
+ {
+  "sec": "Annual Rookie/FA Draft",
+  "kind": "Sleeper alignment",
+  "from": "The draft will be conducted via Sleeper",
+  "to": "The draft will be conducted via Sleeper and is 4 rounds.",
+  "why": "Sleeper draft_rounds = 4 (not previously stated)."
+ },
+ {
+  "sec": "Teams, Ownership, and Replacement",
+  "kind": "Typo / formatting",
+  "from": "Leaving owners who are encouraged",
+  "to": "Leaving owners are encouraged",
+  "why": "Grammar."
+ },
+ {
+  "sec": "Refunds",
+  "kind": "Typo / formatting",
+  "from": "banned for banning appropriate behavior",
+  "to": "banned for violating the conduct rules",
+  "why": "Garbled phrase."
+ },
+ {
+  "sec": "Startup Draft",
+  "kind": "Typo / formatting",
+  "from": "(or pause for to be determined circumstances)",
+  "to": "(or pause for circumstances to be determined)",
+  "why": "Grammar."
+ },
+ {
+  "sec": "Rule Changes",
+  "kind": "Typo / formatting",
+  "from": "Changes will be cataloged and dated in section 27. Changelog.",
+  "to": "Changes will be cataloged and dated in the Changelog section below.",
+  "why": "The referenced \"section 27\" did not exist; Changelog section added."
+ }
+]

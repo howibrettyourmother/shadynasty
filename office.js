@@ -1,6 +1,6 @@
 'use strict';
 // 🏛️ LEAGUE OFFICE (#office): bylaws (office/bylaws.json) + live Sleeper settings w/ conflict flags + memos & notices archive (office/office.json). Loaded after app.js.
-const OFV=1,OF={};
+const OFV=2,OF={};
 const ofGet=u=>OF[u]||(OF[u]=fetch(u+'?v='+OFV).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).catch(e=>{delete OF[u];throw e}));
 const SEAL=(c,s)=>`<img class="lo-seal ${c||''}" src="office/seal.svg?v=${OFV}" width="${s||64}" height="${s||64}" alt="Shoebeer Enforcement Division seal">`;
 const ofDate=d=>new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
@@ -11,17 +11,17 @@ function ofChecks(lg){const s=lg.settings||{},sc=lg.scoring_settings||{},rp=lg.r
   const C=(label,bylaw,live,ok,secs)=>({label,bylaw,live,ok,secs});
   return [
    C('Teams','12 teams, one division',(+s.num_teams||lg.total_rosters)+' teams',(+s.num_teams||lg.total_rosters)===12,['league-summary','teams-ownership-and-replacement']),
-   C('Regular season','Weeks 1–13 (the Summary says 14)','Weeks 1–'+(pw-1),pw-1===13,['regular-season-playoffs-and-toilet-bowl']),
-   C('Playoff weeks','Weeks 14–16','Weeks '+pw+'–'+pe,pw===14&&pe===16,['league-summary','general-league-calendar','regular-season-playoffs-and-toilet-bowl']),
+   C('Regular season','Weeks 1–14','Weeks 1–'+(pw-1),pw-1===14,['regular-season-playoffs-and-toilet-bowl']),
+   C('Playoff weeks','Weeks 15–17 (R1 15, R2 16, final 17)','Weeks '+pw+'–'+pe,pw===15&&pe===17,['league-summary','general-league-calendar','regular-season-playoffs-and-toilet-bowl']),
    C('Playoff teams','6 teams, top 2 seeds get a bye',pt+' teams',pt===6,['regular-season-playoffs-and-toilet-bowl']),
-   C('Trade deadline','Locked after Week 10',+s.trade_deadline?'Locked after Week '+s.trade_deadline:'No deadline',+s.trade_deadline===10,['trading','general-league-calendar']),
+   C('Trade deadline','Locked after Week 14',+s.trade_deadline?'Locked after Week '+s.trade_deadline:'No deadline',+s.trade_deadline===14,['trading','general-league-calendar']),
    C('Roster spots','23 in-season',rp.length+' ('+st.length+' starters + '+(rp.length-st.length)+' bench)',rp.length===23,['rosters','league-summary']),
    C('Starters','11: 1QB/2RB/3WR/1TE/2FLEX/1SUPERFLEX/DST',st.length+': '+lineup,st.length===11&&lineup==='1QB/2RB/3WR/1TE/2FLEX/1SUPERFLEX/1DST',['lineups','league-summary']),
-   C('IR spots','2 in-season',(+s.reserve_slots||0)+' IR',+s.reserve_slots===2,['rosters','league-summary']),
-   C('Taxi squad','Unlocks with the rookie draft (no size listed)',(+s.taxi_slots||0)+' slots, rookies'+(+s.taxi_allow_vets?' + vets':' only'),true,[]),
-   C('Waivers','Daily in-season waiver cycle',+s.daily_waivers?'Daily':'Weekly run, '+(+s.waiver_clear_days||0)+'-day clear (daily waivers off)',!!+s.daily_waivers,['free-agent-acquisition-waivers','general-league-calendar']),
+   C('IR spots','2 (Out, Suspended, DNR, COVID; no Doubtful/NA)',(+s.reserve_slots||0)+' IR'+[['out','Out'],['sus','Suspended'],['dnr','DNR'],['cov','COVID'],['doubtful','Doubtful'],['na','NA']].filter(([k])=>+s['reserve_allow_'+k]).map(x=>x[1]).reduce((a,x,i)=>a+(i?', ':' (')+x,'')+')',+s.reserve_slots===2&&+s.reserve_allow_out&&+s.reserve_allow_sus&&+s.reserve_allow_dnr&&+s.reserve_allow_cov&&!+s.reserve_allow_doubtful&&!+s.reserve_allow_na,['rosters','league-summary']),
+   C('Taxi squad',+lg.season>=2027?'4 slots, 1st/2nd-year players, Week 4 deadline':'4 slots, first-year rookies only, Week 4 deadline',(+s.taxi_slots||0)+' slots, '+(+s.taxi_years||0)+'-yr players'+(+s.taxi_allow_vets?' + vets':'')+', Week '+(+s.taxi_deadline||0)+' deadline',+s.taxi_slots===4&&+s.taxi_years===(+lg.season>=2027?2:1)&&!+s.taxi_allow_vets&&+s.taxi_deadline===4,['rosters']),
+   C('Waivers','Weekly, Tuesday night, 2-day clear',+s.daily_waivers?'Daily':'Weekly ('+(['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][+s.waiver_day_of_week]||'?')+'-night run), '+(+s.waiver_clear_days||0)+'-day clear',!+s.daily_waivers&&+s.waiver_day_of_week===2&&+s.waiver_clear_days===2,['free-agent-acquisition-waivers','general-league-calendar']),
    C('FAAB','$100',(+s.waiver_type===2?'$':'')+(+s.waiver_budget||0)+(+s.waiver_type===2?' FAAB':' (no FAAB)'),+s.waiver_budget===100&&+s.waiver_type===2,['free-agent-acquisition-waivers','league-summary']),
-   C('Rookie draft','2.13 comp pick for the Toilet Bowl winner',(+s.draft_rounds||0)+' rounds',true,[]),
+   C('Rookie draft','4 rounds (+2.13 Toilet Bowl comp pick)',(+s.draft_rounds||0)+' rounds',+s.draft_rounds===4,['annual-rookie-fa-draft']),
    C('Pass TD','4 pts',r2(+sc.pass_td)+' pts',+sc.pass_td===4,['scoring','league-summary']),
    C('Rush / rec TD','6 pts',r2(+sc.rush_td)+' / '+r2(+sc.rec_td)+' pts',+sc.rush_td===6&&+sc.rec_td===6,['scoring']),
    C('Reception (PPR)','1 pt',r2(+sc.rec)+' pt'+(sc.bonus_rec_te?' (TE +'+r2(+sc.bonus_rec_te)+')':''),+sc.rec===1&&!+sc.bonus_rec_te,['scoring','league-summary']),
@@ -54,7 +54,7 @@ R.office=async(el,arg)=>{const [B,O]=await Promise.all([ofGet('office/bylaws.jso
      <details${arg===d.id?' open':''}><summary>View document</summary><a href="office/docs/${esc(d.file)}.png?v=${OFV}" target="_blank" rel="noopener"><img class="lo-png" src="office/docs/${esc(d.file)}.png?v=${OFV}" loading="lazy" alt="${esc(d.kind+' '+d.no)} as issued"></a></details></article>`).join('')}</div></section>
   <section class="panel" id="lo-settings"><h2>⚙️ CURRENT SLEEPER SETTINGS</h2>${lg?`<div class="hint">Live from Sleeper for the ${esc(lg.season)} season. ${nc?`<b class="lo-warn">${nc} bylaw${nc>1?'s are':' is'} out of date</b>, and Sleeper wins every one of those arguments.`:'Everything matches the bylaws. Suspicious.'}</div>
    <div class="lo-tw"><table class="lo-set"><tr><th>Setting</th><th>Sleeper (live)</th><th>Bylaws (2021)</th><th></th></tr>${CK.map(c=>`<tr class="${c.ok?'':'bad'}"><td>${esc(c.label)}</td><td><b>${esc(c.live)}</b></td><td>${esc(c.bylaw)}</td><td>${c.ok?'✅':'⚠️'}</td></tr>`).join('')}</table></div>`:`<div class="hint">Sleeper fumbled the settings. Tap ↻ up top to try again. Until then, assume the app is right and the doc is old.</div>`}</section>
-  <section class="panel" id="lo-bylaws"><h2>📖 BYLAWS</h2><div class="lo-ban">📅 <b>Last updated July 2021.</b> Where these conflict with the live Sleeper settings, <b>Sleeper settings win</b> (the bylaws say so themselves: "site settings will prevail until corrected"). Conflicts are flagged ⚠️ below.</div>
+  <section class="panel" id="lo-bylaws"><h2>📖 BYLAWS</h2><div class="lo-ban">📅 <b>${esc(B.updated_label||'Last updated July 2021')}.</b> If Sleeper and these ever disagree again, <b>Sleeper settings win</b> (the bylaws say so themselves: "site settings will prevail until corrected"). The live check above flags any drift ⚠️. <a class="ktc" href="office/docs/bylaws-2026.pdf?v=${OFV}" download>⬇️ Bylaws PDF</a> <a class="ktc" href="office/docs/bylaws-2026.docx?v=${OFV}" download>⬇️ Word</a></div>
    <div class="lo-srch"><input type="search" id="lo-q" placeholder="Search the bylaws (try “IR”, “veto”, “shoey”)" aria-label="Search the bylaws" autocomplete="off"><span id="lo-n" class="hint"></span></div>
    <details class="lo-toc" open><summary>Table of contents</summary><ol start="0">${B.sections.map(s=>`<li><a href="#office/${s.id}">${esc(s.title)}</a>${flags[s.id]?' ⚠️':''}</li>`).join('')}</ol></details>
    <div id="lo-body">${sec.html}</div></section>`};
