@@ -1,0 +1,22 @@
+name: legally joe voice clips
+on:
+  push:
+    branches: [main]
+    paths: ['arcade/legally/lines.js', 'tools/legally_vo.py']
+  workflow_dispatch:
+concurrency: { group: legally-vo, cancel-in-progress: false }
+permissions: { contents: write }
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get install -y -qq ffmpeg >/dev/null && pip install -q edge-tts
+      - run: python3 tools/legally_vo.py
+      - name: commit
+        run: |
+          git config user.name 'shadynasty-bot'; git config user.email 'actions@users.noreply.github.com'
+          git add -A arcade/legally/vo
+          git commit -qm 'legally joe: re-render voice clips' || exit 0
+          for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 5; done; exit 1

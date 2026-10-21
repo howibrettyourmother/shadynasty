@@ -1,0 +1,11 @@
+name = "legally-scores"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+workers_dev = true
+
+[[kv_namespaces]]
+binding = "LJ"
+id = "d2bdaa6e5e9149dba18c831561626d47"
+
+[vars]
+ALLOWED_ORIGINS = "https://howibrettyourmother.github.io"
