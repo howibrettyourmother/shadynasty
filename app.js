@@ -115,7 +115,7 @@ const R={};
 const HOMECARDS=[['#recap','📰','RECAP','Who owes a shoey this week','recap'],['#power','⚡','POWER RANKINGS','A formula that hates your team','power'],['#race','🏁','PLAYOFF RACE','Your odds, simulated 3,000 times','race'],
  ['#tank','🚽','TANK WATCH','The race to be worst on purpose','tank'],['#draft','🎓','DRAFT ROOM','Mock 2027 rookie draft. The tank is on the clock.','draft'],['#teams','👥','TEAMS','Contend or rebuild? Positional heatmap, pick hoards, every roster','teamsov'],['#fleece','🧶','FLEECE FACTORY','Trades you should send tonight','fleece'],
  ['#trades','🔁','TRADES & WAIVERS','Waiver steals, dumb drops, every deal, who can\'t stop clicking','trades'],['#history','🏛️','HISTORY','Champions and cautionary tales','history'],['#records','📕','RECORD BOOK','Highs, lows and the all-time head-to-head grid','records'],
- ['#shame','🍺','HALL OF SHAME','Frame it. Never forget it.','shame'],['#arcade','🕹️','ARCADE','Shoey Chug + Mo Problems + Shady Bowl + LESSHOUSE','arcade'],['#office','🏛️','LEAGUE OFFICE','Bylaws, memos and cease-and-desists. Govern yourself accordingly.','office']];
+ ['#shame','🍺','HALL OF SHAME','Frame it. Never forget it.','shame'],['#arcade','🕹️','ARCADE','Shoey Chug + Mo Problems + Shady Bowl + LESSHOUSE','arcade'],['#office','🏛️','LEAGUE OFFICE','Bylaws, memos and cease-and-desists. Govern yourself accordingly.','office'],['#memes','😂','MEMES','Motivational posters and 1.01 obsession. Tap, swipe, share.','memes']];
 // Per-section images: img/sec/<key>-{720,1200}.webp. Banners sit at the top of each page (Power/Draft/Shame show theirs inline with a caption instead).
 const SECIMG={home:{ok:1,alt:'Five cheerleaders in gold and black under stadium lights, one raising a shoey'},
  recap:{ok:1,alt:'Two fans at a sports bar laughing and pointing at a lopsided scoreboard',mood:'laugh'},
@@ -408,7 +408,7 @@ R.arcade=async el=>{const MO='https://morehouse-scores.brettwilson08.workers.dev
   get(SC).then(d=>{sc.innerHTML=ol((d.top||[]).slice(0,5),x=>`<li><b>${(x.ms/1000).toFixed(2)}s</b> ${x.st?'👠 ':''}${esc(x.n)}</li>`,'Nobody has chugged yet. Set the time to beat.')}).catch(()=>nap(sc,'chug/'));
   get(MO).then(d=>{mo.innerHTML=ol((d.top||[]).slice(0,5),x=>`<li><b>${int(x.s)}</b> ${esc(x.n)}</li>`,'No scores yet. Go survive.')}).catch(()=>nap(mo,GAME))};
 // ---------------- router ----------------
-const TABS=[['home','🏠','HOME'],['recap','📰','RECAP'],['power','⚡','POWER'],['teams','👥','TEAMS'],['trades','🔁','TRADES'],['history','🏛️','HISTORY'],['records','📕','RECORDS'],['shame','🍺','SHAME'],['arcade','🕹️','ARCADE'],['office','🏛️','OFFICE']];
+const TABS=[['home','🏠','HOME'],['recap','📰','RECAP'],['power','⚡','POWER'],['teams','👥','TEAMS'],['trades','🔁','TRADES'],['history','🏛️','HISTORY'],['records','📕','RECORDS'],['shame','🍺','SHAME'],['arcade','🕹️','ARCADE'],['memes','😂','MEMES'],['office','🏛️','OFFICE']];
 async function route(){const h=(location.hash||'#home').slice(1).split('/'),k=R[h[0]]?h[0]:'home',el=$('#view');
   document.querySelectorAll('#tabs a').forEach(a=>a.classList.toggle('on',a.dataset.k===k||(k==='team'&&a.dataset.k==='teams')));
   const on=document.querySelector('#tabs a.on'),tb=$('#tabs');if(on&&tb){const x=on.offsetLeft-(tb.clientWidth-on.offsetWidth)/2;try{tb.scrollTo({left:Math.max(0,x),behavior:route.navd?'smooth':'auto'})}catch(e){tb.scrollLeft=Math.max(0,x)}route.navd=1}
@@ -855,7 +855,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 // Records: the old inline matrix becomes a full Head-to-Head Grid panel
 {const _rec=R.records;R.records=async el=>{await _rec(el);const [S,c]=await Promise.all([all(),current()]);el.querySelectorAll('.h2h').forEach(x=>{const h=x.previousElementSibling;if(h&&h.tagName==='H3')h.remove();x.remove()});el.insertAdjacentHTML('beforeend',h2hPanel(S,c.T))}}
 // ---- nav: tabs grouped by use (this week · rosters & deals · legacy · fun), home cards in the same order ----
-const NAVG=[['home','recap','power','race','tank'],['teams','fleece','trades','draft'],['history','records','shame','office'],['arcade']];
+const NAVG=[['home','recap','power','race','tank'],['teams','fleece','trades','draft'],['history','records','shame','office'],['arcade','memes']];
 {const by=Object.fromEntries(TABS.map(t=>[t[0],t])),seen=new Set(NAVG.flat()),groups=NAVG.map(g=>g.filter(k=>by[k]).map(k=>by[k]));const extra=TABS.filter(t=>!seen.has(t[0]));if(extra.length)groups[groups.length-1].push(...extra);
   TABS.length=0;groups.forEach(g=>TABS.push(...g));
   $('#tabs').innerHTML=groups.filter(g=>g.length).map(g=>g.map(([k,i,n])=>`<a href="#${k}" data-k="${k}"><span>${i}</span>${n}</a>`).join('')).join('<i class="tsep" aria-hidden="true"></i>');
