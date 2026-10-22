@@ -1,4 +1,4 @@
-name: legally joe voice clips
+name: lesshouse voice clips
 on:
   push:
     branches: [main]
@@ -18,5 +18,5 @@ jobs:
         run: |
           git config user.name 'shadynasty-bot'; git config user.email 'actions@users.noreply.github.com'
           git add -A arcade/legally/vo
-          git commit -qm 'legally joe: re-render voice clips' || exit 0
+          git commit -qm 'lesshouse: re-render voice clips' || exit 0
           for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 5; done; exit 1
