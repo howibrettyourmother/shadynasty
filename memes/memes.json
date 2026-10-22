@@ -1,5 +1,38 @@
 [
  {
+  "file": "letting-go.jpg",
+  "title": "Letting Go",
+  "caption": "Sometimes you have to release what you love.",
+  "date": "2026-10-21",
+  "tags": [
+   "Motivational"
+  ],
+  "w": 768,
+  "h": 1024
+ },
+ {
+  "file": "resilience.jpg",
+  "title": "Resilience",
+  "caption": "It's not a team name. It's a medical chart.",
+  "date": "2026-10-21",
+  "tags": [
+   "Motivational"
+  ],
+  "w": 768,
+  "h": 1024
+ },
+ {
+  "file": "negotiation.jpg",
+  "title": "Negotiation",
+  "caption": "When you hold the league funds, you don't need a roster.",
+  "date": "2026-10-21",
+  "tags": [
+   "Motivational"
+  ],
+  "w": 768,
+  "h": 1024
+ },
+ {
   "file": "early-celebration.jpg",
   "title": "Early Celebration",
   "caption": "Celebrating in Week 14. Eliminated in Week 15.",
