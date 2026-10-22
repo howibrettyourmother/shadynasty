@@ -1,52 +1,92 @@
-// Legally Joe voice lines. judge = foul-mouthed judge announcer, joe = Joe's pose lines.
-// Every line here is pre-rendered to vo/ by tools/legally_vo.py (edge-tts). Edit, push, the Action re-renders.
-window.LJ_LINES={
+// LESSHOUSE voice lines. joe = Joe, judge = foul-mouthed judge announcer, lawyer = Joe's latest (dumber) counsel.
+// All pre-rendered to vo/ by tools/legally_vo.py (edge-tts). Edit + push and the Action re-renders.
+window.LH_LINES={
  joe:[
-  "What, like it's hard?",
-  "I have all the leverage!",
-  "Objection! Overruled by me. I'm the Executive Council.",
-  "Disregard my previous statement. This one's better.",
-  "I fired my lawyer. I am the lawyer now.",
-  "Pink is the color of winning, bitch.",
-  "The chihuahua has filed an amicus brief.",
-  "Strut first, ask questions later.",
-  "Snap and pose! The jury loves it.",
-  "Rebuilding? No. Re-branding."
+  "I HAVE ALL THE LEVERAGE!",
+  "I AM THE SENATE!",
+  "I have fired my previous counsel.",
+  "I will continue with my current plan.",
+  "Tank for Jeremiah!",
+  "Disregard my previous statement.",
+  "I fired my lawyer. Again.",
+  "The Executive Council has approved this.",
+  "That's dynasty upside, baby!",
+  "Potential Points don't lie!",
+  "Those picks are assets!",
+  "Objection!"
  ],
- start:[
-  "Court is in session. Somebody get this pink motherfucker off my steps.",
-  "All rise for the defendant, who is somehow wearing stilettos. Run, dumbass.",
-  "This court will now hear the case of the strutting idiot versus gravity."
+ judge_start:[
+  "Court is in session. Knock that tanking son of a bitch off his throne.",
+  "All rise. The defendant is sitting on a pile of injured players and calling it strategy."
  ],
- hit:[
-  "Objection sustained. That shit hurt.",
-  "Hit by a subpoena. You've been served, dipshit.",
-  "That's going on the injured reserve, genius.",
-  "Shoebeer audit failed. You're soaked, counselor.",
-  "Order! Order! Jesus Christ, jump next time.",
-  "Strike that from the record. And from your face.",
-  "Smooth move, Executive Council.",
-  "The chihuahua saw that. The chihuahua is disappointed."
+ judge_hit:[
+  "Direct hit. Enter that into the fucking record.",
+  "Sustained! That one hurt his Potential Points.",
+  "Boom. That excuse just got overruled.",
+  "Look at that dynasty upside crumble. Beautiful.",
+  "Holy shit, the Executive Council just hung up."
  ],
- over:[
-  "Guilty! Of being dogshit at running. Case closed.",
-  "Verdict's in. You suck. Court is adjourned.",
-  "No leverage. No glitter. No fucking chance.",
-  "Sentenced to the bottom of the leaderboard. Next!",
-  "Mistrial. And by mistrial I mean you tripped like an asshole.",
-  "Get this clown out of my courtroom. Bailiff, sweep up the glitter."
+ judge_ir:[
+  "That guy was on IR anyway. He felt nothing.",
+  "Another injured starter down. Shocking. Nobody saw that coming."
  ],
- mile:[
-  "A thousand points? Holy shit, the defense is actually competent.",
-  "Two thousand! Somebody check his shoes for cheat codes.",
-  "Three thousand. Fine. I'm impressed. Don't let it go to your head.",
-  "Four thousand! The court is legally obligated to say damn.",
-  "Five thousand! Somebody get this man a shoey. A clean one.",
-  "Still going? Unbelievable. The league office is filing paperwork.",
-  "This is the longest strut in courthouse history, you magnificent bastard."
+ judge_ammo:[
+  "Exhibit A, your honor.",
+  "Entering The 47 into evidence.",
+  "Read him the goddamn bylaws.",
+  "Shoebeer audit!"
  ],
- best:[
-  "New personal record! The court reluctantly acknowledges your bullshit.",
-  "New high score. Frame it, laminate it, Venmo me for the plaque."
+ judge_clear:[
+  "Dethroned! Court finds the defendant full of shit.",
+  "Level cleared. His leverage is in the fucking dirt.",
+  "Ruling for the league. Next case, same idiot."
+ ],
+ judge_trade:[
+  "Trade accepted. Stars for picks again. That's not a rebuild, that's a fucking yard sale.",
+  "Another star out the door for a pick he'll trade later. Incredible.",
+  "He sold a starter for a future pick. The future is always next year, dipshit.",
+  "Bought Calvin Ridley with a first, then dropped him. Galaxy brain shit."
+ ],
+ judge_ghost:[
+  "Dropped and forgotten. The ghost of his roster past.",
+  "Boo, motherfucker. That's a guy he cut."
+ ],
+ judge_lose:[
+  "1.01 forfeited. Pack up your excuses and get out.",
+  "Out of evidence. The tank wins this round, God help us."
+ ],
+ judge_win:[
+  "The 1.01 is free! Jeremiah has been liberated from the tank!",
+  "Vault cracked. Case closed. The league thanks you, you beautiful bastard."
+ ],
+ judge_fire:[
+  "He fired another lawyer. Disregard his previous statement, and his previous dumbass.",
+  "Counsel fired. Shot voided. This court is a fucking clown show."
+ ],
+ judge_audit_pass:[
+  "Shoebeer audit passed. Every injured fraud is on the ground."
+ ],
+ judge_audit_fail:[
+  "Shoebeer audit failed. I'm pouring one in the shoe. Drink up, you lazy bastard."
+ ],
+ judge_defend:[
+  "You're defending the tank? You absolute fucking ghoul.",
+  "Reinforce all you want, dipshit. The bylaws still apply.",
+  "The League Office is coming for you, and so is karma.",
+  "Look at him propping up injured players like a goddamn scarecrow."
+ ],
+ judge_held:[
+  "The tank held. Somewhere, a bylaw just cried.",
+  "He survived the volley. This is why we can't have nice things."
+ ],
+ judge_defeated:[
+  "Tank defeated! The League Office wins, you shameless son of a bitch."
+ ],
+ lawyer:[
+  "Objection! On the grounds that it's bad for my client.",
+  "Your honor, I object to the bylaws existing.",
+  "My client is not tanking. He is strategically losing on purpose.",
+  "Your honor, philosophically, the picks are the players.",
+  "I call my first witness: Potential Points."
  ]
 };

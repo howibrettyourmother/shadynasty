@@ -3,73 +3,84 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>MOREXCUSES</title>
-<meta name="theme-color" content="#2a0a2a">
-<meta name="description" content="One-thumb courthouse runner for the SHADYNASTY arcade. Strut, dodge subpoenas, grab the leverage.">
-<meta property="og:title" content="MOREXCUSES"><meta property="og:type" content="website">
+<title>LESSHOUSE</title>
+<meta name="theme-color" content="#0b1020">
+<meta name="description" content="Slingshot the evidence. Knock the tanking commish off his throne of IR players and free the 1.01. A SHADYNASTY arcade game.">
+<meta property="og:title" content="LESSHOUSE"><meta property="og:type" content="website">
 <meta property="og:image" content="https://howibrettyourmother.github.io/shadynasty/arcade/legally/icon-512.png">
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="MOREXCUSES">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="LESSHOUSE">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"><link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"><link rel="manifest" href="manifest.json">
 <style>
 @font-face{font-family:Anton;src:url(../../chug/anton.woff) format('woff');font-display:swap}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
-html,body{position:fixed;inset:0;margin:0;width:100%;height:100%;background:#2a0a2a;color:#fff;overflow:hidden;font:600 14px/1.25 -apple-system,system-ui,Arial,sans-serif;overscroll-behavior:none;touch-action:none;-webkit-touch-callout:none}
+html,body{position:fixed;inset:0;margin:0;width:100%;height:100%;background:#0b1020;color:#fff;overflow:hidden;font:600 14px/1.25 -apple-system,system-ui,Arial,sans-serif;overscroll-behavior:none;touch-action:none;-webkit-touch-callout:none}
 #cv{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;display:block;touch-action:none}
 .D{font-family:Anton,Impact,sans-serif;letter-spacing:.04em;font-weight:400}
-#hud{position:fixed;top:0;left:0;right:0;display:none;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top) + 6px) calc(env(safe-area-inset-right) + 10px) 0 calc(env(safe-area-inset-left) + 10px);pointer-events:none;font-size:24px;text-shadow:2px 2px 0 #000}
-#hud .hp{font-size:20px}
-.ib{pointer-events:auto;width:44px;height:44px;border-radius:10px;border:2px solid #fff5;background:#0007;color:#fff;font-size:18px;touch-action:manipulation}
-.scr{position:fixed;inset:0;display:none;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 14px) calc(env(safe-area-inset-bottom) + 10px) calc(env(safe-area-inset-left) + 14px);background:linear-gradient(90deg,#3a0a38ee,#5a145099 45%,#5a145099 55%,#1a0618ee);text-align:center}
-.wrap{display:flex;gap:14px;max-width:900px;margin:0 auto;align-items:flex-start}
+#hud{position:fixed;top:0;left:0;right:0;display:none;justify-content:space-between;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top) + 6px) calc(env(safe-area-inset-right) + 10px) 0 calc(env(safe-area-inset-left) + 10px);pointer-events:none;font-size:22px;text-shadow:2px 2px 0 #000}
+#hud .lv{font-size:15px;color:#ffd23f;flex:1;text-align:center}
+#tank{display:block;position:relative;margin:3px auto 0;width:min(46vw,360px);height:16px;border-radius:8px;background:#0009;border:2px solid #ffd23f;overflow:hidden}#tank i{position:absolute;left:0;top:0;bottom:0;width:100%;background:linear-gradient(90deg,#c8102e,#ffd23f);transition:width .3s}#tank b{position:relative;display:block;text-align:center;font:400 11px/12px Anton,Impact;color:#fff;letter-spacing:.06em}
+.tabs{display:flex;gap:6px;justify-content:center;margin:2px 0 4px}.tabs button{flex:1;max-width:140px;min-height:34px;border-radius:8px;border:2px solid #ffd23f88;background:#0008;color:#fff;font:400 14px Anton,Impact;letter-spacing:.05em;touch-action:manipulation}.tabs button.on{background:#ffd23f;color:#111}
+#ammo{display:flex;gap:4px;font-size:22px}#ammo span{opacity:.35}#ammo span.on{opacity:1;transform:scale(1.2)}
+.ib{pointer-events:auto;width:44px;height:44px;border-radius:10px;border:2px solid #fff5;background:#0008;color:#fff;font-size:18px;touch-action:manipulation}
+.scr{position:fixed;inset:0;display:none;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 14px) calc(env(safe-area-inset-bottom) + 10px) calc(env(safe-area-inset-left) + 14px);background:linear-gradient(90deg,#0b1020f2,#0b102099 45%,#0b102099 55%,#0b1020f2);text-align:center;z-index:5}
+.wrap{display:flex;gap:14px;max-width:920px;margin:0 auto;align-items:flex-start}
 .wrap>div{flex:1;min-width:0}
-h1{font-size:clamp(34px,10vh,72px);margin:2px 0;line-height:.95;color:#fff;text-shadow:3px 3px 0 #ff2d95,6px 6px 0 #000}
-.big{font-size:clamp(40px,14vh,90px);line-height:1;color:#ffe46b;text-shadow:3px 3px 0 #ff2d95,6px 6px 0 #000}
-.pb{display:inline-block;min-width:120px;min-height:56px;padding:8px 18px;margin:5px;border-radius:14px;border:0;font:400 22px/1 Anton,Impact,sans-serif;letter-spacing:.05em;color:#3a0030;background:linear-gradient(#fff0a8,#ffb3d9);box-shadow:0 4px 0 #a0105a;touch-action:manipulation}
-.pb.go{background:linear-gradient(#ff7cc4,#ff2d95);color:#fff;box-shadow:0 4px 0 #7a0040;font-size:28px;min-width:180px}
+h1{font-size:clamp(34px,11vh,76px);margin:2px 0;line-height:.95;color:#ffd23f;text-shadow:3px 3px 0 #c8102e,6px 6px 0 #000}
+.big{font-size:clamp(38px,13vh,84px);line-height:1;color:#ffd23f;text-shadow:3px 3px 0 #c8102e,6px 6px 0 #000}
+.pb{display:inline-block;min-width:110px;min-height:54px;padding:8px 18px;margin:5px;border-radius:14px;border:0;font:400 22px/1 Anton,Impact,sans-serif;letter-spacing:.05em;color:#1a1200;background:linear-gradient(#ffe07a,#e3a400);box-shadow:0 4px 0 #8a6200;touch-action:manipulation}
+.pb.go{background:linear-gradient(#ff5a5a,#c8102e);color:#fff;box-shadow:0 4px 0 #6d0a10;font-size:28px;min-width:180px}
 .pb:active{transform:translateY(3px);box-shadow:0 1px 0 #0006}
-.who{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:30px;background:#0006;border:2px solid #ffb3d9;color:#fff;font:600 15px Arial;min-height:44px;touch-action:manipulation}
-.av{width:28px;height:28px;border-radius:50%;background:#ff2d95;display:inline-flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;flex:none;object-fit:cover}
-ol.lb{list-style:none;margin:4px 0;padding:0;text-align:left;background:#0007;border-radius:12px;border:2px solid #ffb3d9}
+.who{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:30px;background:#0008;border:2px solid #ffd23f;color:#fff;font:600 15px Arial;min-height:44px;touch-action:manipulation}
+.av{width:28px;height:28px;border-radius:50%;background:#c8102e;display:inline-flex;align-items:center;justify-content:center;font-size:12px;overflow:hidden;flex:none;object-fit:cover}
+ol.lb{list-style:none;margin:4px 0;padding:0;text-align:left;background:#0009;border-radius:12px;border:2px solid #ffd23f88}
 ol.lb li{display:flex;align-items:center;gap:7px;padding:3px 8px;border-bottom:1px solid #fff1;font-size:13px}
-ol.lb li .r{width:20px;text-align:right;opacity:.8}ol.lb li .n{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}ol.lb li .s{font-family:Anton,Impact;font-size:16px;color:#ffe46b}
+ol.lb li .r{width:20px;text-align:right;opacity:.8}ol.lb li .n{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}ol.lb li .s{font-family:Anton,Impact;font-size:16px;color:#ffd23f}
 ol.lb li.tb .n:after{content:' 👑';font-size:11px}
-ol.lb li.me{background:#ff2d9566;outline:2px solid #ffe46b}
-.lbh{font:400 18px Anton,Impact;letter-spacing:.06em;color:#ffe46b;margin:2px 0}
-.hint{opacity:.85;font-size:12px;padding:6px}
+ol.lb li.me{background:#c8102e88;outline:2px solid #ffd23f}
+.lbh{font:400 18px Anton,Impact;letter-spacing:.06em;color:#ffd23f;margin:2px 0}
+.hint{opacity:.85;font-size:12px;padding:5px}
 #teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;max-width:860px;margin:8px auto}
-#teams button{display:flex;align-items:center;gap:8px;min-height:52px;border-radius:12px;border:2px solid #ffb3d9;background:#0007;color:#fff;text-align:left;font:600 14px Arial;padding:6px;touch-action:manipulation}
-#teams button.me{background:#ff2d95}
-#teams .av{width:36px;height:36px}
-#rot{position:fixed;inset:0;z-index:99;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:radial-gradient(ellipse at top,#ff5fb4,#3a0a38 70%);text-align:center;padding:24px}
-#rot .ph{width:70px;height:120px;border:6px solid #fff;border-radius:14px;box-shadow:4px 4px 0 #ff2d95;animation:rp 2s ease-in-out infinite;display:flex;align-items:center;justify-content:center;font-size:34px}
+#teams button{display:flex;align-items:center;gap:8px;min-height:52px;border-radius:12px;border:2px solid #ffd23f88;background:#0009;color:#fff;text-align:left;font:600 14px Arial;padding:6px;touch-action:manipulation}
+#teams button.me{background:#c8102e}#teams .av{width:36px;height:36px}
+.card{position:relative;max-width:520px;margin:6px auto;background:#f4efe1;color:#1b1b1b;border-radius:10px;padding:12px 16px;box-shadow:0 6px 0 #0008;text-align:left;font:600 14px/1.3 Georgia,serif}
+.card .stamp{position:absolute;right:10px;top:-16px;background:#f4efe1;transform:rotate(-12deg);border:4px solid #c8102e;color:#c8102e;font:400 22px Anton,Impact;padding:2px 8px;border-radius:6px;opacity:.9}
+.card h3{margin:0 0 6px;font:400 20px Anton,Impact;letter-spacing:.04em}
+.card .gv{color:#c8102e}.card .gt{color:#1b6e2e}
+.card .roast{margin-top:8px;font-style:italic;color:#333}
+#rot{position:fixed;inset:0;z-index:99;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:radial-gradient(ellipse at top,#28324f,#0b1020 70%);text-align:center;padding:24px}
+#rot .ph{width:70px;height:120px;border:6px solid #ffd23f;border-radius:14px;box-shadow:4px 4px 0 #c8102e;animation:rp 2s ease-in-out infinite;display:flex;align-items:center;justify-content:center;font-size:34px}
 @keyframes rp{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
 @media (orientation:portrait){#rot{display:flex}}
-#ctl{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 8px);left:0;right:0;display:none;justify-content:space-between;padding:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 18px);pointer-events:none;font-size:34px;opacity:.35}
-#flash{position:fixed;inset:0;pointer-events:none;background:#ff0040;opacity:0;transition:opacity .25s}
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 52px);transform:translateX(-50%);padding:6px 12px;border-radius:10px;background:#000c;border:2px solid #ffd23f;font-size:14px;display:none;pointer-events:none;white-space:nowrap;z-index:4}
+@media (max-height:430px){.card{padding:8px 12px;font-size:13px}.card h3{font-size:17px}.pb{min-height:46px;font-size:19px}}
 </style>
 </head>
 <body>
 <canvas id="cv"></canvas>
-<div id="flash"></div>
-<div id="hud" class="D"><span id="sc">0</span><span class="hp" id="hp"></span><button class="ib" id="mute" aria-label="Sound">🔊</button></div>
-<div id="ctl"><span>⬇️</span><span>⬆️</span></div>
+<div id="hud" class="D"><span id="sc">0</span><span class="lv"><span id="lv"></span><span id="tank"><i id="tankI"></i><b id="tankT">1.01 ODDS 100%</b></span></span><span id="ammo"></span><button class="ib" id="fire" style="width:auto;padding:0 8px;font:400 13px Anton,Impact;letter-spacing:.04em;background:#c8102e;display:none">🗑️ FIRE YOUR COUNSEL</button><button class="ib" id="ready" style="width:auto;padding:0 10px;font:400 15px Anton,Impact;background:#1b6e2e;display:none">READY ▶</button><button class="ib" id="mute" aria-label="Sound">🔊</button></div>
+<div id="toast"></div>
 <div class="scr" id="s-title"><div class="wrap"><div>
- <h1 class="D">MOREXCUSES</h1>
- <div style="font-size:34px;margin:4px 0">👠💼🐶🌈✨</div>
+ <h1 class="D">LESSHOUSE</h1>
+ <div class="D" style="display:inline-block;background:#fff;color:#111;border-radius:16px;padding:4px 12px;font-size:20px;margin:4px 0;box-shadow:3px 3px 0 #c8102e">💰 "I HAVE ALL THE LEVERAGE!"</div>
+ <div style="font-size:30px;margin:4px 0">🏚️🚑💰📞</div>
+ <div class="hint" style="font-size:14px">Fire the evidence. Topple the excuses. Free the <b>1.01</b>.</div>
  <button class="who" id="whoBtn"><span class="av" id="whoAv">?</span><span id="whoName">Pick your team</span></button><br>
- <button class="pb go" id="goBtn">▶ STRUT</button>
- <div class="hint">⬆️ tap right = jump &nbsp; ⬇️ hold left = slide &nbsp; 🏆 <span id="best">0</span></div>
+ <button class="pb go" id="goBtn">▶ FIRE</button>
+ <div class="hint">👆 drag back, let go. Tap again mid-air for scroll split / shoey splash. 🏆 <span id="best">0</span></div>
 </div><div><div class="lbh">🏛️ TOP 10</div><div id="lbTitle"><div class="hint">Loading…</div></div></div></div></div>
+<div class="scr" id="s-card"><div id="cardBody"></div><button class="pb go" id="nextBtn">NEXT ▶</button></div>
 <div class="scr" id="s-over"><div class="wrap"><div>
- <div class="D" style="font-size:22px;color:#ffb3d9">⚖️ GUILTY</div>
+ <div class="D" id="oHead" style="font-size:30px;color:#ff5a5a">1.01 FORFEITED</div>
  <div class="big D" id="oScore">0</div>
  <div id="oStats" class="hint"></div><div id="oRank" class="hint" style="font-size:15px"></div>
- <button class="pb go" id="againBtn">↻ AGAIN</button><button class="pb" id="homeBtn">☰</button>
+ <button class="pb go" id="againBtn">↻ AGAIN</button><button class="pb" id="shareBtn">📤 VERDICT</button><button class="pb" id="homeBtn">☰</button>
 </div><div><div class="lbh">🏛️ TOP 10</div><div id="lbOver"><div class="hint">Loading…</div></div></div></div></div>
+<div class="scr" id="s-mode"><h1 class="D" style="font-size:36px">PICK YOUR SIDE, JOE</h1><div class="hint" style="font-size:14px">Same board, tagged by side.</div><button class="pb go" id="modeO">🏛️ LEAGUE OFFICE<br><small style="font:600 12px Arial">fire the evidence like everyone else</small></button><button class="pb" id="modeD" style="background:linear-gradient(#9cff7a,#2fa400)">🛡️ DEFEND THE TANK<br><small style="font:600 12px Arial">reinforce, survive the volleys</small></button><br><button class="pb" id="modeBack">✕</button></div>
 <div class="scr" id="s-team"><h1 class="D" style="font-size:34px">WHO ARE YOU?</h1><div id="teams"></div><button class="pb" id="teamBack">✕</button></div>
-<div id="rot"><div class="ph">👠</div><div class="D" style="font-size:40px">ROTATE</div><div style="font-size:40px">↻</div></div>
-<script src="lines.js?v=1"></script>
-<script src="game.js?v=1"></script>
+<div id="rot"><div class="ph">🏈</div><div class="D" style="font-size:40px">ROTATE</div><div style="font-size:40px">↻</div></div>
+<script src="matter.min.js?v=1"></script>
+<script src="lines.js?v=3"></script>
+<script src="game.js?v=3"></script>
 </body>
 </html>
