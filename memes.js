@@ -1,8 +1,8 @@
 'use strict';
 // 😂 MEMES (#memes): gallery driven by memes/memes.json. Add a meme = drop a JPG in memes/ + add an entry at the TOP of memes.json.
-const MMV=1;let MM=null;const mmGet=()=>MM||(MM=fetch('memes/memes.json?v='+MMV+'&t='+Math.floor(Date.now()/6e5)).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).catch(e=>{MM=null;throw e}));
+const MMV=2;let MM=null;const mmGet=()=>MM||(MM=fetch('memes/memes.json?v='+MMV+'&t='+Math.floor(Date.now()/6e5)).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).catch(e=>{MM=null;throw e}));
 const mmSrc=m=>'memes/'+m.file;
-R.memes=async(el,arg)=>{const all=(await mmGet()).map((m,i)=>({...m,i})).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||a.i-b.i);
+R.memes=async(el,arg)=>{const all=(await mmGet()).filter(m=>!m.hidden).map((m,i)=>({...m,i})).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||a.i-b.i);
   const tags=[...new Set(all.flatMap(m=>m.tags||[]))];
   el.innerHTML=`<section class="panel"><h2>😂 MEMES</h2><div class="mm-sub">The league's finest propaganda. Tap to enlarge, swipe to browse.</div>
   <div class="mm-chips"><button class="on" data-t="">All <small>${all.length}</small></button>${tags.map(t=>`<button data-t="${esc(t)}">${esc(t)} <small>${all.filter(m=>(m.tags||[]).includes(t)).length}</small></button>`).join('')}</div>
