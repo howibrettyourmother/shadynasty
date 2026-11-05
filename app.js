@@ -112,7 +112,7 @@ function teamValue(T,V,tp,lg){const season=+lg.season,RD=+lg.settings.draft_roun
   for(const k in out)out[k].tot=out[k].pv+out[k].kv;return out}
 // ---------------- pages ----------------
 const R={};
-const HOMECARDS=[['#recap','📰','RECAP','Who owes a shoey this week','recap'],['#power','⚡','POWER RANKINGS','A formula that hates your team','power'],['#race','🏁','PLAYOFF RACE','Your odds, simulated 3,000 times','race'],
+const HOMECARDS=[['#recap','📰','RECAP','Who owes a shoey this week','recap'],['#matchups','🥊','MATCHUPS','Tale of the tape: all-time H2H, last meeting, biggest beatdown','matchups'],['#analyzer','⚖️','TRADE ANALYZER','Build any deal. See who wins before you hit send.','analyzer'],['#power','⚡','POWER RANKINGS','A formula that hates your team','power'],['#race','🏁','PLAYOFF RACE','Your odds, simulated 3,000 times','race'],
  ['#tank','🚽','TANK WATCH','The race to be worst on purpose','tank'],['#draft','🎓','DRAFT ROOM','Mock 2027 rookie draft. The tank is on the clock.','draft'],['#teams','👥','TEAMS','Contend or rebuild? Positional heatmap, pick hoards, every roster','teamsov'],['#fleece','🧶','FLEECE FACTORY','Trades you should send tonight','fleece'],
  ['#trades','🔁','TRADES & WAIVERS','Waiver steals, dumb drops, every deal, who can\'t stop clicking','trades'],['#history','🏛️','HISTORY','Champions and cautionary tales','history'],['#records','📕','RECORD BOOK','Highs, lows and the all-time head-to-head grid','records'],
  ['#shame','🍺','HALL OF SHAME','Frame it. Never forget it.','shame'],['#arcade','🕹️','ARCADE','Shoey Chug + Mo Problems + Shady Bowl','arcade'],['#office','🏛️','LEAGUE OFFICE','Bylaws, memos and cease-and-desists. Govern yourself accordingly.','office']];
@@ -406,8 +406,8 @@ R.arcade=async el=>{const MO='https://morehouse-scores.brettwilson08.workers.dev
   get(SC).then(d=>{sc.innerHTML=ol((d.top||[]).slice(0,5),x=>`<li><b>${(x.ms/1000).toFixed(2)}s</b> ${x.st?'👠 ':''}${esc(x.n)}</li>`,'Nobody has chugged yet. Set the time to beat.')}).catch(()=>nap(sc,'chug/'));
   get(MO).then(d=>{mo.innerHTML=ol((d.top||[]).slice(0,5),x=>`<li><b>${int(x.s)}</b> ${esc(x.n)}</li>`,'No scores yet. Go survive.')}).catch(()=>nap(mo,GAME))};
 // ---------------- router ----------------
-const TABS=[['home','🏠','HOME'],['recap','📰','RECAP'],['power','⚡','POWER'],['teams','👥','TEAMS'],['trades','🔁','TRADES'],['history','🏛️','HISTORY'],['records','📕','RECORDS'],['shame','🍺','SHAME'],['arcade','🕹️','ARCADE'],['office','🏛️','OFFICE']];
-async function route(){const h=(location.hash||'#home').slice(1).split('/'),k=R[h[0]]?h[0]:'home',el=$('#view');
+const TABS=[['home','🏠','HOME'],['recap','📰','RECAP'],['matchups','🥊','MATCHUPS'],['power','⚡','POWER'],['analyzer','⚖️','ANALYZER'],['teams','👥','TEAMS'],['trades','🔁','TRADES'],['history','🏛️','HISTORY'],['records','📕','RECORDS'],['shame','🍺','SHAME'],['arcade','🕹️','ARCADE'],['office','🏛️','OFFICE']];
+async function route(){const h=(location.hash||'#home').slice(1).split('/'),k=typeof R[h[0]]==='function'?h[0]:'home',el=$('#view');
   document.querySelectorAll('#tabs a').forEach(a=>a.classList.toggle('on',a.dataset.k===k||(k==='team'&&a.dataset.k==='teams')));
   const on=document.querySelector('#tabs a.on'),tb=$('#tabs');if(on&&tb){const x=on.offsetLeft-(tb.clientWidth-on.offsetWidth)/2;try{tb.scrollTo({left:Math.max(0,x),behavior:route.navd?'smooth':'auto'})}catch(e){tb.scrollLeft=Math.max(0,x)}route.navd=1}
   if(!el.firstChild||el.dataset.k!==k)el.innerHTML=`<section class="panel">${SPIN()}</section>`;el.dataset.k=k;const tok=route.tok=(route.tok||0)+1;
@@ -853,7 +853,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 // Records: the old inline matrix becomes a full Head-to-Head Grid panel
 {const _rec=R.records;R.records=async el=>{await _rec(el);const [S,c]=await Promise.all([all(),current()]);el.querySelectorAll('.h2h').forEach(x=>{const h=x.previousElementSibling;if(h&&h.tagName==='H3')h.remove();x.remove()});el.insertAdjacentHTML('beforeend',h2hPanel(S,c.T))}}
 // ---- nav: tabs grouped by use (this week · rosters & deals · legacy · fun), home cards in the same order ----
-const NAVG=[['home','recap','power','race','tank'],['teams','fleece','trades','draft'],['history','records','shame','office'],['arcade']];
+const NAVG=[['home','recap','matchups','power','race','tank'],['teams','analyzer','fleece','trades','draft'],['history','records','shame','office'],['arcade']];
 {const by=Object.fromEntries(TABS.map(t=>[t[0],t])),seen=new Set(NAVG.flat()),groups=NAVG.map(g=>g.filter(k=>by[k]).map(k=>by[k]));const extra=TABS.filter(t=>!seen.has(t[0]));if(extra.length)groups[groups.length-1].push(...extra);
   TABS.length=0;groups.forEach(g=>TABS.push(...g));
   $('#tabs').innerHTML=groups.filter(g=>g.length).map(g=>g.map(([k,i,n])=>`<a href="#${k}" data-k="${k}"><span>${i}</span>${n}</a>`).join('')).join('<i class="tsep" aria-hidden="true"></i>');
@@ -875,7 +875,7 @@ const d1=n=>(Math.round((+n||0)*10)/10).toFixed(1);
 const normN=n=>String(n||'').toLowerCase().replace(/[^a-z]/g,'').replace(/(jr|sr|ii|iii|iv)$/,'');
 const etParts=()=>{const p={};new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',hour:'numeric',hour12:false}).formatToParts(new Date()).forEach(x=>p[x.type]=x.value);return{wd:p.weekday,h:+p.hour%24}};
 // ESPN public scoreboard (CORS *): game state + fraction of the game left, keyed by Sleeper team abbreviation
-async function nflGames(season,week,bust){const sb=await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=${week}&seasontype=2&dates=${season}`+(bust?'&_='+Date.now():'')).then(r=>{if(!r.ok)throw new Error('ESPN '+r.status);return r.json()});const g={};
+async function nflGames(season,week,bust){const SBU=`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=${week}&seasontype=2&dates=${season}`,gj=u=>fetch(u).then(r=>{if(!r.ok)throw new Error('ESPN '+r.status);return r.json()});const sb=await gj(SBU+(bust?'&_='+Date.now():'')).catch(()=>gj(SBU+'&_='+Date.now()+'r'));const g={};
   (sb.events||[]).forEach(ev=>{const c=ev.competitions[0],st=c.status||ev.status,state=st.type.state,per=st.period||0,clk=st.clock||0;let frac=1;
     if(state==='in'){const el=per<=4?((per-1)*900+(900-clk))/3600:0.985;frac=Math.max(0.015,Math.min(1,1-el))}else if(state==='post')frac=0;
     const info={id:ev.id,kick:new Date(ev.date),state,frac,detail:st.type.shortDetail||''};c.competitors.forEach(x=>{g[ESPN_FIX[x.team.abbreviation]||x.team.abbreviation]=info})});return g}
@@ -1052,7 +1052,7 @@ const TEAM_FX={
  '602988793519214592':{name:'TheTunaSquad',c:['#1e90ff','#7fd3ff','#0b4f8a','#c7f0ff'],em:['🐟','🐟','🐟','🌊'],mix:'eebk',rain:true,ov:'waves',tc:'#7fd3ff',ti:'🐟',
   digs:["Big Tuna, small points.","Canned again.","Something smells fishy. It's the box score.","Tuna Squad, swimming with the bottom feeders.","Caught, gutted, canned. Week in review.","Dolphin-safe. Win-safe too, apparently."]},
  '603082868373135360':{name:'Wilson Weasels',c:['#2a2f3a','#6b7280','#e3262e','#111111'],em:['👎','🍅','💨'],mix:'eeck',ov:'boo',txt:'BOOOO',fly:{img:'img/weasel-av.webp',y:0.78,sz:76,strut:true,trail:'smoke'},tc:'#e3262e',ti:'🦹',
-  digs:["The heel enters the arena. Boo him.","Brett read your trade offer and laughed. Out loud. To your face.","Cheap heat: Brett's lineup is fine, he just wants you mad.","Throw your drink, the weasel can't hear you over the wins.","Every league needs a villain. This one built a website.","Boo all you want. He's checking the waiver wire anyway."]},
+  digs:["The villain enters the arena. Boo him.","Brett read your trade offer and laughed. Out loud. To your face.","Cheap heat: Brett's lineup is fine, he just wants you mad.","Throw your drink, the weasel can't hear you over the wins.","Every league needs a villain. This one built a website.","Boo all you want. He's checking the waiver wire anyway."]},
  '679818637024010240':{name:'DetroitDumpsterFire',c:['#ff6a00','#ffb300','#555555','#2d2d2d'],em:['🔥','🗑️','🎶','🎵'],mix:'eeck',grav:-0.06,ov:'smoke',fly:{e:'🎸',y:0.62,sz:50,trail:'notes',float:true},tc:'#ff6a00',ti:'🎸',
   digs:["Recall notice issued for this lineup.","Built Detroit tough, scores like the Lions circa 2008.","Unplugged: the bench, apparently.","Strumming the same sad song every week.","Assembly line keeps rolling. So do the losses.","Check engine light's been on since week 1."]},
  '679425819310903296':{name:'Excessive Celebration',c:['#ffffff','#dff3ff','#2d6cdf','#fdb913'],em:['🏔️','❄️','🎿','🤜','🤛','❄️'],mix:'eekce',ov:'mtn',fly:{e:'⛷️',y:0.66,sz:46,trail:'snow',float:true},txt:'SEND IT',tc:'#7fc8ff',ti:'🤜🤛',
@@ -1062,7 +1062,7 @@ const FX_LAST=["Dead last in the power rankings, {T}.","{T}: bottom of the formu
 const _fxImg={};function fxImg(src){if(!_fxImg[src]){const i=new Image();i.src=src;_fxImg[src]=i}return _fxImg[src]}
 Object.values(TEAM_FX).forEach(t=>{if(t.fly&&t.fly.img)setTimeout(()=>fxImg(t.fly.img),3000)});
 function teamBurst(uid,o){o=o||{};const th=TEAM_FX[uid];if(!th)return;const now=Date.now();if(now-(joeBurst.t||0)<4000)return;joeBurst.t=now;
-  if(uid===BRETT&&window.heelEntrance){joeBurst.t=now+1500;try{heelEntrance(th,o)}catch(e){console.warn('heel',e)}return}  // the heel gets an entrance, not confetti
+  if(uid===BRETT&&window.villainEntrance){joeBurst.t=now+1500;try{villainEntrance(th,o)}catch(e){console.warn('entrance',e)}return}  // the villain gets an entrance, not confetti
   const k='sn:td'+uid;let i=0;try{i=+localStorage.getItem(k)||0;localStorage.setItem(k,String((i+1)%th.digs.length))}catch(e){i=Math.floor(Math.random()*th.digs.length)}
   const d=(o.roast?pickOf(FX_LAST,'fl'+uid+Math.floor(Date.now()/4000)).replace('{T}',th.name)+' ':'')+th.digs[i%th.digs.length],tt=toast(th.pass?`<span class="bp"><b>🎫 BOARDING PASS · ${esc(th.name)}</b>${esc(d)}</span>`:`<span class="tsp">${th.ti}</span> ${esc(d)}`,3000);tt.classList.add('tfx');tt.style.setProperty('--tc',th.tc);
   if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;

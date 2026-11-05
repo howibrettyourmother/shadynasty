@@ -19,3 +19,7 @@ html.mm-lock,html.mm-lock body{overflow:hidden}
 .mm-cap b{display:block;font:700 17px var(--disp);letter-spacing:.05em;color:var(--gold)}.mm-cap small{color:var(--ink);font-size:13px}
 .mm-act{display:flex;gap:8px}.mm-act a,.mm-act button{min-height:44px;padding:0 16px;display:flex;align-items:center;border-radius:10px;border:0;text-decoration:none;font:700 14px var(--disp);letter-spacing:.06em;color:#1a1200;background:linear-gradient(180deg,#ffe07a,#e3a400);box-shadow:0 3px 0 #8a6200;cursor:pointer}
 .mm-act button{background:linear-gradient(180deg,#ff5a5a,#b5121b);color:#fff;box-shadow:0 3px 0 #6d0a10}
+/* label sits under the thumbnail so it never covers the meme's own bottom caption */
+.mm-th{aspect-ratio:auto;display:flex;flex-direction:column}
+.mm-th img{height:auto;aspect-ratio:1;object-fit:contain;background:#000}
+.mm-th span{position:static;padding:7px 8px;background:#0d0f16;border-top:1px solid var(--line)}

@@ -1,7 +1,7 @@
 // SHADY BOWL: team flavor + roast commentary. Digs are about fantasy football, teams and hobbies only.
 const BRETT='603082868373135360';
 const TEAMS=[
- {id:'603082868373135360',team:'Wilson Weasels',mgr:'Brett',ab:'WEA',c:['#2a2f3a','#e3262e','#6b7280'],em:['👎','🍅','💨'],txt:'BOOOO',w:6,av:'c1e257fa885107a2cea04b70f1c9335c',heel:1},
+ {id:'603082868373135360',team:'Wilson Weasels',mgr:'Brett',ab:'WEA',c:['#2a2f3a','#e3262e','#6b7280'],em:['👎','🍅','💨'],txt:'BOOOO',w:6,av:'c1e257fa885107a2cea04b70f1c9335c',villain:1},
  {id:'679000405232934912',team:'Rebuilding Morehouse’s',mgr:'Joe',ab:'MOR',c:['#ff4fd8','#ffd23f','#3fd8ff'],em:['🌈','✨','🦄','🚧'],txt:'UNDER CONSTRUCTION',w:0,av:'4f4090e5e9c3941414db40a871e3e909',wip:1},
  {id:'602659459214409728',team:'Bigmike9193',mgr:'Big Mike',ab:'BIG',c:['#b22234','#ffffff','#3c3b6e'],em:['🇺🇸','⭐','✈️'],txt:'FREEDOM',w:3,av:'d55d1f7075eda01948318de4af616075'},
  {id:'679012011916492800',team:'Badfish',mgr:'Justin',ab:'BAD',c:['#c8642a','#e8b04b','#7a4a22'],em:['🤠','🌵','🥵'],txt:'YEEHAW (UGH)',w:5,av:'04c43e60f53425972355da7967f58ebb'},
@@ -143,9 +143,9 @@ Object.assign(GEN,{
 });
 
 // Joe's team (Rebuilding Morehouse's): footwear gag + endless-rebuild roasts only.
-const JOE_LINES={intro:["Year whatever of the rebuild. Rebuilding Morehouse's takes the field, in heels, still two fucking years away.","Ladies and gentlemen, the eternal rebuild. He traded the future for more future and still can't field a goddamn lineup.","Rainbow Warrior? More like Rebuild Warrior. Kickoff!"],
+const JOE_LINES={intro:["Year whatever of the rebuild. Rebuilding Morehouse's takes the field, in stilettos, still two fucking years away.","Ladies and gentlemen, the eternal rebuild. He traded the future for more future and still can't field a goddamn lineup.","Rainbow Warrior? More like Rebuild Warrior. Kickoff!"],
  td:["Touchdown Morehouse's! Holy shit, a rebuild scored! Somebody check the standings, this never fucking happens.","They scored! Pour one in the stiletto, boys, next year might actually be this year.","Six points for the rebuild! Don't get used to it, he'll trade this guy for a third-round pick by Tuesday."],
- trip:["FUMBLE! He tripped over his own goddamn heel! Ball's loose!","Down he goes! Ankle rolled in the stiletto, ball on the turf. Peak fucking rebuild.","Tripped on a heel and coughed it up. Even the shoes are tanking for a draft pick."],
+ trip:["FUMBLE! He tripped over his own goddamn stiletto! Ball's loose!","Down he goes! Ankle rolled in the stiletto, ball on the turf. Peak fucking rebuild.","Tripped on a stiletto and coughed it up. Even the shoes are tanking for a draft pick."],
  stall:["Drive's dead. That's the rebuild, baby: all picks, no fucking points.","Stalled again. Wait till next year. He's been saying that shit since the Obama administration... of fantasy football.","Another empty drive. He'll trade the whole offense for futures and call it a process."],
  score:["Morehouse's gets torched. Trading away every starter for picks has fucking consequences.","Scored on the rebuild. Next year, though. Always next fucking year."]};
 // rivalry intros: {W}-{L} is the all-time record from the player's side

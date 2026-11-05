@@ -230,7 +230,7 @@ function driveOver(why,oppStart){G.phase='card';hud(false);$('#pre').style.displ
 function final(){const won=G.sc[0]>G.sc[1],tie=G.sc[0]==G.sc[1],me=G.me,O=G.opp;let coins=G.mode=='season'?Math.round((G.coins+(won?25:5))*(G.rival?2:1)):0;SV.coins+=coins;SV.played++;
   SV.best.pts=Math.max(SV.best.pts,G.sc[0]);SV.best.margin=Math.max(SV.best.margin,G.sc[0]-G.sc[1]);
   let seasonTxt='';if(G.mode=='season'&&SV.season){const s=SV.season;s.res.push({o:O.id,a:G.sc[0],b:G.sc[1]});s.wk++;if(won)s.w++;else s.l++;SV.best.wins=Math.max(SV.best.wins,s.w);
-    if(s.bowl){s.done=1;seasonTxt=won?(me.heel?'<p><b>The weasel won the Shady Bowl.</b> The league demands a recount. Nobody claps.</p>':`<p><b>SHADY BOWL WINNERS.</b> ${esc(me.team)} runs this shit now.</p>`):'<p>Lost the Shady Bowl. So close. So very, very funny.</p>'}
+    if(s.bowl){s.done=1;seasonTxt=won?(me.villain?'<p><b>The weasel won the Shady Bowl.</b> The league demands a recount. Nobody claps.</p>':`<p><b>SHADY BOWL WINNERS.</b> ${esc(me.team)} runs this shit now.</p>`):'<p>Lost the Shady Bowl. So close. So very, very funny.</p>'}
     else if(s.wk>=s.sched.length){if(s.w>=7){s.bowl=1;seasonTxt=`<p>${s.w}-${s.l}. You made the <b>SHADY BOWL</b>.</p>`}else{s.done=1;seasonTxt=`<p>${s.w}-${s.l}. Missed the Shady Bowl. Welcome to the Toilet Bowl.</p>`}}
     else seasonTxt=`<p>Season: ${s.w}-${s.l} · Week ${s.wk+1} next</p>`}
   save();const line=won?say('win'):tie?'A tie. Everybody loses, especially the viewers.':say('lose');
@@ -238,13 +238,13 @@ function final(){const won=G.sc[0]>G.sc[1],tie=G.sc[0]==G.sc[1],me=G.me,O=G.opp;
    <div class="D" style="font-size:34px">${esc(me.ab)} ${G.sc[0]} – ${G.sc[1]} ${esc(O.ab)}</div><p>${esc(line)}</p>${seasonTxt}
    <div class="lb">Pass ${G.stats.pass} yds · Rush ${G.stats.rush} yds · TD ${G.stats.td} · INT ${G.stats.int}</div><p class="D" style="font-size:22px;color:#ffe07a">${G.mode=='season'?'+'+coins+' 🪙'+(G.rival?' (rivalry x2)':'')+' · bank '+SV.coins:'Coins are earned in Season mode'}</p>
    <div class="row">${G.mode=='season'&&SV.season&&!SV.season.done?'<button class="pb gr" id="nx">NEXT GAME →</button>':''}<button class="pb" id="again">REMATCH</button><button class="pb blu" id="shop">LOCKER ROOM</button><button class="pb red" id="home">MENU</button></div></div>`;
-  showScr('s-card');hud(false);snd(won?'td':'boo');if(won&&!(me.heel&&G.mode=='season'))confetti(me,40);
+  showScr('s-card');hud(false);snd(won?'td':'boo');if(won&&!(me.villain&&G.mode=='season'))confetti(me,40);
   const m=G.mode,a=me.id,b=O.id;$('#again').onclick=()=>newGame(a,b,m=='season'?'quick':m);$('#home').onclick=title;$('#shop').onclick=shop;const nx=$('#nx');if(nx)nx.onclick=seasonNext;G=null}
 // ---------- fx/hud ----------
 let msgT=0;function msg(s,t){const m=$('#msg');m.textContent=s;m.style.display='block';msgT=t||2.5}
 function bigTxt(s,c){const b=$('#big');b.textContent=s;b.style.color=c||'#ffe07a';b.style.display='none';void b.offsetWidth;b.style.display='block';clearTimeout(bigTxt.t);bigTxt.t=setTimeout(()=>b.style.display='none',1800)}
 function confetti(t,n){const fx=$('#fx');for(let i=0;i<n;i++){const s=document.createElement('span');s.textContent=R()<.6?pick(t.em):'■';if(s.textContent=='■')s.style.color=t.wip?`hsl(${R()*360},100%,60%)`:pick(t.c);s.style.left=R()*100+'%';s.style.animationDuration=(1.6+R()*1.8)+'s';s.style.animationDelay=R()*.6+'s';s.style.fontSize=(18+R()*20)+'px';fx.appendChild(s);setTimeout(()=>s.remove(),4200)}}
-function celebrate(t,line){bigTxt(t.heel?'BOOOO!':'TOUCHDOWN!',t.heel?'#e3262e':t.c[0]==='#ffffff'?t.c[1]:t.c[0]);setTimeout(()=>bigTxt(t.txt,t.c[1]==='#ffffff'?t.c[0]:t.c[1]),1300);confetti(t,t.wip?70:45);if(t.heel)setTimeout(()=>snd('boo'),300);msg(line,3.6);G.after=3.4;updHud()}
+function celebrate(t,line){bigTxt(t.villain?'BOOOO!':'TOUCHDOWN!',t.villain?'#e3262e':t.c[0]==='#ffffff'?t.c[1]:t.c[0]);setTimeout(()=>bigTxt(t.txt,t.c[1]==='#ffffff'?t.c[0]:t.c[1]),1300);confetti(t,t.wip?70:45);if(t.villain)setTimeout(()=>snd('boo'),300);msg(line,3.6);G.after=3.4;updHud()}
 function hud(on){$('#hud').style.display=on?'flex':'none';if(!on){$('#msg').style.display='none'}}
 function updHud(){if(!G)return;const m=G.me,o=G.opp,cb=t=>`style="background:${t.c[0]};color:${t.c[0]=='#ffffff'||t.c[0]=='#ffc72c'||t.c[0]=='#ffcb05'?'#111':'#fff'}"`;
   $('#sb').innerHTML=`<b ${cb(m)}>${esc(m.ab)} ${G.sc[0]}</b><b ${cb(o)}>${esc(o.ab)} ${G.sc[1]}</b>`;G.fd=G.down==1?Math.min(100,G.los+G.togo):G.fd||G.los+G.togo;
@@ -314,7 +314,7 @@ function drawMan(e,t){let [x,y]=P(e.x,e.y);x=Math.round(x);y=Math.round(y);const
   if(g){ctx.strokeStyle=e.jk>0?'#fff':'#ffe07a';ctx.lineWidth=.7;ctx.beginPath();ctx.ellipse(.5,1,6,3,0,0,7);ctx.stroke()}
   const pc=e.o?'#eee':'#333';r(-2,-3,2,leg?3:2,pc);r(1,-3,2,leg?2:3,pc);
   r(-3,-8,7,5,jer);r(-3,-8,7,1,hel);r(-2,-12,5,4,hel);const face=portrait?0:(e.o?1:-1);r(face>0?2:face<0?-2:0,-10,1+(face==0?0:0),2,'#ddd');if(face==0)r(-1,-10,3,1,'#ddd');
-  if(t.heel&&e.role=='qb')r(-3,-13,7,2,'#111');// eat-shit hat
+  if(t.villain&&e.role=='qb')r(-3,-13,7,2,'#111');// eat-shit hat
   if(t.wip&&e.role=='qb')r(-3,-13,7,1,'#ffd23f');// hard hat
   if((e.role=='qb'&&!G.carrier&&G.ball.st=='held'&&G.ball.h===e)||g)r(2,-6,3,2,'#8b4513');
   ctx.restore()}
@@ -336,7 +336,7 @@ function title(){G=null;hud(false);$('#pre').style.display='none';$('#kick').sty
   on('ss',()=>{if(!(s&&!s.done&&s.team==me.id)){const sched=TEAMS.filter(t=>t.id!=me.id).map(t=>t.id).sort(()=>R()-.5);SV.season={team:me.id,sched,wk:0,w:0,l:0,res:[]};save()}seasonNext()});
   on('sh',shop);on('mute2',()=>{SV.mute=!SV.mute;save();title()})}
 function seasonNext(){const s=SV.season;let o=s.sched[s.wk];if(s.bowl){o=TEAMS.filter(t=>t.id!=s.team).sort((a,b)=>(b.w||0)-(a.w||0))[0].id}newGame(s.team,o,'season');if(s.bowl)msg('THE SHADY BOWL. Win this and you get bragging rights until next August.',3.5)}
-function teamSel(){showScr('s-team');$('#s-team').innerHTML=`<h2 class="D">PICK YOUR TEAM</h2><p class="sub">Every leaguemate's team, live from Sleeper. Your opponents are everyone else.</p><div class="grid">${TEAMS.map(t=>{const fg=t.c[0]=='#ffffff'?t.c[1]:t.c[0];return `<button class="tc${t.wip?' wip':''}" data-t="${t.id}" style="background:linear-gradient(160deg,${fg},${t.c[2]||'#111'})"><img src="${avatar(t)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'"><b>${esc(t.team)}</b><small>${esc(t.mgr)} · ${t.w!=null?t.w+'-'+(t.l||0):''}</small>${t.wip?'<span class="tag">🚧 UNDER CONSTRUCTION</span>':t.heel?'<span class="tag">👎 BOOOO</span>':''}</button>`}).join('')}</div><div class="row"><button class="pb red" id="bk">← BACK</button></div>`;
+function teamSel(){showScr('s-team');$('#s-team').innerHTML=`<h2 class="D">PICK YOUR TEAM</h2><p class="sub">Every leaguemate's team, live from Sleeper. Your opponents are everyone else.</p><div class="grid">${TEAMS.map(t=>{const fg=t.c[0]=='#ffffff'?t.c[1]:t.c[0];return `<button class="tc${t.wip?' wip':''}" data-t="${t.id}" style="background:linear-gradient(160deg,${fg},${t.c[2]||'#111'})"><img src="${avatar(t)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'"><b>${esc(t.team)}</b><small>${esc(t.mgr)} · ${t.w!=null?t.w+'-'+(t.l||0):''}</small>${t.wip?'<span class="tag">🚧 UNDER CONSTRUCTION</span>':t.villain?'<span class="tag">👎 BOOOO</span>':''}</button>`}).join('')}</div><div class="row"><button class="pb red" id="bk">← BACK</button></div>`;
   $('#s-team').onclick=e=>{const b=e.target.closest('[data-t]');if(b){SV.team=b.dataset.t;save();snd('catch');title()}if(e.target.id=='bk')title()}}
 const UPS=[['arm','ARM','Longer, faster, more accurate throws'],['hands','HANDS','Bigger catch radius, wins 50/50 balls'],['wheels','WHEELS','Faster receivers and backs, more broken tackles'],['legs','LEGS','Stamina refills faster, bigger kick window'],['d','DEFENSE','Sim defense gives up fewer points']];
 function shop(){showScr('s-shop');const h=UPS.map(([k,n,d])=>{const l=SV.up[k],c=30*(l+1);return `<div class="up"><div><b class="D" style="font-size:20px">${n}</b> <span class="pips">${'■'.repeat(l)}${'□'.repeat(5-l)}</span><br><small>${d}</small></div>${l<5?`<button class="pb" data-u="${k}" ${SV.coins<c?'disabled style="opacity:.45"':''}>${c} 🪙</button>`:'<b>MAX</b>'}</div>`}).join('');

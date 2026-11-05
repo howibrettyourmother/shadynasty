@@ -1,52 +1,52 @@
 'use strict';
-// SHADYNASTY HQ: the heel's entrance. Wilson Weasels (BRETT) gets a villain-entrance cinematic instead of the normal team particle burst.
+// SHADYNASTY HQ: the villain's entrance. Wilson Weasels (BRETT) gets a villain-entrance cinematic instead of the normal team particle burst.
 // ~3.6s: blackout vignette, lightning + one short soft flash, small shake, red smoke + embers from below, the eat-shit-hat weasel rising
 // with red-glowing lenses and backlight rays, then a title card slam, then fade. Tap anywhere to skip. prefers-reduced-motion -> static card,
 // no flash/shake/particles. Sound (low thunder) only if the site's sound isn't muted AND the page has had a user gesture.
 (function(){
 const LINES=['Boo louder.','Your lineup fears me.','Hate me harder.','Your trade offer made him laugh.','Lock your waiver wire.','Your bench is shaking.'];
 let css=false;function style(){if(css)return;css=true;const s=document.createElement('style');s.textContent=`
-#heel{position:fixed;inset:0;z-index:2147483000;overflow:hidden;pointer-events:auto;cursor:pointer;contain:strict;-webkit-tap-highlight-color:transparent}
-#heel .hlvg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 62%,rgba(60,0,0,.55) 0%,rgba(8,0,0,.92) 55%,#000 100%);opacity:0;transition:opacity .3s ease}
-#heel.on .hlvg{opacity:1}
-#heel canvas{position:absolute;inset:0;width:100%;height:100%}
-#heel .hlry{position:absolute;left:50%;top:52%;width:150vmax;height:150vmax;margin:-75vmax 0 0 -75vmax;opacity:0;transition:opacity .8s ease .5s;
-  background:repeating-conic-gradient(from 0deg,rgba(255,40,30,.20) 0deg 5deg,rgba(0,0,0,0) 5deg 15deg);-webkit-mask-image:radial-gradient(circle,#000 0%,rgba(0,0,0,.6) 18%,transparent 48%);mask-image:radial-gradient(circle,#000 0%,rgba(0,0,0,.6) 18%,transparent 48%);animation:heelspin 9s linear infinite}
-#heel.rise .hlry{opacity:1}
-@keyframes heelspin{to{transform:rotate(360deg)}}
-#heel .hlwz{position:absolute;left:50%;top:52%;width:min(74vw,46vh);aspect-ratio:1;transform:translate(-50%,-50%) translateY(75vh) scale(.82);will-change:transform;transition:transform 1.25s cubic-bezier(.16,.9,.25,1)}
-#heel.rise .hlwz{transform:translate(-50%,-50%) translateY(0) scale(1)}
-#heel .hlwz img{width:100%;height:100%;display:block;border-radius:50%;filter:contrast(1.15) saturate(.75) brightness(.85) sepia(.25) hue-rotate(-20deg);
+#villain{position:fixed;inset:0;z-index:2147483000;overflow:hidden;pointer-events:auto;cursor:pointer;contain:strict;-webkit-tap-highlight-color:transparent}
+#villain .hlvg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 62%,rgba(60,0,0,.55) 0%,rgba(8,0,0,.92) 55%,#000 100%);opacity:0;transition:opacity .3s ease}
+#villain.on .hlvg{opacity:1}
+#villain canvas{position:absolute;inset:0;width:100%;height:100%}
+#villain .hlry{position:absolute;left:50%;top:52%;width:150vmax;height:150vmax;margin:-75vmax 0 0 -75vmax;opacity:0;transition:opacity .8s ease .5s;
+  background:repeating-conic-gradient(from 0deg,rgba(255,40,30,.20) 0deg 5deg,rgba(0,0,0,0) 5deg 15deg);-webkit-mask-image:radial-gradient(circle,#000 0%,rgba(0,0,0,.6) 18%,transparent 48%);mask-image:radial-gradient(circle,#000 0%,rgba(0,0,0,.6) 18%,transparent 48%);animation:villainspin 9s linear infinite}
+#villain.rise .hlry{opacity:1}
+@keyframes villainspin{to{transform:rotate(360deg)}}
+#villain .hlwz{position:absolute;left:50%;top:52%;width:min(74vw,46vh);aspect-ratio:1;transform:translate(-50%,-50%) translateY(75vh) scale(.82);will-change:transform;transition:transform 1.25s cubic-bezier(.16,.9,.25,1)}
+#villain.rise .hlwz{transform:translate(-50%,-50%) translateY(0) scale(1)}
+#villain .hlwz img{width:100%;height:100%;display:block;border-radius:50%;filter:contrast(1.15) saturate(.75) brightness(.85) sepia(.25) hue-rotate(-20deg);
   -webkit-mask-image:radial-gradient(circle at 50% 46%,#000 56%,transparent 71%);mask-image:radial-gradient(circle at 50% 46%,#000 56%,transparent 71%)}
-#heel .hlwz::before{content:'';position:absolute;inset:-14%;border-radius:50%;background:radial-gradient(circle,rgba(255,50,30,.55) 0%,rgba(160,0,0,.25) 40%,transparent 68%);z-index:-1}
-#heel .hley{position:absolute;width:22%;height:16%;border-radius:50%;opacity:0;background:radial-gradient(ellipse,rgba(255,235,220,.95) 0%,rgba(255,40,20,.9) 22%,rgba(220,0,0,.45) 50%,transparent 72%);mix-blend-mode:screen;transition:opacity .35s ease}
-#heel .hley.l{left:22%;top:59%}#heel .hley.r{left:59%;top:57%}
-#heel.eyes .hley{opacity:1;animation:heeleye 1.1s ease-in-out infinite alternate}
-@keyframes heeleye{to{filter:brightness(1.35);transform:scale(1.08)}}
-#heel .hlfl{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
-#heel .hltt{position:absolute;left:0;right:0;bottom:9vh;text-align:center;padding:0 5vw;opacity:0;transform:scale(2.4);will-change:transform,opacity}
-#heel.title .hltt{opacity:1;transform:scale(1);transition:transform .22s cubic-bezier(.2,1.6,.4,1),opacity .12s linear}
-#heel .hltt b{display:block;font:900 clamp(26px,8.6vw,54px)/.95 Impact,'Arial Black','Helvetica Neue',sans-serif;letter-spacing:.02em;color:#fff;text-transform:uppercase;
+#villain .hlwz::before{content:'';position:absolute;inset:-14%;border-radius:50%;background:radial-gradient(circle,rgba(255,50,30,.55) 0%,rgba(160,0,0,.25) 40%,transparent 68%);z-index:-1}
+#villain .hley{position:absolute;width:22%;height:16%;border-radius:50%;opacity:0;background:radial-gradient(ellipse,rgba(255,235,220,.95) 0%,rgba(255,40,20,.9) 22%,rgba(220,0,0,.45) 50%,transparent 72%);mix-blend-mode:screen;transition:opacity .35s ease}
+#villain .hley.l{left:22%;top:59%}#villain .hley.r{left:59%;top:57%}
+#villain.eyes .hley{opacity:1;animation:villaineye 1.1s ease-in-out infinite alternate}
+@keyframes villaineye{to{filter:brightness(1.35);transform:scale(1.08)}}
+#villain .hlfl{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#villain .hltt{position:absolute;left:0;right:0;bottom:9vh;text-align:center;padding:0 5vw;opacity:0;transform:scale(2.4);will-change:transform,opacity}
+#villain.title .hltt{opacity:1;transform:scale(1);transition:transform .22s cubic-bezier(.2,1.6,.4,1),opacity .12s linear}
+#villain .hltt b{display:block;font:900 clamp(26px,8.6vw,54px)/.95 Impact,'Arial Black','Helvetica Neue',sans-serif;letter-spacing:.02em;color:#fff;text-transform:uppercase;
   text-shadow:0 0 18px rgba(255,30,20,.9),0 3px 0 #7a0000,0 6px 18px #000;-webkit-text-stroke:1px #2a0000}
-#heel .hltt i{display:inline-block;margin-top:10px;font:800 clamp(14px,4.4vw,22px)/1.1 -apple-system,'Helvetica Neue',Arial,sans-serif;font-style:normal;color:#ffd5cf;letter-spacing:.08em;text-transform:uppercase;background:rgba(120,0,0,.55);border:1px solid rgba(255,60,40,.6);padding:5px 12px;border-radius:4px;opacity:0;transform:translateY(8px);transition:all .3s ease .35s}
-#heel.title .hltt i{opacity:1;transform:none}
-#heel .hlkp{position:absolute;top:max(14px,env(safe-area-inset-top));right:14px;font:700 11px/1 -apple-system,Arial,sans-serif;color:rgba(255,255,255,.55);letter-spacing:.1em;text-transform:uppercase}
-#heel.out{opacity:0;transition:opacity .35s ease}
-@keyframes heelshake{0%,100%{transform:none}20%{transform:translate(-7px,3px)}40%{transform:translate(6px,-4px)}60%{transform:translate(-4px,-2px)}80%{transform:translate(3px,3px)}}
-#heel.shake .hlsk{animation:heelshake .32s linear}
-#heel .hlsk{position:absolute;inset:0}
-#heel.static .hlwz{transform:translate(-50%,-50%);transition:none}#heel.static .hlry{opacity:.6;animation:none}#heel.static .hley{opacity:1}#heel.static .hltt{opacity:1;transform:none}#heel.static .hltt i{opacity:1;transform:none}`;document.head.appendChild(s)}
+#villain .hltt i{display:inline-block;margin-top:10px;font:800 clamp(14px,4.4vw,22px)/1.1 -apple-system,'Helvetica Neue',Arial,sans-serif;font-style:normal;color:#ffd5cf;letter-spacing:.08em;text-transform:uppercase;background:rgba(120,0,0,.55);border:1px solid rgba(255,60,40,.6);padding:5px 12px;border-radius:4px;opacity:0;transform:translateY(8px);transition:all .3s ease .35s}
+#villain.title .hltt i{opacity:1;transform:none}
+#villain .hlkp{position:absolute;top:max(14px,env(safe-area-inset-top));right:14px;font:700 11px/1 -apple-system,Arial,sans-serif;color:rgba(255,255,255,.55);letter-spacing:.1em;text-transform:uppercase}
+#villain.out{opacity:0;transition:opacity .35s ease}
+@keyframes villainshake{0%,100%{transform:none}20%{transform:translate(-7px,3px)}40%{transform:translate(6px,-4px)}60%{transform:translate(-4px,-2px)}80%{transform:translate(3px,3px)}}
+#villain.shake .hlsk{animation:villainshake .32s linear}
+#villain .hlsk{position:absolute;inset:0}
+#villain.static .hlwz{transform:translate(-50%,-50%);transition:none}#villain.static .hlry{opacity:.6;animation:none}#villain.static .hley{opacity:1}#villain.static .hltt{opacity:1;transform:none}#villain.static .hltt i{opacity:1;transform:none}`;document.head.appendChild(s)}
 function thunder(t0,d,vol){try{if(localStorage.getItem('sn:mute')==='1')return}catch(e){}
-  if(!(navigator.userActivation?navigator.userActivation.hasBeenActive:heel.gest))return;
-  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const a=heel.ac||(heel.ac=new C());if(a.state==='suspended')a.resume();
+  if(!(navigator.userActivation?navigator.userActivation.hasBeenActive:villain.gest))return;
+  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const a=villain.ac||(villain.ac=new C());if(a.state==='suspended')a.resume();
   const n=Math.floor(a.sampleRate*d),b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);let l=0;for(let i=0;i<n;i++){l=(l+0.04*(Math.random()*2-1))/1.04;x[i]=l*3.5}
   const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain(),t=a.currentTime+t0;s.buffer=b;f.type='lowpass';f.frequency.value=180;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.06);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
   s.connect(f);f.connect(g);g.connect(a.destination);s.start(t);s.stop(t+d+0.05)}
-addEventListener('pointerdown',()=>{heel.gest=1},{capture:true,passive:true});
-function heel(th,o){style();const old=document.getElementById('heel');if(old)old.remove();
+addEventListener('pointerdown',()=>{villain.gest=1},{capture:true,passive:true});
+function villain(th,o){style();const old=document.getElementById('villain');if(old)old.remove();
   const rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const line=LINES[(heel.n=(heel.n==null?Math.floor(Math.random()*LINES.length):heel.n+1))%LINES.length];
-  const w=document.createElement('div');w.id='heel';w.setAttribute('role','dialog');w.setAttribute('aria-label','Weasel season. '+line);
+  const line=LINES[(villain.n=(villain.n==null?Math.floor(Math.random()*LINES.length):villain.n+1))%LINES.length];
+  const w=document.createElement('div');w.id='villain';w.setAttribute('role','dialog');w.setAttribute('aria-label','Weasel season. '+line);
   w.innerHTML=`<div class="hlsk"><div class="hlvg"></div><div class="hlry"></div><canvas></canvas><div class="hlwz"><img alt="" src="img/weasel-av.webp"><i class="hley l"></i><i class="hley r"></i></div><div class="hltt"><b>Weasel season</b><i>${line}</i></div></div><div class="hlfl"></div><div class="hlkp">tap to skip</div>`;
   document.body.appendChild(w);let done=false,T=[],raf=0;const later=(f,ms)=>T.push(setTimeout(f,ms));
   const end=fast=>{if(done)return;done=true;T.forEach(clearTimeout);w.classList.add('out');if(fast)w.style.transitionDuration='.18s';setTimeout(()=>{cancelAnimationFrame(raf);w.remove()},fast?200:380)};
@@ -77,5 +77,5 @@ function heel(th,o){style();const old=document.getElementById('heel');if(old)old
   later(()=>{bolt(W*(R()<.5?0.15:0.85),false);flash(0.22,200)},1750);                          // crack #2: small, dim
   later(()=>{w.classList.add('title');shake();thunder(0,0.7,0.35)},1950);
   later(()=>end(),3600)}
-window.heelEntrance=heel;
+window.villainEntrance=villain;
 })();
