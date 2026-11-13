@@ -1,0 +1,15 @@
+name: stale-data check
+# Daily, read-only (never commits): fails (so GitHub emails the repo owner) if data/players.json is 7+ days old;
+# prints WARN lines for a stale rookie board, a lagging projections week or a league season mismatch.
+on:
+  schedule:
+    - cron: '23 14 * * *'
+  workflow_dispatch:
+permissions: { contents: read }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/smoke.py --stale-only

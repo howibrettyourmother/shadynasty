@@ -91,7 +91,18 @@ if (state.get('season_type') == 'regular') and week >= 1:
     except Exception as e:
         print('projections unavailable:', e)
 os.makedirs('data', exist_ok=True)
-with open('data/players.json', 'w') as f:
-    json.dump({'at': int(time.time() * 1000), 'season': season, 'week': week, 'n': len(out), 'p': out, 'pj': pj}, f, separators=(',', ':'))
+new = {'season': season, 'week': week, 'n': len(out), 'p': out, 'pj': pj}
+# less bot churn: skip the rewrite (and so the commit) when nothing but the timestamp would change,
+# unless the file is getting old (the site treats a slim file older than 7 days as stale).
+try:
+    with open('data/players.json') as f: old = json.load(f)
+    old_at = old.pop('at', 0)
+except Exception:
+    old, old_at = None, 0
+if old == new and time.time() * 1000 - old_at < 2 * 864e5:
+    print('players unchanged since %s; not rewriting data/players.json' % time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(old_at / 1000)))
+else:
+    with open('data/players.json', 'w') as f:
+        json.dump(dict(at=int(time.time() * 1000), **new), f, separators=(',', ':'))
 with open(HIST, 'w') as f: json.dump(hist, f, separators=(',', ':'))
-print('wrote %d players (%d league ids), %d projections for week %d' % (len(out), len(ids), len(pj), week))
+print('%d players (%d league ids), %d projections for week %d' % (len(out), len(ids), len(pj), week))

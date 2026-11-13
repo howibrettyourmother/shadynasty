@@ -37,7 +37,7 @@ const RAWP=()=>RAWP.p||(RAWP.p=fetch(API+'players/nfl').then(r=>{if(!r.ok)throw 
 async function playersFor(ids){
   const k='sn:players';let c=LS.get(k);if(!c||Date.now()-c.at>7*864e5)c={at:Date.now(),p:{}};const have=c.p;
   if(!ids.every(i=>have[i])){
-    // prefer the slim data/players.json (GitHub Action, ~60 KB gz, every 30-60 min) over Sleeper's ~15 MB file; Sleeper direct only if it's missing/stale/incomplete
+    // prefer the slim data/players.json (GitHub Action, ~60 KB gz, every ~4-8 h in practice) over Sleeper's ~15 MB file; Sleeper direct only if it's missing/stale/incomplete
     if(!playersFor.slim)playersFor.slim=SLIM().then(d=>{const cur=D.cur?Object.values(D.cur.T).flatMap(t=>t.players):[];if(Date.now()-d.at>7*864e5||cur.filter(i=>!d.p[i]).length>3)throw new Error('slim stale');const m={};for(const i in d.p){const p=d.p[i];m[i]={n:p.n,p:p.p,t:p.t}}return m})
       .catch(()=>RAWP().then(all=>{const m={};
       for(const i in all){const p=all[i];m[i]={n:p.position==='DEF'?((p.first_name||'')+' '+(p.last_name||'')).trim()+' D/ST':(p.full_name||((p.first_name||'')+' '+(p.last_name||'')).trim()),p:(p.fantasy_positions&&p.fantasy_positions.length?p.fantasy_positions:[p.position]).filter(Boolean),t:p.team||'FA'}}return m})).catch(e=>{playersFor.slim=null;throw e});
