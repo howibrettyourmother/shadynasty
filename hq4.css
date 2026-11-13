@@ -1,0 +1,6 @@
+/* SHADYNASTY HQ round 4 */
+.vwarn{margin:0 0 16px;padding:10px 12px;border-radius:12px;border:1px solid rgba(227,38,46,.55);background:linear-gradient(180deg,rgba(227,38,46,.18),rgba(227,38,46,.06));color:#ffd9d9;font-size:13px;line-height:1.4}
+.vwarn .chip{margin-left:6px}
+.panel .vwarn{margin:8px 0 12px}
+.asof{display:inline-block;margin:2px 0 10px;padding:4px 10px;border-radius:999px;background:rgba(255,199,44,.12);border:1px solid rgba(255,199,44,.35);font:600 12px var(--disp);letter-spacing:.05em;color:var(--gold)}
+.ta-ps{color:var(--gold);font-weight:700;margin-left:4px}

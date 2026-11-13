@@ -1,7 +1,9 @@
 'use strict';
 // SHADYNASTY (Dynasty. Degeneracy. Shoeys.): everything is computed in the browser from the free public Sleeper API (+ FantasyCalc dynasty SF values).
-const API='https://api.sleeper.app/v1/',LEAGUE='1312055708249767936',BRETT='603082868373135360';
-const KTC='https://keeptradecut.com/dynasty/power-rankings/league-overview?leagueId='+LEAGUE+'&platform=Sleeper';
+// League id comes from config.js (auto-follows Sleeper's yearly renewal); fallback = the 2026 league.
+const CFG=window.SN_CFG||{LEAGUE:'1312055708249767936',COMMISH:'603082868373135360',ready:Promise.resolve('1312055708249767936')};
+const API='https://api.sleeper.app/v1/',BRETT=CFG.COMMISH||'603082868373135360';let LEAGUE=CFG.LEAGUE;
+let KTC='https://keeptradecut.com/dynasty/power-rankings/league-overview?leagueId='+LEAGUE+'&platform=Sleeper';
 const GAME='https://howibrettyourmother.github.io/mo-morehouse-mo-problems/',TANK='https://howibrettyourmother.github.io/tank-for-jeremiah-smith/';
 const ELIG={QB:['QB'],RB:['RB'],WR:['WR'],TE:['TE'],K:['K'],DEF:['DEF'],FLEX:['RB','WR','TE'],WRRB_FLEX:['RB','WR'],REC_FLEX:['WR','TE'],SUPER_FLEX:['QB','RB','WR','TE'],IDP_FLEX:['DL','LB','DB'],DL:['DL'],LB:['LB'],DB:['DB']};
 const $=s=>document.querySelector(s);
@@ -46,12 +48,26 @@ let PL={};const pn=id=>esc((PL[id]||{}).n||'Player '+id);
 function optimal(slots,players,pp,P){const left=new Set(players),order=slots.map((s,i)=>({s,i,e:ELIG[s]||[s]})).sort((a,b)=>a.e.length-b.e.length);let tot=0;
   for(const o of order){let best=null,bp=-1;for(const id of left){const p=P[id];if(p&&p.p.some(x=>o.e.includes(x))&&(pp[id]||0)>bp){bp=pp[id]||0;best=id}}if(best){left.delete(best);tot+=bp}}return tot}
 // ---- FantasyCalc dynasty superflex values (CORS-open, free). Cached 24h. ----
-async function values(){const k='sn:fc3';const c=LS.get(k);if(c&&Date.now()-c.at<864e5)return c;
+async function fcValues(){const k='sn:fc3';const c=LS.get(k);if(c&&Date.now()-c.at<864e5)return c;
   try{const d=await fetch('https://api.fantasycalc.com/values/current?isDynasty=true&numQbs=2&numTeams=12&ppr=1').then(r=>{if(!r.ok)throw 0;return r.json()});
     const v={at:Date.now(),p:{},pk:{},a:{}};for(const x of d){const pl=x.player||{};if(pl.position==='PICK'){v.pk[pl.name]=x.value}else if(pl.sleeperId){v.p[pl.sleeperId]=x.value;if(pl.maybeAge)v.a[pl.sleeperId]=Math.round(pl.maybeAge*10)/10}}
-    LS.set(k,v);return v}catch(e){return c||{at:0,p:{},pk:{},a:{}}}}
+    LS.set(k,v);return v}catch(e){return c?Object.assign(c,{stale:1}):{at:0,p:{},pk:{},a:{}}}}
 const ORD=['','1st','2nd','3rd','4th','5th'];
-function pickVal(V,season,round){return V.pk[season+' '+ORD[round]]||V.pk[season+' '+ORD[round]+' (Mid)']||(V.pk[(+season-1)+' '+ORD[round]]||0)*0.9||0}
+// Pick value. Next year's picks are valued by PROJECTED SLOT: expected value over the canonical tank-odds slot distribution
+// (tankodds.js), using FantasyCalc's Early (1-4) / Mid (5-8) / Late (9-12) prices. A 99%-locked 1.01 is worth an early 1st, not an average one.
+function pickVal(V,season,round,orig){const base=V.pk[season+' '+ORD[round]]||V.pk[season+' '+ORD[round]+' (Mid)']||(V.pk[(+season-1)+' '+ORD[round]]||0)*0.9||0;
+  const sl=V.slot&&orig!=null&&+season===+V.slotSeason?V.slot[orig]:null;if(!sl||!base)return base;
+  const tv=t=>V.pk[season+' '+ORD[round]+' ('+t+')']||base,n=sl.length;let e=0;sl.forEach((p,i)=>{e+=p*tv(i<n/3?'Early':i<2*n/3?'Mid':'Late')});return Math.round(e)||base}
+// canonical rookie-slot odds for next year's draft, computed once per scored week
+async function tankOdds(){const c=await current(),lg=c.lg,st=lg.settings||{},pws=+st.playoff_week_start||15,last=Math.min(+st.last_scored_leg||0,pws-1);
+  if(!window.SNTank||!['in_season','post_season'].includes(lg.status)||!last)return null;
+  const k=LEAGUE+':'+last;if(tankOdds.c&&tankOdds.c.k===k)return tankOdds.c.v;
+  const M=await pool(Array.from({length:pws-1},(_,i)=>()=>jc('league/'+LEAGUE+'/matchups/'+(i+1)).catch(()=>[])),8);
+  const v=SNTank.simTank(c.T,M,last,pws,+st.playoff_teams||6,SNTank.N);tankOdds.c={k,v};return v}
+// values = FantasyCalc + projected-slot odds. D.vState drives the "values unavailable / stale" banner.
+async function values(){const v=await fcValues();D.vState=!v.at||!Object.keys(v.p||{}).length?'none':v.stale?'stale':'ok';D.vAt=v.at;
+  if(D.vState==='none')return v;try{const so=await tankOdds();if(so){const slot={},es={};for(const r in so){slot[r]=so[r].slot;es[r]=so[r].eSlot}return Object.assign({},v,{slot,eslot:es,slotSeason:+(await current()).lg.season+1})}}catch(e){console.warn('tank odds',e)}
+  return v}
 // ---------------- data model ----------------
 const D={};try{for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&(k.indexOf('sn:s5:')===0||k.indexOf('sn:s6:')===0||k.indexOf('sn:s7:')===0||k.indexOf('sn:s8:')===0||k.indexOf('sn:s9:')===0))localStorage.removeItem(k)}}catch(e){}
 async function chain(){if(D.chain)return D.chain;const cache=LS.get('sn:chain')||{},out=[];let id=LEAGUE;
@@ -103,12 +119,12 @@ const tag=t=>'';   // no team labels (too repetitive)
 const photo=(k,cap,cls,kind)=>secImg(k,cap,cls,kind);
 function rng(seed){return seeded(hashStr(String(seed)))}
 const pickOf=(arr,seed)=>arr[Math.floor(rng(seed)()*arr.length)];
-const ktcBtn=`<a class="ktc" href="${KTC}" target="_blank" rel="noopener">📊 KTC League Power Rankings ↗</a>`;
+let ktcBtn=`<a class="ktc" href="${KTC}" target="_blank" rel="noopener">📊 KTC League Power Rankings ↗</a>`;
 const credit=`<div class="credit">Player &amp; pick values: <a href="https://fantasycalc.com" target="_blank" rel="noopener">FantasyCalc</a> dynasty superflex (12 teams), refreshed daily. Stats: public <a href="https://docs.sleeper.com/" target="_blank" rel="noopener">Sleeper API</a>.</div>`;
 function teamValue(T,V,tp,lg){const season=+lg.season,RD=+lg.settings.draft_rounds||4,out={};
   for(const t of Object.values(T)){const pv=t.players.reduce((a,p)=>a+(V.p[p]||0),0);out[t.rid]={pv,kv:0,picks:[]}}
   for(let s=season+1;s<=season+3;s++)for(let r=1;r<=RD;r++)for(const t of Object.values(T)){let own=t.rid;const tr=(tp||[]).find(x=>+x.season===s&&+x.round===r&&x.roster_id===t.rid);if(tr)own=tr.owner_id;
-    if(!out[own])continue;const v=pickVal(V,s,r);out[own].kv+=v;out[own].picks.push({s,r,o:t.rid,v})}
+    if(!out[own])continue;const v=pickVal(V,s,r,t.rid);out[own].kv+=v;out[own].picks.push({s,r,o:t.rid,v,ps:V.eslot&&s===+V.slotSeason&&V.eslot[t.rid]?Math.round(V.eslot[t.rid]):0})}
   for(const k in out)out[k].tot=out[k].pv+out[k].kv;return out}
 // ---------------- pages ----------------
 const R={};
@@ -280,10 +296,10 @@ function tradeList(S,T,V){const bySeason=Object.fromEntries(S.map(s=>[s.season,s
   const sentBy=(tr,rid)=>[...Object.keys(tr.adds).filter(pid=>senderOf(tr,pid)===+rid).map(pid=>({k:'p',pid})),...tr.picks.filter(p=>+p.from===+rid).map(p=>({k:'k',s:p.s,r:p.r,o:p.o}))];
   const gotBy=(tr,rid)=>[...Object.entries(tr.adds).filter(([,r])=>+r===+rid).map(([pid])=>({k:'p',pid})),...tr.picks.filter(p=>+p.to===+rid).map(p=>({k:'k',s:p.s,r:p.r,o:p.o}))];
   const drafted=a=>{const d=(bySeason[a.s]||{}).picks;return d&&d[a.s+'|'+a.r+'|'+a.o]};
-  const nowVal=a=>{if(a.k==='p')return V.p[a.pid]||0;const g=drafted(a);return g?V.p[g[0]]||0:pickVal(V,a.s,a.r)};
+  const nowVal=a=>{if(a.k==='p')return V.p[a.pid]||0;const g=drafted(a);return g?V.p[g[0]]||0:pickVal(V,a.s,a.r,a.o)};
   // weights for splitting a multi-asset return: players at today's value (floor 100 so a since-retired guy isn't weightless); picks at what that round costs today
   // (a pick was a pick when it was traded, so a busted draftee shouldn't zero it out)
-  const wOf=a=>a.k==='p'?Math.max(V.p[a.pid]||0,100):(drafted(a)?0:pickVal(V,a.s,a.r))||pickVal(V,nextYr,a.r)||100;
+  const wOf=a=>a.k==='p'?Math.max(V.p[a.pid]||0,100):(drafted(a)?0:pickVal(V,a.s,a.r,a.o))||pickVal(V,nextYr,a.r)||100;
   const nextOut=(rid,a,at)=>TRX.find(x=>(x.tr.at||0)>at&&(a.k==='p'?(x.tr.adds[a.pid]!=null&&senderOf(x.tr,a.pid)===+rid):x.tr.picks.some(p=>+p.from===+rid&&+p.s===+a.s&&+p.r===+a.r&&+p.o===+a.o)));
   const flipW=(rid,a,o,depth,seen,p0)=>{const tr=o.tr,sent=sentBy(tr,rid),got=gotBy(tr,rid),tot=sent.reduce((t,x)=>t+wOf(x),0),share=tot>0?wOf(a)/tot:1/Math.max(1,sent.length);
     const r={p:p0,v:0,fp:0,tag:'flipped',via:got,share,fs:o.season,fl:tr.leg,fa:tr.at||0,with:sent.length-1};
@@ -296,7 +312,7 @@ function tradeList(S,T,V){const bySeason=Object.fromEntries(S.map(s=>[s.season,s
       return{p,v:V.p[a.pid]||0,tag:dAt>at?'dropped':'gone'}}
     const o=nextOut(rid,a,at);if(o)return flipW(rid,a,o,depth,seen,0);
     const g=drafted(a);if(g){if(+g[1]===+rid)return{...worth(rid,{k:'p',pid:g[0]},0,a.s,1,depth,seen),who:g[0]};return{p:0,v:V.p[g[0]]||0,tag:'gone',who:g[0]}}
-    const own=tp.find(z=>+z.season===+a.s&&+z.round===+a.r&&+z.roster_id===+a.o);return{p:0,v:pickVal(V,a.s,a.r),tag:+(own?own.owner_id:a.o)===+rid?'':'gone'}};
+    const own=tp.find(z=>+z.season===+a.s&&+z.round===+a.r&&+z.roster_id===+a.o);return{p:0,v:pickVal(V,a.s,a.r,a.o),tag:+(own?own.owner_id:a.o)===+rid?'':'gone'}};
   for(const s of S)for(const tr of s.trades){const at=tr.at||0,sides=tr.rids.map(rid=>({rid,team:nm(s.season,rid),cur:(T[rid]||{}).team,players:[],picks:[],pts:0,val:0,score:0}));const sd=r=>sides.find(x=>x.rid===r);const seen=new Set([tr.id]);
     for(const [pid,rid] of Object.entries(tr.adds)){const x=sd(rid);if(!x)continue;const w=worth(rid,{k:'p',pid},at,s.season,tr.leg,0,seen);x.players.push({pid,...w,gone:w.tag==='gone'});x.pts+=w.p;x.val+=w.v}
     for(const pk of tr.picks){const x=sd(pk.to);if(!x)continue;const w=worth(pk.to,{k:'k',s:pk.s,r:pk.r,o:pk.o},at,s.season,tr.leg,0,seen);
@@ -629,6 +645,9 @@ function rivals(S,t){const h={};games(S).forEach(g=>{for(const [x,y] of [[g.a,g.
 
 // ---------------- DRAFT ROOM: snapshot mock of the 2027 rookie draft ----------------
 // 2027 superflex rookie board: consensus of DraftSharks + Dynasty Nerds SF, as of Oct 2026. Order uses Tank Watch logic.
+// Rookie board is a hand-made snapshot: BOARD_YEAR/BOARD_ASOF say which class and when. If the league has moved on to a different
+// draft year, the Draft Room keeps the live order + pick owners but hides player names instead of mocking last year's class.
+const BOARD_YEAR=2027,BOARD_ASOF='Oct 2026';
 const BOARD27=[["Jeremiah Smith", "WR", "Ohio State"], ["Dante Moore", "QB", "Oregon"], ["Arch Manning", "QB", "Texas"], ["Darian Mensah", "QB", "Miami"], ["Trinidad Chambliss", "QB", "Ole Miss"], ["Jadan Baugh", "RB", "Florida"], ["Kewan Lacy", "RB", "Ole Miss"], ["Cam Coleman", "WR", "Texas"], ["Charlie Becker", "WR", "Indiana"], ["Jamari Johnson", "TE", "Oregon"], ["Drew Mestemaker", "QB", "Oklahoma State"], ["CJ Carr", "QB", "Notre Dame"], ["Julian Sayin", "QB", "Ohio State"], ["KJ Duff", "WR", "Rutgers"], ["Ahmad Hardy", "RB", "Missouri"], ["Ryan Coleman-Williams", "WR", "Alabama"], ["Nick Marsh", "WR", "Indiana"], ["Trey'Dez Green", "TE", "LSU"], ["Jayden Maiava", "QB", "USC"], ["Nate Frazier", "RB", "Georgia"], ["LaNorris Sellers", "QB", "South Carolina"], ["Reed Harris", "WR", "Arizona State"], ["Bryant Wesco Jr.", "WR", "Clemson"], ["Mark Fletcher Jr.", "RB", "Miami"], ["Antwan Raymond", "RB", "Rutgers"]];
 const DRL={joeVia:["Joe uses {O}'s pick on {P}. Collecting other people's picks is the one thing this rebuild does well.","{P} to Joe with {O}'s pick. Another asset for the pile. The pile has never won a playoff game.","Joe turns in {O}'s card for {P}. Year 6 of 'accumulating assets' continues."],one:["{T} takes {P} at 1.01. Jeremiah Smith, welcome to the rebuild. Bring a helmet.","{T} finally wins something: the 1.01. {P} is already asking for a trade."],
  joe:["Joe sprints to the podium for {P}. The tank worked. Nothing else has.","Joe takes {P}. Year 6 of the rebuild has a pulse.","{P} to Joe. Somebody check on {P}'s agent."],
@@ -641,13 +660,20 @@ R.draft=async el=>{const {lg,T,tp}=await current();const wb=await j('league/'+LE
   const order=[...ts.filter(t=>!po.has(t.rid)).sort((a,b)=>a.max-b.max),...P6];
   const own=(r,rid)=>{const x=(tp||[]).find(p=>String(p.season)===NEXT&&+p.round===r&&p.roster_id===rid);return x?x.owner_id:rid};
   const picks=[];for(let r=1;r<=2;r++)order.forEach((t,i)=>{const o=T[own(r,t.rid)]||t;picks.push({r,n:i+1,orig:t,o})});
-  const line=(p,k)=>{const P=BOARD27[k];const arr=k===0?DRL.one:p.o.joe?(p.o.rid!==p.orig.rid?DRL.joeVia:DRL.joe):P[1]==='QB'?DRL.qb.concat(DRL.gen):DRL.gen;return pickOf(arr,'dr27'+k+p.o.rid).replace(/\{(\w+)\}/g,(m,q)=>`<b>${esc({T:p.o.team,P:P[0],O:p.orig.team}[q])}</b>`)};
-  el.innerHTML=`<section class="panel"><h2>🎓 DRAFT ROOM · ${NEXT} MOCK</h2><div class="hint">Snapshot mock of the May ${NEXT} rookie draft. Order: non-playoff teams by <b>lowest max PF</b> (Tank Watch rules, matches how the ${lg.season} draft actually went), then playoff teams by projected finish from current standings. Record only decides who makes the playoffs. Traded picks from Sleeper. Board: consensus of DraftSharks + Dynasty Nerds SF, <b>as of Oct 2026</b>. Changes every week; nobody hold us to this.</div>
-   ${picks.map((p,k)=>`${k===0||k===12?`<h3>ROUND ${p.r}</h3>`:''}<article class="dp${k===0?' first':''}"><div class="dn">${p.r}.${String(p.n).padStart(2,'0')}</div><div class="db"><div class="dpp">${esc(BOARD27[k][0])} <small>${BOARD27[k][1]} · ${esc(BOARD27[k][2])}</small></div><div class="dt"><a href="#team/${p.o.rid}">${esc(p.o.team)}</a>${p.o.rid!==p.orig.rid?` <small>(via ${esc(p.orig.team)})</small>`:''}</div><div class="rl">${line(p,k)}</div>${k===0?photo('draft','THE 1.01. THE SQUAD SAW THIS COMING.'):''}</div></article>`).join('')}${tb213(lg,T,seeds,pt)}</section>`};
+  const okB=String(BOARD_YEAR)===NEXT,BN=k=>okB&&BOARD27[k]?BOARD27[k]:['Best player available','',''];
+  const line=(p,k)=>{const P=BN(k);if(!okB)return esc(p.o.team)+' is on the clock.';const arr=k===0?DRL.one:p.o.joe?(p.o.rid!==p.orig.rid?DRL.joeVia:DRL.joe):P[1]==='QB'?DRL.qb.concat(DRL.gen):DRL.gen;return pickOf(arr,'dr27'+k+p.o.rid).replace(/\{(\w+)\}/g,(m,q)=>`<b>${esc({T:p.o.team,P:P[0],O:p.orig.team}[q])}</b>`)};
+  el.innerHTML=`<section class="panel"><h2>🎓 DRAFT ROOM · ${NEXT} MOCK</h2><div class="hint">Snapshot mock of the May ${NEXT} rookie draft. Order: non-playoff teams by <b>lowest max PF</b> (Tank Watch rules, matches how the ${lg.season} draft actually went), then playoff teams by projected finish from current standings. Record only decides who makes the playoffs. Traded picks from Sleeper. ${okB?`Board: consensus of DraftSharks + Dynasty Nerds SF, <b>as of ${BOARD_ASOF}</b>. Changes every week; nobody hold us to this.`:''}</div>${okB?`<div class="asof">📋 Rookie board as of <b>${BOARD_ASOF}</b></div>`:`<div class="vwarn">📋 The ${NEXT} rookie board hasn't been loaded yet (the last one was the ${BOARD_YEAR} class, ${BOARD_ASOF}). Draft order and pick owners below are live.</div>`}
+   ${picks.map((p,k)=>`${k===0||k===12?`<h3>ROUND ${p.r}</h3>`:''}<article class="dp${k===0?' first':''}"><div class="dn">${p.r}.${String(p.n).padStart(2,'0')}</div><div class="db"><div class="dpp">${esc(BN(k)[0])}${BN(k)[1]?` <small>${BN(k)[1]} · ${esc(BN(k)[2])}</small>`:''}</div><div class="dt"><a href="#team/${p.o.rid}">${esc(p.o.team)}</a>${p.o.rid!==p.orig.rid?` <small>(via ${esc(p.orig.team)})</small>`:''}</div><div class="rl">${line(p,k)}</div>${k===0?photo('draft','THE 1.01. THE SQUAD SAW THIS COMING.'):''}</div></article>`).join('')}${tb213(lg,T,seeds,pt)}</section>`};
 // ---- THE TRAINER'S ROOM (Power tab, lazy): live Injury Report + Bye Week Hell. ALL-TIME INJURY GODS lives on History. ----
 // 2026 NFL bye weeks, from the NFL's official schedule release (https://www.nfl.com/_amp/2026-nfl-schedule-release-every-team-bye-week),
 // cross-checked with FOX Sports' 2026 bye list. No byes in weeks 1-4, 12, 15-18. Keys are Sleeper team abbreviations.
-const BYE26={CAR:5,KC:5,CIN:6,DET:6,MIA:6,MIN:6,BUF:7,JAX:7,LAC:7,WAS:7,HOU:8,NO:8,NYG:8,SF:8,PIT:9,TEN:9,CHI:10,DEN:10,PHI:10,TB:10,ATL:11,CLE:11,GB:11,LAR:11,NE:11,SEA:11,BAL:13,IND:13,LV:13,NYJ:13,ARI:14,DAL:14};
+const BYE_FALLBACK={2026:{CAR:5,KC:5,CIN:6,DET:6,MIA:6,MIN:6,BUF:7,JAX:7,LAC:7,WAS:7,HOU:8,NO:8,NYG:8,SF:8,PIT:9,TEN:9,CHI:10,DEN:10,PHI:10,TB:10,ATL:11,CLE:11,GB:11,LAR:11,NE:11,SEA:11,BAL:13,IND:13,LV:13,NYJ:13,ARI:14,DAL:14}};
+// NFL byes for any season, straight from ESPN's public scoreboard (week.teamsOnBye), cached 14 days. Fallback: the table above (2026 only).
+async function byeMap(season){season=String(season);const k='sn:bye:'+season,c=LS.get(k);if(c&&c.n>=28&&Date.now()-c.at<14*864e5)return c.m;
+  try{const wk=await pool(Array.from({length:18},(_,i)=>()=>fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=${i+1}&seasontype=2&dates=${season}`).then(r=>r.ok?r.json():null).catch(()=>null)),6);
+    const m={};wk.forEach((d,i)=>((d&&d.week&&d.week.teamsOnBye)||[]).forEach(t=>{const a=ESPN_FIX[t.abbreviation]||t.abbreviation;m[a]=i+1}));
+    const n=Object.keys(m).length;if(n>=28){LS.set(k,{at:Date.now(),m,n});return m}}catch(e){}
+  return(c&&c.m)||BYE_FALLBACK[season]||{}}
 const BWH={top:["{T} has {n} starters on bye and a GM who forgot what a calendar is. ~{p} pts in sweatpants this week.","Bye week hell, starring {T}. ~{p} pts sitting on a couch. Start your backup kicker, maybe.","{T} built a roster where everybody takes the same week off. That's not strategy, that's a group chat."],
  up:["{T}: week {w} is a funeral. {n} starters out, ~{p} pts gone. Plan now or cry later."],
  both:["Week {w}, {T} vs {O}: two gutted rosters, one shared shoe. Whoever starts more warm bodies wins.","{T} and {O} both show up to week {w} with half a lineup. Pure garbage-time football, all game long."],
@@ -667,15 +693,15 @@ function trainerHTML(){return`<section class="panel trainer"><h2>🩹 THE TRAINE
 async function fillTrainer(nd){const {lg,T,state}=await current();const r=(arr,key,x)=>pickOf(arr,key).replace(/\{(\w+)\}/g,(m,k)=>x[k]!=null?`<b>${esc(x[k])}</b>`:m);
   const wk=Math.max(1,+(state&&(state.display_week||state.week))||1),last=+lg.settings.last_scored_leg||0,slots=(lg.roster_positions||[]).filter(s=>!['BN','IR','TAXI'].includes(s));
   const ros=[...new Set(Object.values(T).flatMap(t=>t.players||[]))];
-  const [IN,V,P,M]=await Promise.all([injuries(ros),values().catch(()=>({p:{}})),playersFor(ros),pool(Array.from({length:last},(_,k)=>()=>jc('league/'+LEAGUE+'/matchups/'+(k+1)).catch(()=>[])),8)]);
+  const [IN,V,P,M,BY]=await Promise.all([injuries(ros),values().catch(()=>({p:{}})),playersFor(ros),pool(Array.from({length:last},(_,k)=>()=>jc('league/'+LEAGUE+'/matchups/'+(k+1)).catch(()=>[])),8),byeMap(lg.season)]);
   const IM=injMap(IN),TM=IN.tm||{},A={};M.forEach(w=>w.forEach(m=>{const pp=m.players_points||{};for(const pid in pp){const v=+pp[pid]||0;if(v>0){const a=A[pid]=A[pid]||[0,0];a[0]+=v;a[1]++}}}));
   const avg=p=>A[p]?A[p][0]/A[p][1]:Math.min(16,(V.p[p]||0)/450),est=p=>!A[p],team=p=>TM[p]||(P[p]||{}).t||'',nm=p=>(P[p]||{}).n||'Player '+p;
-  const lastWk=Math.max(...Object.values(BYE26)),weeks=[];for(let w=wk+1;w<=lastWk;w++)if(Object.values(BYE26).includes(w))weeks.push(w);
+  const lastWk=Math.max(...Object.values(BY)),weeks=[];for(let w=wk+1;w<=lastWk;w++)if(Object.values(BY).includes(w))weeks.push(w);
   const SCH={};(await pool(weeks.map(w=>()=>jc('league/'+LEAGUE+'/matchups/'+w).catch(()=>[])),6)).forEach((ms,k)=>{const by={},o={};(ms||[]).forEach(m=>{if(m.matchup_id!=null)(by[m.matchup_id]=by[m.matchup_id]||[]).push(m.roster_id)});Object.values(by).forEach(g=>{if(g.length===2){o[g[0]]=g[1];o[g[1]]=g[0]}});SCH[weeks[k]]=o});
   const rows=Object.values(T).map(t=>{const ls=likelyStarters(slots,t.players||[],avg,P),wt=p=>ls.has(p)?1:0.25;
-    const bye=(t.players||[]).filter(p=>BYE26[team(p)]===wk).map(p=>({p,s:ls.has(p),x:avg(p)*wt(p)})).sort((a,b)=>b.x-a.x);
-    const hurt=(t.players||[]).filter(p=>IM[p]&&BYE26[team(p)]!==wk).map(p=>({p,i:IM[p],s:ls.has(p),x:avg(p)*INJW[IM[p][0]]*wt(p)})).sort((a,b)=>b.x-a.x);
-    const fut=weeks.map(w=>{const o=[...ls].filter(p=>BYE26[team(p)]===w);return{w,n:o.length,pts:o.reduce((a,p)=>a+avg(p),0),o}});const worst=fut.slice().sort((a,b)=>b.pts-a.pts)[0];
+    const bye=(t.players||[]).filter(p=>BY[team(p)]===wk).map(p=>({p,s:ls.has(p),x:avg(p)*wt(p)})).sort((a,b)=>b.x-a.x);
+    const hurt=(t.players||[]).filter(p=>IM[p]&&BY[team(p)]!==wk).map(p=>({p,i:IM[p],s:ls.has(p),x:avg(p)*INJW[IM[p][0]]*wt(p)})).sort((a,b)=>b.x-a.x);
+    const fut=weeks.map(w=>{const o=[...ls].filter(p=>BY[team(p)]===w);return{w,n:o.length,pts:o.reduce((a,p)=>a+avg(p),0),o}});const worst=fut.slice().sort((a,b)=>b.pts-a.pts)[0];
     return{t,bye,hurt,bx:bye.reduce((a,b)=>a+b.x,0),ix:hurt.reduce((a,b)=>a+b.x,0),fut,worst}}).map(o=>({...o,x:o.bx+o.ix})).sort((a,b)=>b.x-a.x);
   const RW={};rows.forEach(o=>RW[o.t.rid]=o);const outW=(rid,w)=>{const o=RW[rid];const f=o&&o.fut.find(f=>f.w===w);return f||{w,n:0,pts:0,o:[]}};
   const sit=(o,w)=>{const orid=(SCH[w]||{})[o.t.rid],op=orid!=null&&RW[orid];if(!op)return null;const hp=outW(o.t.rid,w).pts,f=outW(orid,w);
@@ -715,8 +741,8 @@ const tbName=(season,lg)=>{const m=lg&&lg.metadata&&lg.metadata.trophy_loser_ban
 const TBR={champ:["{T} won the {Y} Toilet Bowl. Best of the worst, and they want a parade for it.","{T}: champion of the losers. The 2.13 is the participation trophy with upside.","{T} ran the table in the bracket nobody watches. Somebody get this man a plunger with a ribbon on it.","{T} won the consolation bracket like it was the Super Bowl. That's the energy we need.","{T}: {Y} Toilet Bowl champ. Peaked in the bracket where the prize is a plaque shaped like a toilet seat."],
  out:["{T} is out of the title hunt. Season over, shoey on deck.","{T} got bounced. Clean out your locker and your browser history.","{T}: eliminated. The dynasty is now a 'dynasty'."],
  tbout:["{T} lost in the Toilet Bowl. Can't even win the losers bracket.","{T} got flushed. Not even good at being bad.","{T} is out of the Toilet Bowl. There is no lower floor. They found one anyway."]};
-function tb213(lg,T,seeds,pt){const nxt=BOARD27[24],non=seeds.slice(pt);const c=D.tbChamp&&T[D.tbChamp]?T[D.tbChamp]:non[0];if(!c||!nxt)return'';
-  return`<h3>SUPPLEMENTAL</h3><article class="dp tbp"><div class="dn">2.13</div><div class="db"><div class="dpp">${esc(nxt[0])} <small>${nxt[1]} · ${esc(nxt[2])}</small></div><div class="dt"><span class="pill tb">🚽 TOILET BOWL CHAMP</span> <a href="#team/${c.rid}">${esc(c.team)}</a> <small>(${D.tbChamp?'won it':'projected: best record outside the playoff spots'})</small></div><div class="rl">The Commish parks Tim Tebow on the winner's roster and swaps in the real pick mid-draft. Win the bracket nobody watches, get a free 2nd.</div></div></article>`}
+function tb213(lg,T,seeds,pt){const nxt=String(BOARD_YEAR)===String(+lg.season+1)?BOARD27[24]:['Best player available','',''],non=seeds.slice(pt);const c=D.tbChamp&&T[D.tbChamp]?T[D.tbChamp]:non[0];if(!c||!nxt)return'';
+  return`<h3>SUPPLEMENTAL</h3><article class="dp tbp"><div class="dn">2.13</div><div class="db"><div class="dpp">${esc(nxt[0])}${nxt[1]?` <small>${nxt[1]} · ${esc(nxt[2])}</small>`:''}</div><div class="dt"><span class="pill tb">🚽 TOILET BOWL CHAMP</span> <a href="#team/${c.rid}">${esc(c.team)}</a> <small>(${D.tbChamp?'won it':'projected: best record outside the playoff spots'})</small></div><div class="rl">The Commish parks Tim Tebow on the winner's roster and swaps in the real pick mid-draft. Win the bracket nobody watches, get a free 2nd.</div></div></article>`}
 function bracketHTML(br,T,sc,pws,kind){const rounds={};br.forEach(m=>(rounds[m.r]=rounds[m.r]||[]).push(m));const nm=rid=>rid&&T[rid]?esc(T[rid].team):'';
   const lab=m=>m.p===1?(kind==='tb'?'🚽 TOILET BOWL FINAL':'🏆 CHAMPIONSHIP'):m.p?(kind==='tb'?'Consolation · ':'')+m.p+(m.p===3?'rd':'th')+' place':'';
   const from=(f)=>f?(f.w?'Winner of M'+f.w:'Loser of M'+f.l):'TBD';
@@ -757,7 +783,10 @@ async function tbHall(T){const L=(await chain()).filter(l=>l.status==='complete'
 {const _h2=R.history;R.history=async el=>{await _h2(el);const c=await current();const box=document.createElement('div');el.appendChild(box);
   tbHall(c.T).then(h=>{box.innerHTML=h}).catch(()=>{})}}
 // ================= LEAGUE INTEL (final batch): waiver wins, window, positional strength, pick inventory, H2H grid, tendencies =================
-const abbr=n=>{const w=String(n||'?').replace(/[^A-Za-z0-9 ]/g,' ').trim().split(/\s+/).filter(Boolean);return(w.length>1?w.slice(0,3).map(x=>x[0]).join(''):(w[0]||'?').slice(0,3)).toUpperCase()};
+// team abbreviation: split CamelCase ("TheTunaSquad" -> The Tuna Squad), drop possessive 's and filler words, then initials.
+const ABBR_SKIP=new Set(['the','a','an','of','and','s']);
+const abbr=n=>{const raw=String(n||'?').replace(/[\u2019']s\b/gi,'').replace(/([a-z]{2,})([A-Z])/g,'$1 $2').replace(/[^A-Za-z0-9 ]/g,' ').trim().split(/\s+/).filter(Boolean);
+  const w=raw.filter(x=>!ABBR_SKIP.has(x.toLowerCase()));const u=w.length?w:raw;return(u.length>1?u.slice(0,3).map(x=>x[0]).join(''):(u[0]||'?').slice(0,3)).toUpperCase()};
 const POS4=['QB','RB','WR','TE'];
 // ---- 1) WAIVER WIRE WINS: starter points for the team that added him, until he was dropped or traded away ----
 function waiverWins(S){const ev={};   // pid -> sorted moves away from a roster: [season,leg,rid]
@@ -1142,8 +1171,10 @@ async function teamSched(el,rid){const {lg,T}=await current(),t=T[rid];if(!t)ret
 {const _ts=R.team;R.team=async(el,rid)=>{await _ts(el,rid);await teamSched(el,+rid).catch(()=>{})}}
 // Team pages: this week's injury tags + byes on the roster (same slim players file / precedence as the Trainer's Room)
 {const _tp=R.team;R.team=async(el,rid)=>{await _tp(el,rid);const c=await current(),t=c.T[+rid];if(!t)return;const wk=Math.max(1,+(c.state&&(c.state.display_week||c.state.week))||1);
-  const trs=[...el.querySelectorAll('tr[data-p]')];injuries(t.players).then(IN=>{const IM=injMap(IN);trs.forEach(tr=>{const p=tr.getAttribute('data-p'),i=IM[p],tm=(IN.tm||{})[p]||(PL[p]||{}).t,td=tr.firstElementChild;if(!td)return;
+  const trs=[...el.querySelectorAll('tr[data-p]')];Promise.all([injuries(t.players),byeMap(c.lg.season)]).then(([IN,BY])=>{const IM=injMap(IN);trs.forEach(tr=>{const p=tr.getAttribute('data-p'),i=IM[p],tm=(IN.tm||{})[p]||(PL[p]||{}).t,td=tr.firstElementChild;if(!td)return;
     if(i)td.insertAdjacentHTML('beforeend',` <span class="pill${i[0]==='Questionable'?'':' red'}" title="${esc(i[1]||'')}">${esc(String(i[0]).toUpperCase().slice(0,4))}</span>`);
-    else if(tm&&BYE26[tm]===wk)td.insertAdjacentHTML('beforeend',' <span class="pill bye">BYE</span>')})}).catch(()=>{})}}
+    else if(tm&&BY[tm]===wk)td.insertAdjacentHTML('beforeend',' <span class="pill bye">BYE</span>')})}).catch(()=>{})}}
 // first render after every script (hq2.js adds pages/sections) has registered: sync scripts all run before DOMContentLoaded
-if(document.readyState==='loading')addEventListener('DOMContentLoaded',()=>route(),{once:true});else route();
+// wait (max 2.5 s, usually instant from cache) for config.js to confirm the newest league before the first render
+const boot=()=>CFG.ready.then(id=>{if(id&&id!==LEAGUE){LEAGUE=id;KTC=KTC.replace(/leagueId=\d+/,'leagueId='+id);ktcBtn=ktcBtn.replace(/leagueId=\d+/,'leagueId='+id)}},()=>{}).then(()=>route());
+if(document.readyState==='loading')addEventListener('DOMContentLoaded',boot,{once:true});else boot();

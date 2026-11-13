@@ -6,7 +6,9 @@ Only missing clips are rendered; orphans are deleted. Re-run whenever lines.js c
 import asyncio, hashlib, json, os, re, subprocess, sys, urllib.request
 VOICE = os.environ.get('SB_VOICE', 'en-US-GuyNeural'); RATE = '+15%'; PITCH = '-3Hz'
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); GAME = os.path.join(ROOT, 'arcade/shady-bowl'); VO = os.path.join(GAME, 'vo')
-LEAGUE = '1312055708249767936'; API = 'https://api.sleeper.app/v1/'
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from league import resolve as _resolve_league   # config.js is the single source of truth
+LEAGUE = _resolve_league(); API = 'https://api.sleeper.app/v1/'
 def get(p):
     with urllib.request.urlopen(urllib.request.Request(API + p, headers={'User-Agent': 'shadybowl-vo'}), timeout=60) as r: return json.load(r)
 def norm(s):

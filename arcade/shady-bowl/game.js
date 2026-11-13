@@ -1,7 +1,7 @@
 'use strict';
 // SHADY BOWL: retro pixel football for SHADYNASTY. World units: yards. x = downfield (0 own goal line .. 100 opp goal), y = across (0..53.3).
 const $=s=>document.querySelector(s),R=Math.random,cl=(v,a,b)=>v<a?a:v>b?b:v,pick=a=>a[(R()*a.length)|0],hyp=Math.hypot;
-const API='https://api.sleeper.app/v1/',LEAGUE='1312055708249767936',FW=53.3,CY=FW/2,K=10;
+const API='https://api.sleeper.app/v1/',LEAGUE=(window.SN_CFG&&SN_CFG.LEAGUE)||'1312055708249767936',FW=53.3,CY=FW/2,K=10;
 const cv=$('#cv'),ctx=cv.getContext('2d');
 let W=480,H=270,S=1,portrait=false;
 const SAVE_KEY='shadybowl1';

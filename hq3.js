@@ -36,7 +36,7 @@ const st=document.createElement('style');st.textContent=css;document.head.append
 const ORDN=['','1st','2nd','3rd','4th','5th'];
 const posOf=id=>(((PL[id]||{}).p)||[])[0]||'';
 const pickKey=p=>'k'+p.s+'r'+p.r+'o'+p.o;
-const pickLabel=(p,T)=>`${p.s} ${ORDN[p.r]||('R'+p.r)}${T[p.o]?' ('+esc(T[p.o].team)+')':''}`;
+const pickLabel=(p,T)=>`${p.s} ${ORDN[p.r]||('R'+p.r)}${T[p.o]?' ('+esc(T[p.o].team)+')':''}${p.ps?` <small class="ta-ps">proj ${p.r}.${String(p.ps).padStart(2,'0')}</small>`:''}`;
 const pctS=x=>Math.round(x*100)+'%';
 
 // ---------------- ⚖️ TRADE ANALYZER ----------------
@@ -58,7 +58,7 @@ R.analyzer=async(el,arg)=>{
   const hashOf=()=>`#analyzer/${S.a}.${S.b}.${[...S.ga].join(',')}.${[...S.gb].join(',')}`;
   const opt=sel=>teams.map(t=>`<option value="${t.rid}"${t.rid===sel?' selected':''}>${esc(t.team)}</option>`).join('');
   el.innerHTML=`<section class="panel" id="ta"><h2>⚖️ TRADE ANALYZER</h2>
-   <div class="hint">Build any deal between two teams. Tap players and picks to put them on the table. Values are FantasyCalc dynasty superflex (12-team, PPR), pulled live; picks are valued by round and year. Ranks are total roster + 3 years of picks.</div>
+   <div class="hint">Build any deal between two teams. Tap players and picks to put them on the table. Values are FantasyCalc dynasty superflex (12-team, PPR), pulled live; next year's picks are valued by <b>projected slot</b> (FantasyCalc early / mid / late, weighted by the tank-race odds), later years by round. Ranks are total roster + 3 years of picks.</div>
    <div class="ta-pick"><select id="taA" aria-label="Team A">${opt(S.a)}</select><span class="ta-vs">VS</span><select id="taB" aria-label="Team B">${opt(S.b)}</select></div>
    <div id="taOut"></div><div class="ta-cols"><div><h3 class="ta-h" id="taHA"></h3><div class="ta-list" id="taLA"></div></div><div><h3 class="ta-h" id="taHB"></h3><div class="ta-list" id="taLB"></div></div></div>
    <div class="hint" style="margin-top:10px">Raw value sums favor the side getting more pieces; a 2-for-1 that looks "even" usually favors whoever gets the best single player. Roster limits and lineups are ignored. FantasyCalc values as of ${V.at?new Date(V.at).toLocaleString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})+' ET':'today'}.</div></section>`;

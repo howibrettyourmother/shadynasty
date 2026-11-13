@@ -8,7 +8,9 @@ Same idea as Weasel Hub's slim file (Brett's private hub), scoped to this league
 The browser prefers this file (tiny, gzipped by Pages) and falls back to Sleeper direct when it's missing, stale or incomplete.
 Fails loudly (non-zero exit) on implausible Sleeper data so a bad run never overwrites a good file."""
 import json, os, sys, time, urllib.request
-LEAGUE = os.environ.get('SN_LEAGUE', '1312055708249767936')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from league import resolve as _resolve_league   # config.js is the single source of truth
+LEAGUE = _resolve_league()
 API = 'https://api.sleeper.app'
 HIST = 'tools/hist_ids.json'   # player ids per COMPLETED season (immutable, so each past season is walked once)
 def get(path):

@@ -1,6 +1,6 @@
 // SHADYNASTY SHOEY CHUG. Plain ES2017 (old iPhone Safari safe: no ?. / ??, no flex gap, no aspect-ratio).
 (function(){'use strict';
-var LEAGUE='1312055708249767936',JOE_UID='679000405232934912',SITE='https://howibrettyourmother.github.io/shadynasty/chug/';
+var LEAGUE=(window.SN_CFG&&SN_CFG.LEAGUE)||'1312055708249767936',JOE_UID=(window.SN_CFG&&SN_CFG.JOE)||'679000405232934912',SITE='https://howibrettyourmother.github.io/shadynasty/chug/';
 var QS=location.search,qp=function(k){var m=QS.match(new RegExp('[?&]'+k+'=([^&]+)'));return m?decodeURIComponent(m[1]):''};
 var API=(qp('lbapi')||'https://shoey-chug-scores.brettwilson08.workers.dev').replace(/\/$/,''),BOARD=qp('lbboard')==='test'?'test':'main';
 var CAP_MS=15000,PEN_MS=1500,LOCK_MS=700,MIN_MS=1500;

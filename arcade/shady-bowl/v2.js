@@ -90,7 +90,7 @@ let unlocked=false;function unlock(){if(unlocked)return;unlocked=true;try{if(nav
 ['pointerdown','touchend','keydown','click'].forEach(e=>document.addEventListener(e,unlock,{capture:true,passive:true}));
 function mutedHint(){return iOS&&!SV.mute?`<div class="lb" id="silent">🔕 No sound? Flip the iPhone silent switch off (no orange) and turn up the volume.</div>`:(AU.c&&AU.c.state!='running'&&unlocked?`<div class="lb">Audio is blocked. Tap anywhere to wake it up.</div>`:'')}
 // ================= LIVE DATA =================
-const API2='https://api.sleeper.app/v1/',LG='1312055708249767936',j=u=>fetch(u).then(r=>{if(!r.ok)throw Error(r.status);return r.json()});
+const API2='https://api.sleeper.app/v1/',LG=(window.SN_CFG&&SN_CFG.LEAGUE)||'1312055708249767936',j=u=>fetch(u).then(r=>{if(!r.ok)throw Error(r.status);return r.json()});
 const LV={state:null,src:'none',roast:null,rivals:{},h2h:null};
 const INJ=s=>s=='Out'||s=='IR'||s=='Doubtful'||s=='PUP'||s=='Sus'?'hurt':s=='Questionable'?'limited':null;
 function applyCache(c){if(!c)return;Object.assign(NAMES,c.NAMES||{});Object.assign(MATCH,c.MATCH||{});if(c.WEEK)WEEK=c.WEEK;(c.T||[]).forEach(x=>{const t=TM(x.id);if(t)Object.assign(t,x)});if(c.roast)LV.roast=c.roast;if(c.h2h)LV.h2h=c.h2h}

@@ -4,7 +4,7 @@
 var $=function(i){return document.getElementById(i)};
 var qp=function(k){try{return new URLSearchParams(location.search).get(k)}catch(e){return null}};
 var API=(qp('lbapi')||'https://legally-scores.brettwilson08.workers.dev').replace(/\/$/,''),BOARD=qp('lbboard')==='test'?'test':'main';
-var LEAGUE='1312055708249767936',JOE_UID='679000405232934912';
+var LEAGUE=(window.SN_CFG&&SN_CFG.LEAGUE)||'1312055708249767936',JOE_UID=(window.SN_CFG&&SN_CFG.JOE)||'679000405232934912';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return'&#'+c.charCodeAt(0)+';'})};
 var cleanName=function(n){return String(n||'').replace(/[\u0000-\u001f\u007f<>"`\\]/g,'').replace(/\u{1F3C6}/gu,'').replace(/\s+/g,' ').trim().slice(0,32)};
