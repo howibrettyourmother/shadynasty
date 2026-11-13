@@ -90,7 +90,7 @@ R.scenarios=async(el,arg)=>{const C=await ctx(),{T,M,pws,last,pt,lg}=C;
   try{const S=SNTank.simTank(T,C.M,C.last,C.pws,C.pt,SNTank.N);const tbl=first&&first.querySelector('tbody');if(tbl){
     const rows=[...tbl.querySelectorAll('tr')];rows.forEach(tr=>{const a=tr.querySelector('a[href^="#team/"]');if(!a)return;const rid=+a.getAttribute('href').split('/')[1],s=S[rid];if(!s)return;const td=tr.querySelectorAll('td');
       if(td[3])td[3].innerHTML=`<b>${pc(s.po)}</b>`;if(td[4])td[4].textContent=pc(s.seed[0]);tr._k=[s.po,s.seed[0],T[rid].w,T[rid].pf];a.insertAdjacentHTML('afterend',badge(CL[rid]))});
-    rows.sort((x,y)=>{const a=x._k||[0,0,0,0],b=y._k||[0,0,0,0];return b[0]-a[0]||b[1]-a[1]||b[2]-a[2]||b[3]-a[3]}).forEach((tr,i)=>{tr.classList.toggle('po',i<C.pt);tbl.appendChild(tr)});
+    rows.sort((x,y)=>{const a=x._k||[0,0,0,0],b=y._k||[0,0,0,0];return b[0]-a[0]||b[1]-a[1]||b[2]-a[2]||b[3]-a[3]}).forEach((tr,i)=>{tr.classList.toggle('po',i<C.pt);const c0=tr.querySelector('td');if(c0&&/^\d+$/.test(c0.textContent.trim()))c0.textContent=i+1;tbl.appendChild(tr)});
     const h=first.querySelector('.hint');if(h)h.innerHTML=h.innerHTML.replace(/3,000 simulated finishes/,`${SNTank.N.toLocaleString()} simulated finishes`).replace('Arrows = playoff-odds change since last week.','Same simulation as the Tank Race and the Playoff Machine. Arrows = playoff-odds change since last week. x = clinched, y = bye, z = #1 seed, e = eliminated.')}}catch(e){console.warn(e)}}}
 
 // ---------------- ⏳ TRADE DEADLINE (from Sleeper's trade_deadline week + ESPN's schedule for that week) ----------------
