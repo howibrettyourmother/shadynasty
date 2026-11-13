@@ -8,7 +8,9 @@ function hashStr(s){let h=2166136261;for(const c of s)h=Math.imul(h^c.charCodeAt
 function rng(seed){return seeded(hashStr(String(seed)))}
 function randn(r){let u=0,v=0;while(!u)u=r();while(!v)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
 // T: {rid:{max}} (max = Sleeper season max PF so far). M: matchups for weeks 1..pws-1 (index = week-1).
-function simTank(T,M,last,pws,pt,N){const ids=Object.keys(T).map(Number),sc={},base={};ids.forEach(i=>{sc[i]=[];base[i]={w:0,pf:0,mx:0,g:0}});
+// locks (optional): {'<week>:<lowRid>-<highRid>': winnerRid} forces that game's winner (Playoff Machine). Same random draws either way,
+// so with no locks the numbers are identical to the Tank Race.
+function simTank(T,M,last,pws,pt,N,locks){const ids=Object.keys(T).map(Number),sc={},base={};ids.forEach(i=>{sc[i]=[];base[i]={w:0,pf:0,mx:0,g:0}});
   for(let w=1;w<=last;w++){const by={};(M[w-1]||[]).forEach(m=>{if(!base[m.roster_id])return;sc[m.roster_id].push(+m.points||0);base[m.roster_id].pf+=+m.points||0;base[m.roster_id].g++;if(m.matchup_id!=null)(by[m.matchup_id]=by[m.matchup_id]||[]).push(m)});
     Object.values(by).forEach(([a,b])=>{if(!b)return;if(a.points>b.points)base[a.roster_id].w++;else if(b.points>a.points)base[b.roster_id].w++;else{base[a.roster_id].w+=.5;base[b.roster_id].w+=.5}})}
   // Sleeper's season max PF (ppts) is the authoritative running total; the per-week bench gap is (max - pf) / games
@@ -20,7 +22,9 @@ function simTank(T,M,last,pws,pt,N){const ids=Object.keys(T).map(Number),sc={},b
   const r=rng('tank'+last),n=ids.length,out={};ids.forEach(i=>out[i]={po:0,seed:new Array(n).fill(0),slot:new Array(n).fill(0)});
   const game=(a,b,MU)=>(MU[a]+P[a].sd*randn(r))>(MU[b]+P[b].sd*randn(r))?[a,b]:[b,a];
   for(let k=0;k<N;k++){const w={},pf={},mx={},MU={};ids.forEach(i=>{w[i]=base[i].w;pf[i]=base[i].pf;mx[i]=base[i].mx;MU[i]=P[i].mu*(1+0.05*randn(r))});
-    for(const wk of sched)for(const [a,b] of wk){const pa=MU[a]+P[a].sd*randn(r),pb=MU[b]+P[b].sd*randn(r);pf[a]+=pa;pf[b]+=pb;
+    for(let si=0;si<sched.length;si++)for(const [a,b] of sched[si]){let pa=MU[a]+P[a].sd*randn(r),pb=MU[b]+P[b].sd*randn(r);
+      if(locks){const L=locks[(last+1+si)+':'+Math.min(a,b)+'-'+Math.max(a,b)];if(L!=null&&((+L===a&&pa<pb)||(+L===b&&pb<pa))){const t=pa;pa=pb;pb=t}}
+      pf[a]+=pa;pf[b]+=pb;
       mx[a]+=pa+Math.max(0,P[a].gap+7*randn(r));mx[b]+=pb+Math.max(0,P[b].gap+7*randn(r));if(pa>pb)w[a]++;else w[b]++}
     const o=[...ids].sort((a,b)=>w[b]-w[a]||pf[b]-pf[a]);o.forEach((i,s)=>out[i].seed[s]++);const po=o.slice(0,pt),non=o.slice(pt).sort((a,b)=>mx[a]-mx[b]);
     // playoff finish: 6-team Sleeper bracket (1-2 byes; 3v6, 4v5; 1 v 4/5 winner, 2 v 3/6 winner; final, 3rd and 5th place games). Other sizes: by seed.
