@@ -5,7 +5,7 @@ const NAV=[
  ['race','🏁','RACE','Playoff odds, the Playoff Machine and the tank for the 1.01.','race',[['race','📈','ODDS'],['scenarios','🔮','MACHINE'],['tank','🚽','TANK'],['draft','🎓','DRAFT']]],
  ['dyn','💎','DYNASTY','Rosters, values, trade ideas and every deal ever made.','fleece',[['teams','👥','TEAMS'],['analyzer','⚖️','ANALYZER'],['fleece','🧶','FLEECE'],['trades','🔁','TRADES']]],
  ['hist','📚','HISTORY','Champions, records, rivalries and the Hall of Shame.','history',[['history','🏛️','HISTORY'],['records','📕','RECORDS'],['rivalry','⚔️','RIVALRIES'],['shame','🍺','SHAME']]],
- ['fun','🎉','FUN','The arcade, the meme vault and the League Office.','arcade',[['arcade','🕹️','ARCADE'],['memes','😂','MEMES'],['office','📜','OFFICE']]]];
+ ['fun','🎉','FUN','The arcade, league music videos and the League Office.','arcade',[['arcade','🕹️','ARCADE'],['videos','🎬','VIDEOS'],['office','📜','OFFICE']]]];
 // old/anchor URLs → page + section (deep links keep working)
 const ALIAS={ledger:['recap','ledger'],shoeys:['recap','ledger'],deadline:['fleece','deadline'],clinch:['race','clinch'],machine:['scenarios'],playoffs:['race'],odds:['race'],standings:['home']};
 const PARENT={team:'teams'};

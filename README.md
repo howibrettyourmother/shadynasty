@@ -11,7 +11,7 @@ Navigation: five groups (bottom bar on phones, header row on desktop), each with
 - 🏁 **Race**: Odds (`#race`: playoff / #1 seed odds, **Clinch Watch** with magic/elimination numbers, Tank Race, Toilet Bowl, SOS, all-play) · Machine (`#scenarios`: pick winners of any remaining game, odds re-run; scenarios are shareable links) · Tank (Tank Watch embed) · Draft (Draft Room mock)
 - 💎 **Dynasty**: Teams · Analyzer · Fleece (Fleece Factory, topped by the **Deadline Desk**: countdown + buyer/bubble/seller board) · Trades
 - 📚 **History**: History · Records · Rivalries · Hall of Shame
-- 🎉 **Fun**: Arcade · Memes · League Office
+- 🎉 **Fun**: Arcade · Videos · League Office
 
 Every old URL still works, including deep links like `#team/3`, `#trades/team=3`, `#rivalry/<uid>-<uid>`, `#scenarios/<picks>`. Section aliases: `#ledger`, `#deadline`, `#clinch`, `#machine`.
 
@@ -19,8 +19,7 @@ League config (`config.js`): one file holds the league root/commissioner ids for
 
 Odds (`tankodds.js`): one seeded 4,000-run simulation of the rest of the regular season + bracket. It feeds Race odds, Clinch Watch's companion numbers, the Playoff Machine, Tank Race, the Draft Room order, projected-slot pick values (FantasyCalc early/mid/late prices weighted by slot odds) and the separate Tank Watch site, so every page shows the same numbers.
 
-Code layout: classic scripts loaded in order, sharing globals: `config.js` → `tankodds.js` → `roast.js` → `app.js` (core: data layer, router, base pages) → `entrance.js` → `hq2.js` → `office.js` → `memes.js` → `hq3.js` → `hq4.js` (values banner, clinch math, Playoff Machine, Deadline Desk, Shoey Ledger) → `hq5.js` (grouped nav, home cards, aliases, canonical draft order). Later files extend pages by wrapping `R.<page>` / `R.after`. `app.js` (~200 KB) is deliberately not split further: dozens of later wrappers depend on its globals and load order, there's no build step to catch a broken reference, and a split would cost extra requests for no user-visible gain. New features go in a new `hqN.js` instead. Bump the `?v=` on any file you change in `index.html`.
-
+Code layout: classic scripts loaded in order, sharing globals: `config.js` → `tankodds.js` → `roast.js` → `app.js` (core: data layer, router, base pages) → `entrance.js` → `hq2.js` → `office.js` → `videos.js` → `hq3.js` → `hq4.js` (values banner, clinch math, Playoff Machine, Deadline Desk, Shoey Ledger) → `hq5.js` (grouped nav, home cards, aliases, canonical draft order). Later files extend pages by wrapping `R.<page>` / `R.after`. `app.js` (~200 KB) is deliberately not split further: dozens of later wrappers depend on its globals and load order, there's no build step to catch a broken reference, and a split would cost extra requests for no user-visible gain. New features go in a new `hqN.js` instead. Bump the `?v=` on any file you change in `index.html`.
 Shoey Chug lives in `chug/` (served at /shadynasty/chug/): a static canvas+DOM mash game. Leaderboard: Cloudflare Worker `shoey-chug-scores` (own KV namespace, separate from Mo Problems), source and admin script in the shoey-chug-worker folder outside this repo.
 
 Live: Home shows a league-wide live scoreboard on game days (win odds, who's left per matchup, Monday-night math, dead bodies in lineups) using the ESPN public scoreboard + Sleeper projections; Recap has weekly report cards for every team. Header ↻ (and pull-to-refresh in the installed app) force-refreshes everything.
