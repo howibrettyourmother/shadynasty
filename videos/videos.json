@@ -9,5 +9,16 @@
     "duration": "2:20",
     "w": 1280,
     "h": 720
+  },
+  {
+    "id": "leverage",
+    "title": "Leverage",
+    "caption": "Joe holds the league dues — and he says he's got all the leverage.",
+    "file": "leverage.mp4",
+    "poster": "leverage.jpg",
+    "date": "2026-11-14",
+    "duration": "2:25",
+    "w": 1280,
+    "h": 720
   }
 ]

@@ -142,18 +142,25 @@ window.SNLedger={ledger,ledgerHTML};
   ledger().then(X=>{box.innerHTML=ledgerHTML(X)}).catch(e=>{console.warn(e);box.innerHTML=''})}}
 
 // ---------------- Home: stretch-run strip (deadline + clinch + ledger) and clinch badges in the standings ----------------
-{const _h=R.home;R.home=async(el,arg)=>{await _h(el,arg);const C=await ctx().catch(()=>null);if(!C||C.lg.status!=='in_season')return;
-  const G=remGames(C.M,C.last,C.pws),CL=clinch(C.T,G,C.pt,{}),T=C.T;
-  const st=[...el.querySelectorAll('section.panel')].find(s=>/STANDINGS/.test((s.querySelector('h2')||{}).textContent||''));
-  if(st)st.querySelectorAll('tbody tr').forEach(tr=>{const a=tr.querySelector('a[href^="#team/"]');if(a){const c=CL[+a.getAttribute('href').split('/')[1]];if(c)a.insertAdjacentHTML('afterend',badge(c))}});
-  if(st){const h=st.querySelector('.hint');if(h)h.innerHTML+=' x = clinched · y = bye · z = #1 seed · e = eliminated. <a href="#scenarios">Playoff Machine →</a>'}
-  const [D0,X]=await Promise.all([deadline(),ledger().catch(()=>null)]);
-  const nX=Object.values(CL).filter(c=>c.po).length,nE=Object.values(CL).filter(c=>c.elim).length,bub=Object.keys(T).map(Number).filter(i=>!CL[i].po&&!CL[i].elim).length;
-  const sl=X?[...X.L].sort((a,b)=>b.n-a.n)[0]:null;
-  const cards=[D0?`<a class="sr sr-dl" href="#deadline">${D0.passed?'<span class="sr-k">🔒 TRADES LOCKED</span><span class="sr-v">Deadline passed</span>':`<span class="sr-k">⏳ TRADE DEADLINE</span><span class="sr-v" data-dl="${D0.end||0}">${D0.end?left(D0.end-Date.now()):'Wk '+D0.w}</span>`}<span class="sr-l">${D0.passed?'Reopens at renewal':'After Week '+D0.w+' · Deadline Desk →'}</span></a>`:'',
-    `<a class="sr" href="#scenarios"><span class="sr-k">🔮 PLAYOFF MACHINE</span><span class="sr-v">${bub} alive</span><span class="sr-l">${nX} clinched · ${nE} eliminated · pick winners →</span></a>`,
-    sl&&sl.n?`<a class="sr" href="#ledger" data-go="recap"><span class="sr-k">👟🍺 SHOEY LEDGER</span><span class="sr-v">${esc(sl.t.team)}</span><span class="sr-l">${sl.n} shoey${sl.n===1?'':'s'} owed this season</span></a>`:''].join('');
-  const hx=el.querySelector('.hx');const strip=`<section class="srs" aria-label="Stretch run">${cards}</section>`;if(hx)hx.insertAdjacentHTML('afterend',strip);else el.insertAdjacentHTML('afterbegin',strip)}}
+{const _h=R.home;R.home=async(el,arg)=>{await _h(el,arg);
+  // Stretch-run strip + clinch badges: same data as before, filled in after first paint so Home isn't held by ctx()/ledger()/all().
+  const hx=el.querySelector('.hx'),st0=[...el.querySelectorAll('section.panel')].find(s=>/STANDINGS/.test((s.querySelector('h2')||{}).textContent||''));
+  (async()=>{const C=await ctx().catch(()=>null);if(!C||C.lg.status!=='in_season')return;
+    const G=remGames(C.M,C.last,C.pws),CL=clinch(C.T,G,C.pt,{}),T=C.T;
+    const st=st0&&st0.isConnected?st0:[...document.querySelectorAll('#view section.panel')].find(s=>/STANDINGS/.test((s.querySelector('h2')||{}).textContent||''));
+    if(st)st.querySelectorAll('tbody tr').forEach(tr=>{const a=tr.querySelector('a[href^="#team/"]');if(!a||a.parentElement.querySelector('.clb'))return;const c=CL[+a.getAttribute('href').split('/')[1]];if(c)a.insertAdjacentHTML('afterend',badge(c))});
+    if(st){const h=st.querySelector('.hint');if(h&&!/Playoff Machine/.test(h.innerHTML))h.innerHTML+=' x = clinched · y = bye · z = #1 seed · e = eliminated. <a href="#scenarios">Playoff Machine →</a>'}
+    const [D0,X]=await Promise.all([deadline(),ledger().catch(()=>null)]);
+    const nX=Object.values(CL).filter(c=>c.po).length,nE=Object.values(CL).filter(c=>c.elim).length,bub=Object.keys(T).map(Number).filter(i=>!CL[i].po&&!CL[i].elim).length;
+    const sl=X?[...X.L].sort((a,b)=>b.n-a.n)[0]:null;
+    const cards=[D0?`<a class="sr sr-dl" href="#deadline">${D0.passed?'<span class="sr-k">🔒 TRADES LOCKED</span><span class="sr-v">Deadline passed</span>':`<span class="sr-k">⏳ TRADE DEADLINE</span><span class="sr-v" data-dl="${D0.end||0}">${D0.end?left(D0.end-Date.now()):'Wk '+D0.w}</span>`}<span class="sr-l">${D0.passed?'Reopens at renewal':'After Week '+D0.w+' · Deadline Desk →'}</span></a>`:'',
+      `<a class="sr" href="#scenarios"><span class="sr-k">🔮 PLAYOFF MACHINE</span><span class="sr-v">${bub} alive</span><span class="sr-l">${nX} clinched · ${nE} eliminated · pick winners →</span></a>`,
+      sl&&sl.n?`<a class="sr" href="#ledger" data-go="recap"><span class="sr-k">👟🍺 SHOEY LEDGER</span><span class="sr-v">${esc(sl.t.team)}</span><span class="sr-l">${sl.n} shoey${sl.n===1?'':'s'} owed this season</span></a>`:''].join('');
+    const host=hx&&hx.isConnected?hx.parentNode:document.getElementById('view');
+    if(!host||host.querySelector('.srs'))return;
+    const strip=`<section class="srs" aria-label="Stretch run">${cards}</section>`;
+    const hx2=hx&&hx.isConnected?hx:host.querySelector('.hx');
+    if(hx2)hx2.insertAdjacentHTML('afterend',strip);else host.insertAdjacentHTML('afterbegin',strip)})().catch(e=>console.warn('home strip',e))}}
 // #ledger / #deadline / #clinch are anchors inside pages: route them to their page, then scroll
 document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href="#ledger"],a[href="#deadline"],a[href="#clinch"]');if(!a)return;e.preventDefault();
   const id=a.getAttribute('href').slice(1),pg={ledger:'recap',deadline:'fleece',clinch:'race'}[id];location.hash='#'+pg;const t0=Date.now(),tick=()=>{const x=document.getElementById(id);if(x&&!x.querySelector('.spin'))x.scrollIntoView({behavior:'smooth',block:'start'});else if(Date.now()-t0<15000)setTimeout(tick,250)};setTimeout(tick,300)});

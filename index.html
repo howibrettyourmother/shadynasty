@@ -15,6 +15,7 @@
 <link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png"><link rel="apple-touch-icon" sizes="167x167" href="icons/icon-167.png"><link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png"><link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="SHADYNASTY">
+<link rel="preload" as="image" href="img/sec/home-800.webp?v=5" imagesrcset="img/sec/home-800.webp?v=5 800w, img/sec/home-1200.webp?v=5 1200w" imagesizes="(min-width:1000px) 1000px, 100vw" fetchpriority="high">
 <link rel="preconnect" href="https://api.sleeper.app"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&display=swap" rel="stylesheet">
 <style>:root{--red:#e3262e;--gold:#ffc72c;--pink:#ff4fa8;--ink:#f4f6fa;--mute:#8d97aa;--line:rgba(255,255,255,.08);--disp:"Oswald","Avenir Next Condensed","Arial Narrow",Impact,sans-serif}
@@ -87,7 +88,7 @@ tr.st td:first-child{font-weight:700;color:#fff}
 .hl{display:flex;flex-direction:column;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#2e1d02,#140d02);border:1px solid rgba(255,199,44,.45);box-shadow:0 4px 0 #8a6200,0 10px 28px rgba(0,0,0,.45)}
 .hl-im{position:relative;display:block;padding-top:62.5%;background:#120b02}.hl-im img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block}
 .hl-im i{position:absolute;bottom:10px;right:10px;font:700 12px/1 var(--disp);font-style:normal;letter-spacing:.1em;background:#e3262e;color:#fff;padding:5px 8px;border-radius:5px;box-shadow:0 2px 0 #6d0a10}
-.hl-b{display:flex;flex-direction:column;flex:1;padding:12px 14px 14px}.hl-t{margin:0 0 6px;font:700 clamp(21px,6vw,26px)/1.05 var(--disp);letter-spacing:.04em}.hl-t a{color:#ffd23f;text-decoration:none;text-shadow:0 2px 0 #6b4a00}
+.hl-b{display:flex;flex-direction:column;flex:1;padding:12px 14px 14px}.hl-t{margin:0 0 6px;font:700 clamp(21px,6vw,26px)/1.05 var(--disp);letter-spacing:.04em}.hl-t a{color:#ffd23f;text-decoration:none;text-shadow:0 2px 0 #6b4a00;display:inline-flex;align-items:center;min-height:44px}
 .hl-p{margin:0 0 6px;font-size:14px;line-height:1.38;color:#e6dcc8}.hl h4{margin:8px 0 4px;font:700 13px/1 var(--disp);letter-spacing:.1em;color:var(--gold)}.hl-lb{flex:1;min-height:60px}
 .ktc.play{min-height:58px;margin:10px 0 0;font-size:19px;letter-spacing:.07em}
 .tf{background:rgba(10,13,22,.96);border:1px solid var(--line);border-radius:12px;padding:8px;margin:8px 0 12px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
@@ -193,9 +194,9 @@ table.mini.hab td.tm{white-space:normal}.jump{margin:4px 0 0}.jump .chip{color:#
 .h2hd{min-height:2.6em;margin-top:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#0b111c;color:#ddd}
 
 /* Weasel Hub imports: refresh, toast, pull-to-refresh, live board, report cards, Joe burst */
-#rf{flex:0 0 38px;width:38px;height:38px;margin-left:8px;padding:0;border-radius:11px;background:#141b29;color:#ffc72c;border:1px solid rgba(255,199,44,.35);font-size:19px;line-height:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer}
+#rf{flex:0 0 44px;width:44px;height:44px;margin-left:8px;padding:0;border-radius:12px;background:#141b29;color:#ffc72c;border:1px solid rgba(255,199,44,.35);font-size:19px;line-height:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer}
 #rf:active{transform:scale(.94)}#rf.busy{animation:rfspin .8s linear infinite;opacity:.8}@keyframes rfspin{to{transform:rotate(360deg)}}
-@media(max-width:400px){.brand b{font-size:23px}.brand small{font-size:9.5px;letter-spacing:.1em}}
+@media(max-width:400px){.brand b{font-size:23px}.brand small{display:none}}
 #toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:130;background:#141b29;color:var(--ink);border:1px solid rgba(255,199,44,.45);border-radius:12px;padding:9px 14px;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.55);transition:opacity .2s,transform .2s;max-width:92vw;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}#toast.err{border-color:rgba(255,107,107,.7)}#toast .chip{height:26px;margin-left:8px}
 #ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);z-index:60;width:34px;height:34px;border-radius:50%;background:#141b29;border:1px solid rgba(255,199,44,.4);opacity:0;pointer-events:none;transform:translate(-50%,0)}
@@ -232,7 +233,15 @@ table.rct td,table.rct th{text-align:center}table.rct td.tm{text-align:left;max-
 .fxs{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}.fxs::-webkit-scrollbar{display:none}
 .fxc{flex:0 0 64px;background:none;border:0;color:var(--ink);padding:0;cursor:pointer;text-align:center}.fxc img,.fxc span{display:block;width:52px;height:52px;margin:0 auto 4px;border-radius:50%;border:2px solid rgba(255,199,44,.5);object-fit:cover;background:#1b2333;line-height:48px;font-weight:700}
 .fxc small{display:block;font-size:10px;line-height:1.2;max-height:2.4em;overflow:hidden}.fxc:active img{transform:scale(.92)}
-</style><link rel="stylesheet" href="hq2.css?v=2"><link rel="stylesheet" href="office.css?v=2"><link rel="stylesheet" href="videos.css?v=1"><link rel="stylesheet" href="hq4.css?v=3"><link rel="stylesheet" href="hq5.css?v=1"></head>
+/* polish: 44px team-name / list taps; arcade first card clears the bottom tab bar */
+#view a[href^="#team/"]{display:inline-flex;align-items:center;min-height:44px}
+@media(max-width:760px){
+  body.gnav .arcade .secb{max-height:110px;overflow:hidden;margin-bottom:6px}
+  body.gnav .arcade .secb img{height:110px;aspect-ratio:auto;object-fit:cover;object-position:center 35%}
+  body.gnav .arcade .hl-im{padding-top:40%}
+  body.gnav .wrap{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+}
+</style><link rel="stylesheet" href="hq2.css?v=2"><link rel="stylesheet" href="office.css?v=3"><link rel="stylesheet" href="videos.css?v=1"><link rel="stylesheet" href="hq4.css?v=3"><link rel="stylesheet" href="hq5.css?v=1"></head>
 <body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <linearGradient id="beer" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23a"/><stop offset="1" stop-color="#d98a00"/></linearGradient>
 <linearGradient id="upper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff4a4a"/><stop offset="1" stop-color="#a90f17"/></linearGradient>
@@ -251,5 +260,5 @@ table.rct td,table.rct th{text-align:center}table.rct td.tm{text-align:left;max-
 <main class="wrap" id="view"></main>
 <div class="foot wrap">Auto-built in your browser from the public <a href="https://docs.sleeper.com/" rel="noopener">Sleeper API</a> · values by <a href="https://fantasycalc.com" rel="noopener">FantasyCalc</a> · no humans were harmed, only lineups.</div>
 <script src="config.js?v=1"></script><script src="tankodds.js?v=2"></script><script src="roast.js?v=10"></script>
-<script src="app.js?v=69"></script><script src="entrance.js?v=4"></script><script src="hq2.js?v=3"></script><script src="office.js?v=12"></script><script src="videos.js?v=1"></script><script src="hq3.js?v=3"></script><script src="hq4.js?v=4"></script><script src="hq5.js?v=2"></script>
+<script src="app.js?v=70"></script><script src="entrance.js?v=4"></script><script src="hq2.js?v=3"></script><script src="office.js?v=12"></script><script src="videos.js?v=2"></script><script src="hq3.js?v=3"></script><script src="hq4.js?v=5"></script><script src="hq5.js?v=2"></script>
 </body></html>

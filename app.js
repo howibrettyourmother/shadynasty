@@ -155,13 +155,20 @@ const secSrc=(k,w)=>`img/sec/${k}-${w}.webp?v=4`;
 const banner=(k,alt)=>{const x=SECIMG[k];return x&&x.ok?`<figure class="secb"><img src="${secSrc(k,720)}" srcset="${secSrc(k,720)} 720w, ${secSrc(k,1200)} 1200w" sizes="(min-width:1000px) 976px, 100vw" width="720" height="405" loading="lazy" decoding="async" alt="${esc(alt||x.alt||'')}"></figure>`:''};
 // captioned inline photo (used inside cards); kind = caption color ('laugh' red / 'swoon' pink), defaults to the image's mood
 function secImg(k,cap,cls,kind){const x=SECIMG[k]||{};kind=kind||x.mood||'swoon';return`<figure class="rphoto ${kind} ${cls||''}"><img src="${secSrc(k,720)}" srcset="${secSrc(k,720)} 720w, ${secSrc(k,1200)} 1200w" sizes="(min-width:760px) 300px, 92vw" width="720" height="405" loading="lazy" decoding="async" alt="${esc(x.alt||'')}"><figcaption>${cap}</figcaption></figure>`}
+const HERO_V=5;
+function heroImg(){return `<img class="hx-i" src="img/sec/home-800.webp?v=${HERO_V}" srcset="img/sec/home-800.webp?v=${HERO_V} 800w, img/sec/home-1200.webp?v=${HERO_V} 1200w" sizes="(min-width:1000px) 1000px, 100vw" width="1200" height="675" alt="${esc(SECIMG.home.alt)}" fetchpriority="high" decoding="async">`}
+function paintHomeShell(){const v=$('#view');if(!v)return;const hash=(location.hash||'#home').slice(1).split('/')[0];const k=typeof R[hash]==='function'?hash:'home';if(k!=='home')return;if(v.dataset.k==='home'&&v.querySelector('.hx-i'))return;
+  v.innerHTML=`<section class="hx">${heroImg()}
+   <div class="hc"><svg class="shoey hx-s" viewBox="0 0 120 96" aria-hidden="true"><use href="#shoey"/></svg><h1 class="hx-h">SHADYNASTY</h1><div class="hx-t">Est. 2021 · Dynasty. Degeneracy. Shoeys.</div>
+   <div class="hx-k"><div class="ticker" id="ticker" aria-live="polite">Pouring the stats into a shoe…</div></div>
+   <div class="hx-c"><a href="#recap">📰 Recap</a><a href="#race">🏁 Playoff odds</a><a href="#shame">🍺 Hall of Shame</a></div></div></section>
+   <section class="panel" id="home-wait">${SPIN()}</section>`;v.dataset.k='home'}
 R.home=async el=>{const {state,lg,T}=await current();const leg=+state.leg||1,last=+lg.settings.last_scored_leg||0,wk=lg.status==='in_season'?Math.max(1,leg):last||1;
-  const [M,LM]=await Promise.all([j('league/'+LEAGUE+'/matchups/'+wk).catch(()=>[]),last?jc('league/'+LEAGUE+'/matchups/'+last).catch(()=>[]):[]]);const by={};M.forEach(m=>{if(m.matchup_id!=null)(by[m.matchup_id]=by[m.matchup_id]||[]).push(m)});
+  const [M,LM,H]=await Promise.all([j('league/'+LEAGUE+'/matchups/'+wk).catch(()=>[]),last?jc('league/'+LEAGUE+'/matchups/'+last).catch(()=>[]):[],headlines(T,lg)]);const by={};M.forEach(m=>{if(m.matchup_id!=null)(by[m.matchup_id]=by[m.matchup_id]||[]).push(m)});
   const rows=Object.values(T).sort((a,b)=>b.w-a.w||b.pf-a.pf),pt=+lg.settings.playoff_teams||6;
   const box=g=>{const [a,b]=g.map(m=>({...T[m.roster_id],p:+m.points||0}));if(!a||!b)return'';const lead=a.p===b.p?null:a.p>b.p?a:b;
     const side=x=>`<div class="sb-t${x===lead?' lead':''}"><span class="nm">${x.av?`<img class="av" src="${esc(x.av)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:''}${esc(x.team)}${tag(x)}</span><b>${fmt(x.p)}</b></div>`;
     return`<div class="sb">${side(a)}${side(b)}</div>`};
-  const H=await headlines(T,lg);
   // live hooks
   const hk=[],B=x=>`<b>${esc(x)}</b>`,rec=t=>`${t.w}-${t.l}${t.t?'-'+t.t:''}`,lead=rows[0];
   if(lead)hk.push(['#power','👑','STANDINGS LEADER',lead.team,`${rec(lead)} · ${fmt(lead.pf)} PF. Everyone is chasing ${B(lead.team)}.`,'gold']);
@@ -174,12 +181,12 @@ R.home=async el=>{const {state,lg,T}=await current();const leg=+state.leg||1,las
   const hook=([h,i,t,v,l,c,raw])=>`<a class="hook ${c}" href="${h}"><span class="hk-t">${i} ${t}</span><span class="hk-v">${raw?v:esc(v)}</span><span class="hk-l">${l}</span></a>`;
   const boxes=`<div class="sbs">${Object.values(by).map(box).join('')||'<div class="hint">No matchups this week.</div>'}</div>`,liveTop=last<wk&&GAMEDAY();
   const liveP=`<section class="panel" id="lbx"><h2>🏟️ WEEK ${wk} ${last>=wk?'FINAL':'LIVE'}</h2>${last>=wk?'<div class="hint">Final scores.</div>'+boxes:'<div id="lbb">'+boxes+'</div>'}</section>`;
-  el.innerHTML=`<section class="hx"><img class="hx-i" src="img/sec/home-720.webp?v=3" srcset="img/sec/home-720.webp?v=3 720w, img/sec/home-1200.webp?v=3 1200w" sizes="(min-width:1000px) 1000px, 100vw" width="1200" height="675" alt="${esc(SECIMG.home.alt)}" fetchpriority="high" decoding="async">
+  el.innerHTML=`<section class="hx">${heroImg()}
    <div class="hc"><svg class="shoey hx-s" viewBox="0 0 120 96" aria-hidden="true"><use href="#shoey"/></svg><h1 class="hx-h">SHADYNASTY</h1><div class="hx-t">Est. 2021 · Dynasty. Degeneracy. Shoeys.</div>
    <div class="hx-k"><div class="ticker" id="ticker" aria-live="polite">${H[0]||''}</div></div>
    <div class="hx-c"><a href="#recap">📰 Week ${last||wk} roast</a><a href="#race">🏁 Playoff odds</a><a href="#shame">🍺 Hall of Shame</a></div></div></section>${liveTop?liveP:''}
   <section class="panel"><h2>🔥 THE BIG STORIES</h2><div class="hooks">${hk.map(hook).join('')}</div></section>
-  <section class="panel"><h2>🗺️ PICK YOUR POISON</h2><div class="cards">${HOMECARDS.map(([h,i,n,t,im])=>`<a class="card" href="${h}"><span class="cth"><img src="img/th/${im}.webp?v=4" width="400" height="250" loading="lazy" decoding="async" alt="${esc((SECIMG[im]||{}).alt||'')}"><span class="ci">${i}</span></span><span class="cb"><b>${n}</b><small>${t}</small></span></a>`).join('')}</div></section>
+  <section class="panel"><h2>🗺️ PICK YOUR POISON</h2><div class="cards"></div></section>
   <section class="panel"><h2>📋 STANDINGS</h2><div class="tw"><table><thead><tr><th>#</th><th>TEAM</th><th>W-L</th><th>PF</th><th class="hs">PA</th><th class="hs">MAX PF</th></tr></thead><tbody>
   ${rows.map((t,i)=>`<tr class="${i<pt?'po':''}"><td>${i+1}</td><td class="tm"><a href="#team/${t.rid}">${esc(t.team)}</a>${tag(t)}<span class="ow">@${esc(t.owner)}</span></td><td>${rec(t)}</td><td>${fmt(t.pf)}</td><td class="hs">${fmt(t.pa)}</td><td class="hs">${fmt(t.max)}</td></tr>`).join('')}</tbody></table></div><div class="hint">Top ${pt} make the playoffs (highlighted).</div></section>
   ${liveTop?'':liveP}`;
@@ -426,7 +433,9 @@ const TABS=[['home','🏠','HOME'],['recap','📰','RECAP'],['matchups','🥊','
 async function route(){const h=(location.hash||'#home').slice(1).split('/'),k=typeof R[h[0]]==='function'?h[0]:'home',el=$('#view');
   document.querySelectorAll('#tabs a').forEach(a=>a.classList.toggle('on',a.dataset.k===k||(k==='team'&&a.dataset.k==='teams')));
   const on=document.querySelector('#tabs a.on'),tb=$('#tabs');if(on&&tb){const x=on.offsetLeft-(tb.clientWidth-on.offsetWidth)/2;try{tb.scrollTo({left:Math.max(0,x),behavior:route.navd?'smooth':'auto'})}catch(e){tb.scrollLeft=Math.max(0,x)}route.navd=1}
-  if(!el.firstChild||el.dataset.k!==k)el.innerHTML=`<section class="panel">${SPIN()}</section>`;el.dataset.k=k;const tok=route.tok=(route.tok||0)+1;
+  if(k==='home'){if(!(el.dataset.k==='home'&&el.querySelector('.hx-i')))paintHomeShell()}
+  else if(!el.firstChild||el.dataset.k!==k)el.innerHTML=`<section class="panel">${SPIN()}</section>`;
+  el.dataset.k=k;const tok=route.tok=(route.tok||0)+1;
   const box=document.createElement('div');try{await R[k](box,h[1]);if(tok!==route.tok)return;el.replaceChildren(...box.childNodes);addBanner(k);if(R.after)R.after(k)}
   catch(e){console.warn(e);if(tok===route.tok)el.innerHTML=`<section class="panel">${SHOEY('sm')}<div class="hint">Sleeper fumbled that one (${esc(e.message||e)}). Tap ↻ up top to try again in a minute.</div></section>`}
   if(h[0]!==route.last){window.scrollTo(0,0);route.last=h[0]}}
@@ -1177,5 +1186,7 @@ async function teamSched(el,rid){const {lg,T}=await current(),t=T[rid];if(!t)ret
     else if(tm&&BY[tm]===wk)td.insertAdjacentHTML('beforeend',' <span class="pill bye">BYE</span>')})}).catch(()=>{})}}
 // first render after every script (hq2.js adds pages/sections) has registered: sync scripts all run before DOMContentLoaded
 // wait (max 2.5 s, usually instant from cache) for config.js to confirm the newest league before the first render
-const boot=()=>CFG.ready.then(id=>{if(id&&id!==LEAGUE){LEAGUE=id;KTC=KTC.replace(/leagueId=\d+/,'leagueId='+id);ktcBtn=ktcBtn.replace(/leagueId=\d+/,'leagueId='+id)}},()=>{}).then(()=>route());
+try{if(LEAGUE)current()}catch(e){}
+const boot=()=>CFG.ready.then(id=>{if(id&&id!==LEAGUE){LEAGUE=id;KTC=KTC.replace(/leagueId=\d+/,'leagueId='+id);ktcBtn=ktcBtn.replace(/leagueId=\d+/,'leagueId='+id);D.cur=null;try{current()}catch(e){}}},()=>{}).then(()=>route());
+paintHomeShell();
 if(document.readyState==='loading')addEventListener('DOMContentLoaded',boot,{once:true});else boot();
