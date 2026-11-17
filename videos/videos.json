@@ -1,5 +1,16 @@
 [
   {
+    "id": "puka",
+    "title": "Puka (Joe's Breakup Ballad)",
+    "caption": "A SHADYNASTY breakup ballad. Joe dropped Puka years ago \u2014 and he still hasn't moved on.",
+    "file": "puka.mp4",
+    "poster": "puka.jpg",
+    "date": "2026-11-16",
+    "duration": "2:40",
+    "w": 1280,
+    "h": 720
+  },
+  {
     "id": "phishapril",
     "title": "Phishapril",
     "caption": "A SHADYNASTY prescription for Bama stress. Side effects may include a full beard in under a minute. Let it roll, Tide.",
