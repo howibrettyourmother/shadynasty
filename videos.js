@@ -1,6 +1,6 @@
 'use strict';
 // 🎬 VIDEOS (#videos): gallery driven by videos/videos.json. Add a video = drop an mp4 + poster in videos/ and add an entry at the TOP of videos.json.
-const VDV=3;let VD=null;
+const VDV=4;let VD=null;
 const vdGet=()=>VD||(VD=fetch('videos/videos.json?v='+VDV+'&t='+Math.floor(Date.now()/6e5)).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).catch(e=>{VD=null;throw e}));
 const vdSrc=v=>'videos/'+v.file;
 const vdPoster=v=>v.poster?'videos/'+v.poster:'';
