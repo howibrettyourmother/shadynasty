@@ -12,3 +12,10 @@
   .vd-meta{padding:14px 18px 18px}
   .vd-meta h3{font-size:22px}
 }
+
+.vd-meta h3{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.vd-new,.tab-new{display:inline-block;font:700 10px/1 var(--disp);letter-spacing:.1em;text-transform:uppercase;background:linear-gradient(180deg,#ffe07a,#e3a400);color:#1a1200;border-radius:999px;padding:4px 7px;vertical-align:middle}
+#tabs a{position:relative}
+#tabs a .tab-new{position:absolute;top:0;right:0;transform:translate(20%,-30%);padding:3px 5px;font-size:8px;pointer-events:none;box-shadow:0 1px 4px rgba(0,0,0,.45)}
+#grp a{position:relative}
+#grp a .tab-new{transform:translate(30%,-40%)}

@@ -1,2 +1,11 @@
 __pycache__/
 *.pyc
+
+# Real likeness reference photos — never publish, never commit
+people_refs/
+
+# Private style-reference media — never publish, never commit
+weasels_autotune/ref/
+
+# Local credentials — never publish, never commit
+.secrets/

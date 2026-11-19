@@ -1,0 +1,44 @@
+[
+  {
+    "id": "puka",
+    "title": "Puka (Joe's Breakup Ballad)",
+    "file": "puka.mp3",
+    "poster": "videos/puka.jpg",
+    "duration": "2:40"
+  },
+  {
+    "id": "phishapril",
+    "title": "Phishapril",
+    "file": "phishapril.mp3",
+    "poster": "videos/phishapril.jpg",
+    "duration": "2:35"
+  },
+  {
+    "id": "its-over",
+    "title": "It's Over (Rebuild, Jay)",
+    "file": "its-over.mp3",
+    "poster": "videos/its-over.jpg",
+    "duration": "3:02"
+  },
+  {
+    "id": "eat-shit-joe",
+    "title": "Eat Shit, Joe",
+    "file": "eat-shit-joe.mp3",
+    "poster": "videos/eat-shit-joe.jpg",
+    "duration": "2:28"
+  },
+  {
+    "id": "lesshouse",
+    "title": "Only Jesus Can Save My Dynasty Team (Welcome to Lesshouse)",
+    "file": "lesshouse.mp3",
+    "poster": "videos/only-jesus-can-save-my-dynasty-team.jpg",
+    "duration": "2:21"
+  },
+  {
+    "id": "leverage",
+    "title": "Leverage",
+    "file": "leverage.mp3",
+    "poster": "videos/leverage.jpg",
+    "duration": "2:25"
+  }
+]
