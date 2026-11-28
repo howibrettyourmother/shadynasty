@@ -42,3 +42,27 @@
 .sr{display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:14px;text-decoration:none;color:var(--ink);background:linear-gradient(180deg,rgba(34,44,64,.97),rgba(14,18,28,.97));border:1px solid rgba(255,199,44,.25);box-shadow:0 10px 24px rgba(0,0,0,.45);min-height:44px}
 .sr.sr-dl{border-color:rgba(255,199,44,.6)}.sr-k{font:700 11px var(--disp);letter-spacing:.08em;color:var(--mute)}.sr-v{font:700 22px/1.05 var(--disp);color:var(--gold);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sr-l{font-size:12px;color:#cfd6e2}
 @media(max-width:520px){.srs{grid-template-columns:1fr 1fr}.srs .sr:last-child:nth-child(odd){grid-column:1/-1}}
+
+/* projected playoff + toilet bowl brackets on the Playoff Machine */
+.pm-brx h2{margin:22px 0 6px}.pm-brx h2:first-child{margin-top:0}
+.pm-br{display:flex;gap:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;max-width:100%;padding:4px 0 10px;scrollbar-width:thin}
+.pm-brc{flex:0 0 min(248px,82vw);min-width:0}
+.pm-brc h4{margin:0 0 8px;font:700 11px/1.2 var(--disp);letter-spacing:.08em;color:var(--gold)}
+.pm-brg{display:flex;flex-direction:column;gap:8px}
+.pm-brm{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:rgba(255,255,255,.04)}
+.pm-brm.fin{border-color:rgba(255,199,44,.7);box-shadow:0 0 0 1px rgba(255,199,44,.2)}
+.pm-brh{font:700 10px/1.2 var(--disp);letter-spacing:.08em;color:var(--mute);padding:6px 10px;background:rgba(0,0,0,.28)}
+.pm-bs{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:6px 10px;border-top:1px solid var(--line)}
+.pm-brm .pm-bs:first-of-type{border-top:0}
+.pm-bs.tbd{color:var(--mute);font-style:italic;font-size:13px}
+.pm-bn{display:flex;align-items:center;gap:8px;min-width:0}
+.pm-bn .av{flex:0 0 auto;margin-right:0}
+.pm-bn b{font:700 13px/1.15 var(--disp);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-bm{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.pm-bm em{font:700 11px var(--disp);color:var(--gold);font-style:normal}
+.pm-bp{font:700 10px/1 var(--disp);color:var(--mute);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:999px;padding:2px 6px}
+.pm-bye{display:flex;flex-direction:column;gap:0;padding:0;border:1px dashed rgba(255,199,44,.45);border-radius:12px;background:rgba(255,199,44,.06);overflow:hidden}
+.pm-bye strong{display:block;font:700 10px/1.2 var(--disp);letter-spacing:.08em;color:var(--gold);padding:6px 10px;background:rgba(255,199,44,.08)}
+.pm-bye .pm-bs{border-top:1px solid rgba(255,199,44,.2)}
+.pm-bye .pm-bs:first-of-type{border-top:0}
+@media(min-width:900px){.pm-brc{flex:1 1 0}}
