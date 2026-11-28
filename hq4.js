@@ -56,17 +56,44 @@ const likelySeeds=(T,S,CL,locked)=>{const ids=Object.keys(T).map(Number),n=ids.l
   return out};
 const avHTML=t=>t&&t.av?`<img class="av" src="${esc(t.av)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:'';
 const brLab=(m,kind)=>m.p===1?(kind==='tb'?'🚽 TOILET BOWL FINAL':'🏆 CHAMPIONSHIP'):m.p?(kind==='tb'?'Consolation · ':'')+m.p+(m.p===3?'rd':'th')+' place':'';
-const brRow=(seed,from,L,T)=>{if(from){const id=from.w||from.l;return `<div class="pm-bs tbd"><i>${from.w?'Winner':'Loser'} of M${id}</i></div>`}
-  const x=seed&&L[seed],t=x&&T[x.rid];if(!t)return `<div class="pm-bs tbd"><i>${seed?'TBD · #'+seed:'TBD'}</i></div>`;
-  return `<div class="pm-bs"><span class="pm-bn">${avHTML(t)}<b>${esc(t.team)}</b></span><span class="pm-bm"><em>#${seed}</em>${x.locked?'':`<small class="pm-bp">${pc(x.p)}</small>`}</span></div>`};
 const byeSeedsOf=br=>{const seen=new Set(),byes=[];(br||[]).slice().sort((a,b)=>a.r-b.r||a.m-b.m).forEach(m=>{if(m.r>1){if(m.s1&&!m.t1_from&&!seen.has(m.s1))byes.push(m.s1);if(m.s2&&!m.t2_from&&!seen.has(m.s2))byes.push(m.s2)}if(m.s1)seen.add(m.s1);if(m.s2)seen.add(m.s2)});return byes};
 const winnersAdvance=br=>(br||[]).some(m=>(m.t1_from&&m.t1_from.w)||(m.t2_from&&m.t2_from.w));
-function drawBracket(el,br,L,T,st,kind){if(!(br||[]).length){el.innerHTML='<div class="hint">Sleeper hasn\'t published this bracket yet.</div>';return}
-  const rounds={};br.forEach(m=>(rounds[m.r]=rounds[m.r]||[]).push(m));const byes=byeSeedsOf(br);
+function resolveSide(from,seed,br,seeds,T,picks,cache){
+  if(from){const mid=from.w||from.l,src=(br||[]).find(x=>x.m===mid);if(!src)return null;
+    const occ=resolveMatch(src,br,seeds,T,picks,cache);if(!occ.a||!occ.b)return null;
+    const pick=picks[src.m];
+    if(pick!=null){const w=occ.a.rid===pick?occ.a:occ.b.rid===pick?occ.b:null;if(!w)return null;const l=w===occ.a?occ.b:occ.a,x=from.w?w:l;return {rid:x.rid,seed:x.seed,chalk:false,t:T[x.rid]}}
+    const hi=occ.a.seed<=occ.b.seed?occ.a:occ.b,lo=hi===occ.a?occ.b:occ.a,x=from.w?hi:lo;
+    return {rid:x.rid,seed:x.seed,chalk:true,t:T[x.rid]}}
+  if(seed){const s=seeds[seed],t=s&&T[s.rid];return t?{rid:t.rid,seed,chalk:false,t,p:s.p,locked:s.locked}:null}
+  return null}
+function resolveMatch(m,br,seeds,T,picks,cache){if(cache[m.m])return cache[m.m];cache[m.m]={a:null,b:null,m:m};
+  cache[m.m].a=resolveSide(m.t1_from,m.s1,br,seeds,T,picks,cache);cache[m.m].b=resolveSide(m.t2_from,m.s2,br,seeds,T,picks,cache);return cache[m.m]}
+function prunePicks(br,seeds,T,picks){const cache={},order=(br||[]).slice().sort((a,b)=>a.r-b.r||a.m-b.m);
+  order.forEach(m=>{const occ=resolveMatch(m,br,seeds,T,picks,cache),w=picks[m.m];
+    if(w!=null&&!((occ.a&&occ.a.rid===w)||(occ.b&&occ.b.rid===w)))delete picks[m.m]})}
+function champOf(br,seeds,T,picks,adv){const fin=(br||[]).find(m=>m.p===1);if(!fin||picks[fin.m]==null)return null;
+  const occ=resolveMatch(fin,br,seeds,T,picks,{}),w=picks[fin.m];
+  const winner=(occ.a&&occ.a.rid===w)?occ.a:(occ.b&&occ.b.rid===w)?occ.b:null,loser=winner&&winner===occ.a?occ.b:occ.a;
+  const champ=adv===false?loser:winner;return champ&&champ.t?champ:null}
+function brPickRow(side,m,kind,picks,canPick){if(!side||!side.t)return '<div class="pm-bs tbd"><i>TBD</i></div>';
+  const t=side.t,picked=picks[m.m],win=picked===t.rid,lose=picked!=null&&picked!==t.rid;
+  const cls=['pm-bs',win?'win':'',lose?'lose':'',side.chalk&&picked==null?'chalk':''].filter(Boolean).join(' ');
+  const pct=!side.chalk&&side.p!=null&&!side.locked?`<small class="pm-bp">${pc(side.p)}</small>`:'';
+  const inner=`<span class="pm-bn">${avHTML(t)}<b>${esc(t.team)}</b></span><span class="pm-bm"><em>#${side.seed}</em>${pct}</span>`;
+  return canPick?`<button type="button" class="${cls}" data-kind="${kind}" data-m="${m.m}" data-r="${t.rid}" aria-pressed="${win}">${inner}</button>`:`<div class="${cls}">${inner}</div>`}
+function drawBracket(el,br,seeds,T,st,kind,picks,adv){picks=picks||{};if(!(br||[]).length){el.innerHTML='<div class="hint">Sleeper hasn\'t published this bracket yet.</div>';return}
+  const cache={},rounds={};br.forEach(m=>(rounds[m.r]=rounds[m.r]||[]).push(m));const byes=byeSeedsOf(br);
   el.innerHTML=Object.keys(rounds).sort((a,b)=>a-b).map(r=>{const wk=poWeek(st,+r);
-    const games=rounds[r].sort((a,b)=>(a.p||0)-(b.p||0)||a.m-b.m).map(m=>`<div class="pm-brm${m.p===1?' fin':''}"><div class="pm-brh">M${m.m}${brLab(m,kind)?' · '+brLab(m,kind):''}</div>${brRow(m.s1,m.t1_from,L,T)}${brRow(m.s2,m.t2_from,L,T)}</div>`).join('');
-    const byeBox=+r===1&&byes.length?`<div class="pm-bye"><strong>FIRST-ROUND BYES</strong>${byes.map(s=>{const x=L[s],t=x&&T[x.rid];return t?`<div class="pm-bs">${avHTML(t)}<span class="pm-bn"><b>${esc(t.team)}</b></span><span class="pm-bm"><em>#${s}</em>${x.locked?'':`<small class="pm-bp">${pc(x.p)}</small>`}<span class="cl y">BYE</span></span></div>`:`<div class="pm-bs tbd"><i>TBD · #${s}</i></div>`}).join('')}</div>`:'';
+    const games=rounds[r].sort((a,b)=>(a.p||0)-(b.p||0)||a.m-b.m).map(m=>{const occ=resolveMatch(m,br,seeds,T,picks,cache),can=!!(occ.a&&occ.a.t&&occ.b&&occ.b.t);
+      const cr=m.p===1&&picks[m.m]!=null&&occ.a&&occ.b?(()=>{const w=picks[m.m],winner=occ.a.rid===w?occ.a:occ.b,loser=winner===occ.a?occ.b:occ.a,champ=adv===false?loser:winner;if(!champ||!champ.t)return '';return kind==='tb'?`<div class="pm-crown tb">🚽 ${esc(champ.t.team)} ${adv===false?'takes the Toilet Bowl':'wins the Toilet Bowl'}</div>`:`<div class="pm-crown">👑 ${esc(champ.t.team)} is your projected champion</div>`})():'';
+      return `<div class="pm-brm${m.p===1?' fin':''}"><div class="pm-brh">M${m.m}${brLab(m,kind)?' · '+brLab(m,kind):''}</div>${brPickRow(occ.a,m,kind,picks,can)}${brPickRow(occ.b,m,kind,picks,can)}${cr}</div>`}).join('');
+    const byeBox=+r===1&&byes.length?`<div class="pm-bye"><strong>FIRST-ROUND BYES</strong>${byes.map(s=>{const x=seeds[s],t=x&&T[x.rid];return t?`<div class="pm-bs">${avHTML(t)}<span class="pm-bn"><b>${esc(t.team)}</b></span><span class="pm-bm"><em>#${s}</em>${x.locked?'':`<small class="pm-bp">${pc(x.p)}</small>`}<span class="cl y">BYE</span></span></div>`:`<div class="pm-bs tbd"><i>TBD · #${s}</i></div>`}).join('')}</div>`:'';
     return `<div class="pm-brc"><h4>ROUND ${r} · WEEK ${wk}</h4><div class="pm-brg">${games}${byeBox}</div></div>`}).join('')}
+function paintChamp(el,br,seeds,T,picks,kind,adv){if(!el)return;const c=champOf(br,seeds,T,picks,adv);
+  if(!c||!c.t){el.innerHTML='';el.hidden=true;return}el.hidden=false;
+  if(kind==='tb'){el.className='pm-champ tb';el.innerHTML=`🚽 <b>${esc(c.t.team)}</b> ${adv===false?'takes the Toilet Bowl (losers advance)':'wins the Toilet Bowl'}`}
+  else{el.className='pm-champ';el.innerHTML=`👑 <b>${esc(c.t.team)}</b> is your projected champion`}}
 
 // ---------------- 🔮 PLAYOFF MACHINE (#scenarios): pick winners, re-run the canonical sim ----------------
 const LK=()=>'sn:scen:'+LEAGUE;
@@ -90,14 +117,28 @@ R.scenarios=async(el,arg)=>{const C=await ctx(),{T,M,pws,last,pt,lg}=C;
     <section class="panel"><h2>📊 WHAT YOUR PICKS DO</h2><div class="pm-sum hint"></div><div class="tw"><table class="pm-t"><thead><tr><th>#</th><th>TEAM</th><th>W-L</th><th>PLAYOFFS</th><th class="hs">BYE</th><th class="hs">#1</th><th>STATUS</th></tr></thead><tbody></tbody></table></div>
     <div class="hint">W-L includes your picks. Arrows compare to no picks. Magic # = your wins + their losses needed to finish ahead of the first team out; Elim # = your losses + their wins that knock you out of reach of the last team in.</div></section>
     <section class="panel pm-brx"><h2>🏆 PROJECTED PLAYOFF BRACKET</h2>
-      <div class="hint">${pt}-team Sleeper bracket, ${rMax} round${rMax===1?'':'s'} in weeks ${wk0}–${wkN} (${(+st.playoff_round_type||0)===2?'two weeks per round':'one week per round'}). Seeds 1–2 get first-round byes. Seeded by wins, then points for — same tiebreak as the table. A % means that seed isn't locked; that's the likeliest team.</div>
+      <div class="hint">${pt}-team Sleeper bracket, ${rMax} round${rMax===1?'':'s'} in weeks ${wk0}–${wkN} (${(+st.playoff_round_type||0)===2?'two weeks per round':'one week per round'}). Seeds 1–2 get first-round byes. Seeded by wins, then points for — same tiebreak as the table. A % means that seed isn't locked; that's the likeliest team. <b>Tap a team in any matchup to advance them</b> to the final. Unpicked games default to the higher seed, shown faintly in later rounds. Changing a seed or an earlier pick clears later picks that no longer fit.</div>
+      <div class="pm-act pm-bact"><button type="button" class="pmb" data-a="resetpo">↺ Reset playoff bracket</button></div>
       <div class="pm-br" data-br="po" role="region" aria-label="Projected playoff bracket"></div>
+      <div class="pm-champ" data-champ="po" hidden></div>
       <h2>🚽 PROJECTED TOILET BOWL</h2>
-      <div class="hint">${tbN}-team losers bracket from Sleeper (${tbAdv}; the champ earns the supplemental <b>2.13</b>). Same ${rMax}-round, first-round-bye format. Seeds ${pt+1}–${pt+2} (best of the misses) get byes.</div>
-      <div class="pm-br" data-br="tb" role="region" aria-label="Projected Toilet Bowl bracket"></div></section></div>`;
+      <div class="hint">${tbN}-team losers bracket from Sleeper (${tbAdv}; the champ earns the supplemental <b>2.13</b>). Same ${rMax}-round, first-round-bye format. Seeds ${pt+1}–${pt+2} (best of the misses) get byes. Tap a team to pick the game winner; the ${tbAdv==='winners advance'?'winner':'loser'} of the final is the Toilet Bowl champ.</div>
+      <div class="pm-act pm-bact"><button type="button" class="pmb" data-a="resettb">↺ Reset Toilet Bowl bracket</button></div>
+      <div class="pm-br" data-br="tb" role="region" aria-label="Projected Toilet Bowl bracket"></div>
+      <div class="pm-champ tb" data-champ="tb" hidden></div></section></div>`;
   const root=el.querySelector('.pm-wrap');
   const wkEl=root.querySelector('.pm-wk'),gEl=root.querySelector('.pm-g'),tb=root.querySelector('.pm-t tbody'),sum=root.querySelector('.pm-sum');
   const poEl=root.querySelector('[data-br="po"]'),tbEl=root.querySelector('[data-br="tb"]');
+  const poChamp=root.querySelector('[data-champ="po"]'),tbChamp=root.querySelector('[data-champ="tb"]');
+  const tbAdvW=tbAdv==='winners advance';
+  const BK=()=>'sn:brack:'+LEAGUE;
+  let bpicks=(()=>{const p=LS.get(BK())||{};return {po:p.po&&typeof p.po==='object'?p.po:{},tb:p.tb&&typeof p.tb==='object'?p.tb:{}}})();
+  let seedsNow=null;
+  const saveBrack=()=>LS.set(BK(),{po:bpicks.po,tb:bpicks.tb});
+  const drawBrackets=()=>{if(!seedsNow)return;
+    prunePicks(wb,seedsNow,T,bpicks.po);prunePicks(lb,seedsNow,T,bpicks.tb);saveBrack();
+    if(poEl)drawBracket(poEl,wb,seedsNow,T,st,'po',bpicks.po,true);if(tbEl)drawBracket(tbEl,lb,seedsNow,T,st,'tb',bpicks.tb,tbAdvW);
+    paintChamp(poChamp,wb,seedsNow,T,bpicks.po,'po',true);paintChamp(tbChamp,lb,seedsNow,T,bpicks.tb,'tb',tbAdvW)};
   const save=()=>{LS.set(LK(),locks);try{const s=enc(locks,G);history.replaceState(null,'','#scenarios'+(s?'/'+s:''))}catch(e){}};
   const drawWeeks=()=>{wkEl.innerHTML=weeks.map(w=>{const n=G.filter(g=>g.w===w&&locks[g.k]!=null).length,t=G.filter(g=>g.w===w).length;return`<button type="button" role="tab" class="pmb${w===wk?' on':''}" data-w="${w}">WK ${w}${n?` <small>${n}/${t}</small>`:''}</button>`}).join('')};
   const drawGames=()=>{gEl.innerHTML=G.filter(g=>g.w===wk).map(g=>{const A=T[g.a],B=T[g.b],L=locks[g.k];if(!A||!B)return'';
@@ -110,12 +151,16 @@ R.scenarios=async(el,arg)=>{const C=await ctx(),{T,M,pws,last,pt,lg}=C;
     tb.innerHTML=ids.map((i,k)=>{const t=T[i],s=S[i],b=base[i],c=CL[i],wl=c.W-t.w-(t.t||0)/2;return`<tr class="${k<pt?'po':''}${t.wz?' wz':''}"><td>${k+1}</td><td class="tm"><a href="#team/${i}">${esc(t.team)}</a>${badge(c)}</td><td>${t.w+wl}-${t.l+(G.filter(g=>locks[g.k]!=null&&(g.a===i||g.b===i)&&locks[g.k]!==i).length)}</td><td><b>${pc(s.po)}</b> ${d(s.po,b.po)}</td><td class="hs">${pc(by(s))}</td><td class="hs">${pc(s.seed[0])}</td><td>${chip(c,T)}</td></tr>`}).join('');
     const n=Object.keys(locks).length,newly=ids.filter(i=>CL[i].po&&!clinch(T,G,pt,{})[i].po).map(i=>T[i].team),gone=ids.filter(i=>CL[i].elim&&!clinch(T,G,pt,{})[i].elim).map(i=>T[i].team);
     sum.innerHTML=n?`<b>${n}</b> game${n===1?'':'s'} picked.${newly.length?` ✅ Clinches: <b>${newly.map(esc).join(', ')}</b>.`:''}${gone.length?` ❌ Eliminates: <b>${gone.map(esc).join(', ')}</b>.`:''}${!newly.length&&!gone.length?' Nobody clinches or gets eliminated yet.':''}`:'No picks yet: these are the current odds. Tap a team to make them win.';
-    const L=likelySeeds(T,S,CL,n===G.length&&G.length>0);
-    if(poEl)drawBracket(poEl,wb,L,T,st,'po');if(tbEl)drawBracket(tbEl,lb,L,T,st,'tb')};
+    seedsNow=likelySeeds(T,S,CL,n===G.length&&G.length>0);
+    drawBrackets()};
   let tm=0;const later=()=>{clearTimeout(tm);tm=setTimeout(run,30)};
-  root.addEventListener('click',e=>{const s=e.target.closest('.pm-s');if(s){const k=s.dataset.k,r=+s.dataset.r;if(locks[k]===r)delete locks[k];else locks[k]=r;save();drawWeeks();drawGames();later();return}
+  root.addEventListener('click',e=>{const bp=e.target.closest('button.pm-bs[data-m]');
+    if(bp){e.stopPropagation();const kind=bp.dataset.kind,m=+bp.dataset.m,r=+bp.dataset.r,P=bpicks[kind]||(bpicks[kind]={});if(P[m]===r)delete P[m];else P[m]=r;drawBrackets();return}
+    const s=e.target.closest('.pm-s');if(s){const k=s.dataset.k,r=+s.dataset.r;if(locks[k]===r)delete locks[k];else locks[k]=r;save();drawWeeks();drawGames();later();return}
     const w=e.target.closest('[data-w]');if(w){wk=+w.dataset.w;drawWeeks();drawGames();return}
     const a=e.target.closest('[data-a]');if(!a)return;const act=a.dataset.a;
+    if(act==='resetpo'){bpicks.po={};drawBrackets();return}
+    if(act==='resettb'){bpicks.tb={};drawBrackets();return}
     if(act==='chalk')G.filter(g=>g.w===wk).forEach(g=>{locks[g.k]=ppg(T[g.a])>=ppg(T[g.b])?g.a:g.b});
     if(act==='clrw')G.filter(g=>g.w===wk).forEach(g=>delete locks[g.k]);if(act==='clr')locks={};
     if(act==='share'){const u=location.href.split('#')[0]+'#scenarios/'+enc(locks,G);(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('🔗 Scenario link copied')).catch(()=>toast('Copy this: '+esc(u),6000));return}
