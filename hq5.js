@@ -2,12 +2,13 @@
 (function(){
 const NAV=[
  ['week','🏈','THIS WEEK','Scores, roasts and who owes a shoey.','recap',[['home','🏠','HOME'],['recap','📰','RECAP'],['matchups','🥊','MATCHUPS'],['power','⚡','POWER']]],
- ['race','🏁','RACE','Playoff odds, the Playoff Machine and the tank for the 1.01.','race',[['race','📈','ODDS'],['scenarios','🔮','MACHINE'],['tank','🚽','TANK'],['draft','🎓','DRAFT']]],
+ ['race','🏁','RACE','Playoff odds, the tank for the 1.01, and a door into What If.','race',[['race','📈','ODDS'],['tank','🚽','TANK'],['draft','🎓','DRAFT']]],
+ ['whatif','🔮','WHAT IF','Pick remaining games, the playoffs, and where your 2027 rookie picks land.','race',[['whatif','🔮','WHAT IF']]],
  ['dyn','💎','DYNASTY','Rosters, values, trade ideas and every deal ever made.','fleece',[['teams','👥','TEAMS'],['analyzer','⚖️','ANALYZER'],['fleece','🧶','FLEECE'],['trades','🔁','TRADES']]],
  ['hist','📚','HISTORY','Champions, records, rivalries and the Hall of Shame.','history',[['history','🏛️','HISTORY'],['records','📕','RECORDS'],['rivalry','⚔️','RIVALRIES'],['shame','🍺','SHAME']]],
  ['fun','🎉','FUN','The arcade, league videos, the song jukebox and the League Office.','arcade',[['arcade','🕹️','ARCADE'],['videos','🎬','VIDEOS'],['jukebox','🎵','JUKEBOX'],['office','📜','OFFICE']]]];
 // old/anchor URLs → page + section (deep links keep working)
-const ALIAS={ledger:['recap','ledger'],shoeys:['recap','ledger'],deadline:['fleece','deadline'],clinch:['race','clinch'],machine:['scenarios'],playoffs:['race'],odds:['race'],standings:['home']};
+const ALIAS={ledger:['recap','ledger'],shoeys:['recap','ledger'],deadline:['fleece','deadline'],clinch:['race','clinch'],machine:['whatif'],scenarios:['whatif'],playoffs:['race'],odds:['race'],standings:['home']};
 const PARENT={team:'teams'};
 const grpOf=k=>{k=PARENT[k]||k;const g=NAV.find(g=>g[5].some(s=>s[0]===k));return g||NAV[0]};
 const hk=()=>{const h=(location.hash||'#home').slice(1).split('/')[0];return typeof R[h]==='function'?h:'home'};
@@ -20,12 +21,13 @@ const mq=matchMedia('(max-width:760px)'),place=()=>{if(mq.matches){if(grp.parent
 document.body.classList.add('gnav');tabs.setAttribute('aria-label','Pages');
 function paint(){const k=hk(),kk=PARENT[k]||k,g=grpOf(k);if(g[5].some(s=>s[0]===kk)){LAST[g[0]]=kk;try{sessionStorage.setItem('sn:navlast',JSON.stringify(LAST))}catch(e){}}
   grp.querySelectorAll('a').forEach(a=>{const G=NAV.find(x=>x[0]===a.dataset.g),on=G===g;a.classList.toggle('on',on);a.setAttribute('href','#'+(on?G[5][0][0]:(LAST[G[0]]||G[5][0][0])));if(on)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')});
-  if(tabs.dataset.g!==g[0]){tabs.dataset.g=g[0];tabs.innerHTML=g[5].map(([s,i,n])=>`<a href="#${s}" data-k="${s}"><span>${i}</span>${n}</a>`).join('')}
+  const one=g[5].length<2;document.body.classList.toggle('gnav-one',one);tabs.hidden=one;
+  if(tabs.dataset.g!==g[0]){tabs.dataset.g=g[0];tabs.innerHTML=one?'':g[5].map(([s,i,n])=>`<a href="#${s}" data-k="${s}"><span>${i}</span>${n}</a>`).join('')}
   tabs.querySelectorAll('a').forEach(a=>{const on=a.dataset.k===kk;a.classList.toggle('on',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')})}
 paint();addEventListener('hashchange',paint);
 // alias routes: swap the URL in place (no extra history entry), then scroll to the section once it renders
 let PEND=null;
-for(const a in ALIAS){if(typeof R[a]==='function')continue;R[a]=()=>{const [p,sec]=ALIAS[a];PEND=sec||null;location.replace('#'+p);return new Promise(()=>{})}}
+for(const a in ALIAS){if(typeof R[a]==='function')continue;R[a]=()=>{const [p,sec]=ALIAS[a];PEND=sec||null;const rest=(location.hash||'').slice(1),slash=rest.indexOf('/');location.replace('#'+p+(slash>=0?rest.slice(slash):''));return new Promise(()=>{})}}
 {const _a=R.after;R.after=k=>{if(_a)_a(k);paint();if(PEND){const id=PEND;PEND=null;requestAnimationFrame(()=>{const t=document.getElementById(id);if(t)t.scrollIntoView({block:'start'})})}}}
 // ---- home: 5 group cards instead of 15 tiles, standings up top ----
 {const _h=R.home;R.home=async(el,arg)=>{await _h(el,arg);

@@ -7,17 +7,18 @@ A static, zero-upkeep league site for the SHADYNASTY dynasty league. Everything 
 [FantasyCalc](https://fantasycalc.com). No backend, no AI at runtime, no manual data entry.
 
 Navigation: five groups (bottom bar on phones, header row on desktop), each with its own pages up top:
-- 🏈 **This Week**: Home (hero, stretch-run strip: deadline countdown / Playoff Machine / Shoey Ledger leader, live scores, standings with clinch badges, big stories, group cards) · Recap (roast recap, weekly awards, report cards, season awards, **Shoey Ledger**) · Matchups · Power (formula rankings, dynasty team value, Trainer's Room)
-- 🏁 **Race**: Odds (`#race`: playoff / #1 seed odds, **Clinch Watch** with magic/elimination numbers, Tank Race, Toilet Bowl, SOS, all-play) · Machine (`#scenarios`: pick winners of any remaining game, odds re-run; scenarios are shareable links) · Tank (Tank Watch embed) · Draft (Draft Room mock)
+- 🏈 **This Week**: Home (hero, stretch-run strip: deadline countdown / What If / Shoey Ledger leader, live scores, standings with clinch badges, big stories, group cards) · Recap (roast recap, weekly awards, report cards, season awards, **Shoey Ledger**) · Matchups · Power (formula rankings, dynasty team value, Trainer's Room)
+- 🏁 **Race**: Odds (`#race`: playoff / #1 seed odds, **Clinch Watch** with magic/elimination numbers, Tank Race, Toilet Bowl, SOS, all-play) · Tank (Tank Watch embed) · Draft (Draft Room mock)
+- 🔮 **What If** (`#whatif`): pick remaining regular-season winners, playoff and Toilet Bowl brackets, and a projected 2027 rookie draft order (non-playoff teams by lowest max PF, then playoff finish). Shareable scenario links. Old `#scenarios` and `#machine` URLs redirect here.
 - 💎 **Dynasty**: Teams · Analyzer · Fleece (Fleece Factory, topped by the **Deadline Desk**: countdown + buyer/bubble/seller board) · Trades
 - 📚 **History**: History · Records · Rivalries · Hall of Shame
 - 🎉 **Fun**: Arcade · Videos · League Office
 
-Every old URL still works, including deep links like `#team/3`, `#trades/team=3`, `#rivalry/<uid>-<uid>`, `#scenarios/<picks>`. Section aliases: `#ledger`, `#deadline`, `#clinch`, `#machine`.
+Every old URL still works, including deep links like `#team/3`, `#trades/team=3`, `#rivalry/<uid>-<uid>`, `#whatif/<picks>` (and `#scenarios/<picks>`). Section aliases: `#ledger`, `#deadline`, `#clinch`, `#machine`, `#scenarios`.
 
 League config (`config.js`): one file holds the league root/commissioner ids for the site, the games (`chug/`, `arcade/*`) and the Python tools (`tools/league.py` reads it). It walks Sleeper's yearly renewals (`previous_league_id`) and switches to the new league once the old one is complete or the new one has drafted, so a new season needs no code change. `?league=<id>` overrides for testing.
 
-Odds (`tankodds.js`): one seeded 4,000-run simulation of the rest of the regular season + bracket. It feeds Race odds, Clinch Watch's companion numbers, the Playoff Machine, Tank Race, the Draft Room order, projected-slot pick values (FantasyCalc early/mid/late prices weighted by slot odds) and the separate Tank Watch site, so every page shows the same numbers.
+Odds (`tankodds.js`): one seeded 4,000-run simulation of the rest of the regular season + bracket. It feeds Race odds, Clinch Watch's companion numbers, the What If page, Tank Race, the Draft Room order, projected-slot pick values (FantasyCalc early/mid/late prices weighted by slot odds) and the separate Tank Watch site, so every page shows the same numbers.
 
 Code layout: classic scripts loaded in order, sharing globals: `config.js` → `tankodds.js` → `roast.js` → `app.js` (core: data layer, router, base pages) → `entrance.js` → `hq2.js` → `office.js` → `videos.js` → `hq3.js` → `hq4.js` (values banner, clinch math, Playoff Machine, Deadline Desk, Shoey Ledger) → `hq5.js` (grouped nav, home cards, aliases, canonical draft order). Later files extend pages by wrapping `R.<page>` / `R.after`. `app.js` (~200 KB) is deliberately not split further: dozens of later wrappers depend on its globals and load order, there's no build step to catch a broken reference, and a split would cost extra requests for no user-visible gain. New features go in a new `hqN.js` instead. Bump the `?v=` on any file you change in `index.html`.
 Shoey Chug lives in `chug/` (served at /shadynasty/chug/): a static canvas+DOM mash game. Leaderboard: Cloudflare Worker `shoey-chug-scores` (own KV namespace, separate from Mo Problems), source and admin script in the shoey-chug-worker folder outside this repo.

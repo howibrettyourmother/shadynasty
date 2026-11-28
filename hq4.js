@@ -95,13 +95,48 @@ function paintChamp(el,br,seeds,T,picks,kind,adv){if(!el)return;const c=champOf(
   if(kind==='tb'){el.className='pm-champ tb';el.innerHTML=`🚽 <b>${esc(c.t.team)}</b> ${adv===false?'takes the Toilet Bowl (losers advance)':'wins the Toilet Bowl'}`}
   else{el.className='pm-champ';el.innerHTML=`👑 <b>${esc(c.t.team)}</b> is your projected champion`}}
 
-// ---------------- 🔮 PLAYOFF MACHINE (#scenarios): pick winners, re-run the canonical sim ----------------
+const slotLab=(r,n)=>r+'.'+String(n).padStart(2,'0');
+function pickOwnerOf(tp,season,round,orig){const x=(tp||[]).find(p=>+p.season===+season&&+p.round===+round&&+p.roster_id===+orig);return x?+x.owner_id:+orig}
+function projMaxOf(t,S,nRem){const cur=+(t&&t.max)||0;if(!nRem)return{v:cur,proj:false};const s=S&&t&&S[t.rid];if(s&&s.mu!=null&&s.gap!=null)return{v:cur+nRem*(s.mu+s.gap),proj:true};const g=Math.max(1,(t.w||0)+(t.l||0)+(t.t||0));return{v:cur+nRem*(cur/g),proj:true}}
+function chalkFill(br,seeds,T,picks){const p=Object.assign({},picks),order=(br||[]).slice().sort((a,b)=>a.r-b.r||a.m-b.m);
+  order.forEach(m=>{if(p[m.m]!=null)return;const occ=resolveMatch(m,br,seeds,T,p,{});if(occ.a&&occ.b)p[m.m]=occ.a.seed<=occ.b.seed?occ.a.rid:occ.b.rid});return p}
+function placesFrom(br,seeds,T,picks){const p=chalkFill(br,seeds,T,picks),cache={},place={};
+  (br||[]).forEach(m=>{if(m.p==null)return;const occ=resolveMatch(m,br,seeds,T,p,cache);if(!occ.a||!occ.b||p[m.m]==null)return;
+    const w=p[m.m],winner=occ.a.rid===w?occ.a:occ.b,loser=winner===occ.a?occ.b:occ.a;if(winner)place[winner.rid]=m.p;if(loser)place[loser.rid]=m.p+1});return place}
+function placeRanges(br,seeds,T,picks){const undone=(br||[]).slice().sort((a,b)=>a.r-b.r||a.m-b.m).filter(m=>picks[m.m]==null).map(m=>m.m),ranges={};
+  if(undone.length>12)return ranges;
+  (function rec(i,p){if(i>=undone.length){const place=placesFrom(br,seeds,T,p);Object.keys(place).forEach(rid=>{const pl=place[rid],r=ranges[rid];if(!r)ranges[rid]={lo:pl,hi:pl};else{r.lo=Math.min(r.lo,pl);r.hi=Math.max(r.hi,pl)}});return}
+    const mid=undone[i],m=(br||[]).find(x=>x.m===mid),occ=resolveMatch(m,br,seeds,T,p,{});
+    if(!occ.a||!occ.b){rec(i+1,p);return}[occ.a.rid,occ.b.rid].forEach(w=>{const np=Object.assign({},p);np[mid]=w;rec(i+1,np)})})(0,Object.assign({},picks));return ranges}
+function draftSlots(seeds,T,S,pt,nRemOf,br,picks,projFn){const mxOf=rid=>(projFn||(id=>projMaxOf(T[id],S,nRemOf(id))))(rid);const ids=Object.keys(T).map(Number),n=ids.length,po=[],non=[];
+  for(let s=1;s<=n;s++){const x=seeds[s];if(!x||!T[x.rid])continue;(s<=pt?po:non).push({rid:x.rid,seed:s,p:x.p,locked:x.locked})}
+  non.sort((a,b)=>{const ma=mxOf(a.rid).v,mb=mxOf(b.rid).v;return ma-mb||((T[a.rid].max||0)-(T[b.rid].max||0))||a.rid-b.rid});
+  const likely=placesFrom(br,seeds,T,picks),ranges=placeRanges(br,seeds,T,picks);
+  po.forEach(t=>{if(likely[t.rid]==null)likely[t.rid]=t.seed});
+  po.sort((a,b)=>(likely[b.rid]||99)-(likely[a.rid]||99)||b.seed-a.seed);
+  return non.concat(po).map((t,i)=>{const slot=i+1,mx=mxOf(t.rid),isPo=t.seed<=pt;let lo=slot,hi=slot;
+    if(isPo&&ranges[t.rid]){lo=n-ranges[t.rid].hi+1;hi=n-ranges[t.rid].lo+1}if(lo>hi){const z=lo;lo=hi;hi=z}
+    return {rid:t.rid,seed:t.seed,slot,lo,hi,place:isPo?likely[t.rid]:null,non:!isPo,mx:mx.v,proj:mx.proj,locked:t.locked,p:t.p}})}
+function draftPickHTML(rows,T,tp,season,me,fmtMax,tbNote){
+  const owner=r=>pickOwnerOf(tp,season,r.round,r.orig),isMe=rid=>!!(T[rid]&&(T[rid].wz||T[rid].me||rid===me));
+  const bits=[];for(let r=1;r<=2;r++)rows.forEach(row=>{const own=pickOwnerOf(tp,season,r,row.rid);if(!isMe(own))return;
+    let s=slotLab(r,row.slot);if(row.lo!==row.hi)s+=' ('+slotLab(r,row.lo)+'–'+slotLab(r,row.hi)+')';
+    if(own!==row.rid)s+=' (via '+(T[row.rid]?String(T[row.rid].team||'').trim():'Team '+row.rid)+')';bits.push(s)});
+  if(tbNote&&tbNote.mine)bits.push('2.13 (Toilet Bowl)');
+  const yours=bits.length?`<div class="pm-yours"><b>Your picks:</b> ${bits.map(esc).join(', ')}</div>`:`<div class="pm-yours mute">You don't currently own a 1st- or 2nd-round pick in this draft${tbNote&&tbNote.open?' — win the Toilet Bowl and you get 2.13':''}.</div>`;
+  const rowHTML=(r,row)=>{const own=pickOwnerOf(tp,season,r,row.rid),O=T[own]||T[row.rid],orig=T[row.rid],via=own!==row.rid,range=row.lo!==row.hi,me=isMe(own);
+    const slot=range?`<b>${slotLab(r,row.slot)}</b><small class="pm-dr">could be ${slotLab(r,row.lo)}–${slotLab(r,row.hi)}</small>`:`<b>${slotLab(r,row.slot)}</b>`;
+    const pct=!row.locked&&row.p!=null&&row.p<0.995?`<small class="pm-bp">${pc(row.p)}</small>`:'';
+    return `<li class="pm-di${me?' me':''}"><span class="pm-dk">${slot}</span><span class="pm-dn">${avHTML(O)}<span><b>${esc(O?O.team:'TBD')}</b>${via?`<small>via ${esc(orig?String(orig.team||'').trim():'')}</small>`:''}</span></span><span class="pm-dx">${pct}<em${row.proj?' title="Projected max PF (current + remainder)"':''}>${fmtMax(row.mx)}${row.proj?' <i>proj</i>':''}</em></span></li>`};
+  return `${yours}<h4>ROUND 1</h4><ol class="pm-dl">${rows.map(row=>rowHTML(1,row)).join('')}</ol><h4>ROUND 2</h4><ol class="pm-dl">${rows.map(row=>rowHTML(2,row)).join('')}</ol>${tbNote?`<div class="hint pm-tb13">🚽 Toilet Bowl results don't change this order. The champ gets a supplemental <b>2.13</b>${tbNote.who?`: <b>${esc(tbNote.who)}</b>`:tbNote.open?' — pick the Toilet Bowl final to see who.':'.'}</div>`:''}`}
+
+// ---------------- 🔮 WHAT IF (#whatif): remaining games, brackets, and projected 2027 draft order ----------------
 const LK=()=>'sn:scen:'+LEAGUE;
 const enc=(locks,G)=>G.filter(g=>locks[g.k]!=null).map(g=>g.w+'.'+g.a+'-'+g.b+'.'+locks[g.k]).join(',');
 const dec=(s,G)=>{const L={};String(s||'').split(',').forEach(x=>{const m=/^(\d+)\.(\d+)-(\d+)\.(\d+)$/.exec(x);if(!m)return;const g=G.find(g=>g.w===+m[1]&&((g.a===+m[2]&&g.b===+m[3])||(g.a===+m[3]&&g.b===+m[2])));if(g&&(+m[4]===g.a||+m[4]===g.b))L[g.k]=+m[4]});return L};
-R.scenarios=async(el,arg)=>{const C=await ctx(),{T,M,pws,last,pt,lg}=C;
-  if(!['in_season'].includes(lg.status)||last>=pws-1){el.innerHTML=`<section class="panel"><h2>🔮 PLAYOFF MACHINE</h2><div class="hint">The regular season is over, so there's nothing left to pick. The bracket lives on the <a href="#race">Race</a> page.</div></section>`;return}
-  const G=remGames(M,last,pws),weeks=[...new Set(G.map(g=>g.w))];let locks=arg?dec(decodeURIComponent(arg),G):(LS.get(LK())||{});
+R.whatif=async(el,arg)=>{const C=await ctx(),{T,M,pws,last,pt,lg,tp}=C;
+  const over=!['in_season'].includes(lg.status)||last>=pws-1;
+  const G=over?[]:remGames(M,last,pws),weeks=[...new Set(G.map(g=>g.w))];let locks=arg?dec(decodeURIComponent(arg),G):(LS.get(LK())||{});
   Object.keys(locks).forEach(k=>{if(!G.some(g=>g.k===k))delete locks[k]});
   const st=lg.settings||{},nTeam=Object.keys(T).length;
   const [wbRaw,lbRaw]=await Promise.all([jc('league/'+LEAGUE+'/winners_bracket').catch(()=>[]),jc('league/'+LEAGUE+'/losers_bracket').catch(()=>[])]);
@@ -111,37 +146,49 @@ R.scenarios=async(el,arg)=>{const C=await ctx(),{T,M,pws,last,pt,lg}=C;
   const tbN=nTeam-pt,tbAdv=winnersAdvance(lbRaw.length?lbRaw:lb)?'winners advance':'losers advance';
   const rMax=Math.max(0,...wb.map(m=>m.r),...lb.map(m=>m.r)),wk0=poWeek(st,1),wkN=poWeek(st,rMax||3);
   let wk=weeks[0];const N=SNTank.N,base=SNTank.simTank(T,M,last,pws,pt,N),ppg=t=>t.pf/Math.max(1,t.w+t.l+t.t);
-  el.innerHTML=`<div class="pm-wrap"><section class="panel pm"><h2>🔮 PLAYOFF MACHINE</h2><div class="hint">Pick the winners of any remaining game and watch everyone's odds move. Same ${N.toLocaleString()}-run simulation as the <a href="#race">Playoff Race</a> and <a href="#tank">Tank Race</a>, with your picks forced. <b>Clinched / eliminated</b> is strict math: ties go to points for, so a tie never counts as safe. Projected playoff and Toilet Bowl brackets under the table update as you pick. Share a scenario with the link button.</div>
-    <div class="pm-wk" role="tablist"></div><div class="pm-g"></div>
-    <div class="pm-act"><button type="button" class="pmb" data-a="chalk">⭐ Favorites win this week</button><button type="button" class="pmb" data-a="clrw">Clear this week</button><button type="button" class="pmb" data-a="clr">Clear all</button><button type="button" class="pmb" data-a="share">🔗 Copy scenario link</button></div></section>
-    <section class="panel"><h2>📊 WHAT YOUR PICKS DO</h2><div class="pm-sum hint"></div><div class="tw"><table class="pm-t"><thead><tr><th>#</th><th>TEAM</th><th>W-L</th><th>PLAYOFFS</th><th class="hs">BYE</th><th class="hs">#1</th><th>STATUS</th></tr></thead><tbody></tbody></table></div>
+  const NEXT=String(+lg.season+1),has213=true;
+  el.innerHTML=`<div class="pm-wrap"><nav class="pm-jump" aria-label="On this page">${over?'':'<button type="button" class="pmb" data-jump="wi-games">Games</button>'}<button type="button" class="pmb" data-jump="wi-table">Standings</button><button type="button" class="pmb" data-jump="wi-playoffs">Playoffs</button><button type="button" class="pmb" data-jump="wi-toilet">Toilet Bowl</button><button type="button" class="pmb" data-jump="wi-draft">Draft</button></nav>
+    <section class="panel pm" id="wi-games"><h2>🔮 WHAT IF <small>${NEXT} SCENARIOS</small></h2><div class="hint">${over?'The regular season is over, so there\'s nothing left to pick. Brackets and the projected draft order below use the final seeds.':'Pick the winners of any remaining game, then tap teams in the playoff and Toilet Bowl brackets. The standings table, brackets, and projected '+NEXT+' rookie draft order all update from your scenario. Same '+N.toLocaleString()+'-run simulation as the <a href="#race">Playoff Race</a> and <a href="#tank">Tank Race</a>, with your picks forced. <b>Clinched / eliminated</b> is strict math: ties go to points for, so a tie never counts as safe. Share a scenario with the link button.'}</div>
+    ${over?'':`<div class="pm-wk" role="tablist"></div><div class="pm-g"></div>
+    <div class="pm-act"><button type="button" class="pmb" data-a="chalk">⭐ Favorites win this week</button><button type="button" class="pmb" data-a="clrw">Clear this week</button><button type="button" class="pmb" data-a="clr">Clear all</button><button type="button" class="pmb" data-a="share">🔗 Copy scenario link</button></div>`}</section>
+    <section class="panel" id="wi-table"><h2>📊 WHAT YOUR PICKS DO</h2><div class="pm-sum hint"></div><div class="tw"><table class="pm-t"><thead><tr><th>#</th><th>TEAM</th><th>W-L</th><th>PLAYOFFS</th><th class="hs">BYE</th><th class="hs">#1</th><th>STATUS</th></tr></thead><tbody></tbody></table></div>
     <div class="hint">W-L includes your picks. Arrows compare to no picks. Magic # = your wins + their losses needed to finish ahead of the first team out; Elim # = your losses + their wins that knock you out of reach of the last team in.</div></section>
-    <section class="panel pm-brx"><h2>🏆 PROJECTED PLAYOFF BRACKET</h2>
+    <section class="panel pm-brx" id="wi-playoffs"><h2>🏆 PROJECTED PLAYOFF BRACKET</h2>
       <div class="hint">${pt}-team Sleeper bracket, ${rMax} round${rMax===1?'':'s'} in weeks ${wk0}–${wkN} (${(+st.playoff_round_type||0)===2?'two weeks per round':'one week per round'}). Seeds 1–2 get first-round byes. Seeded by wins, then points for — same tiebreak as the table. A % means that seed isn't locked; that's the likeliest team. <b>Tap a team in any matchup to advance them</b> to the final. Unpicked games default to the higher seed, shown faintly in later rounds. Changing a seed or an earlier pick clears later picks that no longer fit.</div>
       <div class="pm-act pm-bact"><button type="button" class="pmb" data-a="resetpo">↺ Reset playoff bracket</button></div>
       <div class="pm-br" data-br="po" role="region" aria-label="Projected playoff bracket"></div>
-      <div class="pm-champ" data-champ="po" hidden></div>
-      <h2>🚽 PROJECTED TOILET BOWL</h2>
+      <div class="pm-champ" data-champ="po" hidden></div></section>
+    <section class="panel pm-brx" id="wi-toilet"><h2>🚽 PROJECTED TOILET BOWL</h2>
       <div class="hint">${tbN}-team losers bracket from Sleeper (${tbAdv}; the champ earns the supplemental <b>2.13</b>). Same ${rMax}-round, first-round-bye format. Seeds ${pt+1}–${pt+2} (best of the misses) get byes. Tap a team to pick the game winner; the ${tbAdv==='winners advance'?'winner':'loser'} of the final is the Toilet Bowl champ.</div>
       <div class="pm-act pm-bact"><button type="button" class="pmb" data-a="resettb">↺ Reset Toilet Bowl bracket</button></div>
       <div class="pm-br" data-br="tb" role="region" aria-label="Projected Toilet Bowl bracket"></div>
-      <div class="pm-champ tb" data-champ="tb" hidden></div></section></div>`;
+      <div class="pm-champ tb" data-champ="tb" hidden></div></section>
+    <section class="panel pm-draftx" id="wi-draft"><h2>🎓 PROJECTED ${NEXT} ROOKIE DRAFT</h2>
+      <div class="hint">Non-playoff teams pick first, by <b>lowest max PF</b> (projected for the remaining regular-season weeks). Then playoff teams pick by finish: eliminated earliest first, champion last. Toilet Bowl results don't change this order — they only add SHADYNASTY's supplemental 2.13. Traded picks from Sleeper. Unpicked playoff games show the likeliest slot (higher seed) and the range that's still open.</div>
+      <div class="pm-draft" data-draft></div></section></div>`;
   const root=el.querySelector('.pm-wrap');
-  const wkEl=root.querySelector('.pm-wk'),gEl=root.querySelector('.pm-g'),tb=root.querySelector('.pm-t tbody'),sum=root.querySelector('.pm-sum');
+  const wkEl=root.querySelector('.pm-wk'),gEl=root.querySelector('.pm-g'),tb=root.querySelector('.pm-t tbody'),sum=root.querySelector('.pm-sum'),draftEl=root.querySelector('[data-draft]');
   const poEl=root.querySelector('[data-br="po"]'),tbEl=root.querySelector('[data-br="tb"]');
   const poChamp=root.querySelector('[data-champ="po"]'),tbChamp=root.querySelector('[data-champ="tb"]');
   const tbAdvW=tbAdv==='winners advance';
   const BK=()=>'sn:brack:'+LEAGUE;
   let bpicks=(()=>{const p=LS.get(BK())||{};return {po:p.po&&typeof p.po==='object'?p.po:{},tb:p.tb&&typeof p.tb==='object'?p.tb:{}}})();
-  let seedsNow=null;
+  let seedsNow=null,SNow=null;
   const saveBrack=()=>LS.set(BK(),{po:bpicks.po,tb:bpicks.tb});
+  const nRemOf=rid=>G.filter(g=>g.a===rid||g.b===rid).length;
+  const drawDraft=()=>{if(!draftEl||!seedsNow)return;
+    const rows=draftSlots(seedsNow,T,SNow,pt,nRemOf,wb,bpicks.po);
+    const c=champOf(lb,seedsNow,T,bpicks.tb,tbAdvW);
+    const meStillIn=!c&&(lb||[]).some(m=>{const occ=resolveMatch(m,lb,seedsNow,T,bpicks.tb,{});return (occ.a&&T[occ.a.rid]&&T[occ.a.rid].wz)||(occ.b&&T[occ.b.rid]&&T[occ.b.rid].wz)});
+    const tbNote=has213?{who:c&&c.t?c.t.team:null,mine:!!(c&&c.t&&c.t.wz),open:!c,inPlay:meStillIn}:null;
+    draftEl.innerHTML=draftPickHTML(rows,T,tp,NEXT,null,fmt,tbNote)};
   const drawBrackets=()=>{if(!seedsNow)return;
     prunePicks(wb,seedsNow,T,bpicks.po);prunePicks(lb,seedsNow,T,bpicks.tb);saveBrack();
     if(poEl)drawBracket(poEl,wb,seedsNow,T,st,'po',bpicks.po,true);if(tbEl)drawBracket(tbEl,lb,seedsNow,T,st,'tb',bpicks.tb,tbAdvW);
-    paintChamp(poChamp,wb,seedsNow,T,bpicks.po,'po',true);paintChamp(tbChamp,lb,seedsNow,T,bpicks.tb,'tb',tbAdvW)};
-  const save=()=>{LS.set(LK(),locks);try{const s=enc(locks,G);history.replaceState(null,'','#scenarios'+(s?'/'+s:''))}catch(e){}};
-  const drawWeeks=()=>{wkEl.innerHTML=weeks.map(w=>{const n=G.filter(g=>g.w===w&&locks[g.k]!=null).length,t=G.filter(g=>g.w===w).length;return`<button type="button" role="tab" class="pmb${w===wk?' on':''}" data-w="${w}">WK ${w}${n?` <small>${n}/${t}</small>`:''}</button>`}).join('')};
-  const drawGames=()=>{gEl.innerHTML=G.filter(g=>g.w===wk).map(g=>{const A=T[g.a],B=T[g.b],L=locks[g.k];if(!A||!B)return'';
+    paintChamp(poChamp,wb,seedsNow,T,bpicks.po,'po',true);paintChamp(tbChamp,lb,seedsNow,T,bpicks.tb,'tb',tbAdvW);drawDraft()};
+  const save=()=>{LS.set(LK(),locks);try{const s=enc(locks,G);history.replaceState(null,'','#whatif'+(s?'/'+s:''))}catch(e){}};
+  const drawWeeks=()=>{if(!wkEl)return;wkEl.innerHTML=weeks.map(w=>{const n=G.filter(g=>g.w===w&&locks[g.k]!=null).length,t=G.filter(g=>g.w===w).length;return`<button type="button" role="tab" class="pmb${w===wk?' on':''}" data-w="${w}">WK ${w}${n?` <small>${n}/${t}</small>`:''}</button>`}).join('')};
+  const drawGames=()=>{if(!gEl)return;gEl.innerHTML=G.filter(g=>g.w===wk).map(g=>{const A=T[g.a],B=T[g.b],L=locks[g.k];if(!A||!B)return'';
     const side=(X,o)=>`<button type="button" class="pm-s${L===X.rid?' win':L===o.rid?' lose':''}" data-k="${g.k}" data-r="${X.rid}" aria-pressed="${L===X.rid}"><b>${esc(X.team)}</b><small>${rec(X)} · ${fmt(ppg(X))}/wk</small></button>`;
     return`<div class="pm-m">${side(A,B)}<span class="pm-v">vs</span>${side(B,A)}</div>`}).join('')||'<div class="hint">No games that week.</div>'};
   const run=()=>{const S=Object.keys(locks).length?SNTank.simTank(T,M,last,pws,pt,N,locks):base,CL=clinch(T,G,pt,locks);
@@ -151,10 +198,11 @@ R.scenarios=async(el,arg)=>{const C=await ctx(),{T,M,pws,last,pt,lg}=C;
     tb.innerHTML=ids.map((i,k)=>{const t=T[i],s=S[i],b=base[i],c=CL[i],wl=c.W-t.w-(t.t||0)/2;return`<tr class="${k<pt?'po':''}${t.wz?' wz':''}"><td>${k+1}</td><td class="tm"><a href="#team/${i}">${esc(t.team)}</a>${badge(c)}</td><td>${t.w+wl}-${t.l+(G.filter(g=>locks[g.k]!=null&&(g.a===i||g.b===i)&&locks[g.k]!==i).length)}</td><td><b>${pc(s.po)}</b> ${d(s.po,b.po)}</td><td class="hs">${pc(by(s))}</td><td class="hs">${pc(s.seed[0])}</td><td>${chip(c,T)}</td></tr>`}).join('');
     const n=Object.keys(locks).length,newly=ids.filter(i=>CL[i].po&&!clinch(T,G,pt,{})[i].po).map(i=>T[i].team),gone=ids.filter(i=>CL[i].elim&&!clinch(T,G,pt,{})[i].elim).map(i=>T[i].team);
     sum.innerHTML=n?`<b>${n}</b> game${n===1?'':'s'} picked.${newly.length?` ✅ Clinches: <b>${newly.map(esc).join(', ')}</b>.`:''}${gone.length?` ❌ Eliminates: <b>${gone.map(esc).join(', ')}</b>.`:''}${!newly.length&&!gone.length?' Nobody clinches or gets eliminated yet.':''}`:'No picks yet: these are the current odds. Tap a team to make them win.';
-    seedsNow=likelySeeds(T,S,CL,n===G.length&&G.length>0);
+    SNow=S;seedsNow=likelySeeds(T,S,CL,!over&&n===G.length&&G.length>0);
     drawBrackets()};
   let tm=0;const later=()=>{clearTimeout(tm);tm=setTimeout(run,30)};
-  root.addEventListener('click',e=>{const bp=e.target.closest('button.pm-bs[data-m]');
+  root.addEventListener('click',e=>{const jp=e.target.closest('[data-jump]');if(jp){const t=root.querySelector('#'+jp.dataset.jump);if(t)t.scrollIntoView({behavior:'smooth',block:'start'});return}
+    const bp=e.target.closest('button.pm-bs[data-m]');
     if(bp){e.stopPropagation();const kind=bp.dataset.kind,m=+bp.dataset.m,r=+bp.dataset.r,P=bpicks[kind]||(bpicks[kind]={});if(P[m]===r)delete P[m];else P[m]=r;drawBrackets();return}
     const s=e.target.closest('.pm-s');if(s){const k=s.dataset.k,r=+s.dataset.r;if(locks[k]===r)delete locks[k];else locks[k]=r;save();drawWeeks();drawGames();later();return}
     const w=e.target.closest('[data-w]');if(w){wk=+w.dataset.w;drawWeeks();drawGames();return}
@@ -163,7 +211,7 @@ R.scenarios=async(el,arg)=>{const C=await ctx(),{T,M,pws,last,pt,lg}=C;
     if(act==='resettb'){bpicks.tb={};drawBrackets();return}
     if(act==='chalk')G.filter(g=>g.w===wk).forEach(g=>{locks[g.k]=ppg(T[g.a])>=ppg(T[g.b])?g.a:g.b});
     if(act==='clrw')G.filter(g=>g.w===wk).forEach(g=>delete locks[g.k]);if(act==='clr')locks={};
-    if(act==='share'){const u=location.href.split('#')[0]+'#scenarios/'+enc(locks,G);(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('🔗 Scenario link copied')).catch(()=>toast('Copy this: '+esc(u),6000));return}
+    if(act==='share'){const u=location.href.split('#')[0]+'#whatif/'+enc(locks,G);(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('🔗 Scenario link copied')).catch(()=>toast('Copy this: '+esc(u),6000));return}
     save();drawWeeks();drawGames();later()});
   drawWeeks();drawGames();run()};
 
@@ -175,7 +223,7 @@ R.scenarios=async(el,arg)=>{const C=await ctx(),{T,M,pws,last,pt,lg}=C;
   const ln=i=>{const c=CL[i],t=T[i];return`<li class="${t.wz?'wz':''}"><span class="cw-n"><b>${c.pos}.</b> <a href="#team/${i}">${esc(t.team)}</a> <small>${rec(t)} · ${c.R} left</small></span>${chip(c,T)||'<span class="cl">—</span>'}</li>`};
   const nX=order.filter(i=>CL[i].po).length,nE=order.filter(i=>CL[i].elim).length;
   const html=`<section class="panel cw" id="clinch"><h2>🧮 CLINCH WATCH</h2><div class="hint">Strict math with ${G.length/ (C.n/2)|0} week${G.length/(C.n/2)===1?'':'s'} left (weeks ${C.last+1}–${C.pws-1}). ${nX?`<b>${nX}</b> clinched`:'Nobody has clinched'}${nE?`, <b>${nE}</b> eliminated`:', nobody eliminated'}. Tiebreak is points for, so a tie in wins never counts as safe.</div>
-    <ol class="cw-l">${order.map(ln).join('')}</ol><a class="cta" href="#scenarios">🔮 Open the Playoff Machine: pick this week's winners →</a></section>`;
+    <ol class="cw-l">${order.map(ln).join('')}</ol><a class="cta" href="#whatif">🔮 Open What If: pick the rest of the season, the playoffs, and your draft slots →</a></section>`;
   const first=[...el.querySelectorAll('section.panel')].find(s=>/PLAYOFF RACE/.test(s.textContent));if(first)first.insertAdjacentHTML('afterend',html);else el.insertAdjacentHTML('afterbegin',html);
   // the race table shows the canonical odds (same sim as Tank Race / Playoff Machine)
   try{const S=SNTank.simTank(T,C.M,C.last,C.pws,C.pt,SNTank.N);const tbl=first&&first.querySelector('tbody');if(tbl){
@@ -240,12 +288,12 @@ window.SNLedger={ledger,ledgerHTML};
     const G=remGames(C.M,C.last,C.pws),CL=clinch(C.T,G,C.pt,{}),T=C.T;
     const st=st0&&st0.isConnected?st0:[...document.querySelectorAll('#view section.panel')].find(s=>/STANDINGS/.test((s.querySelector('h2')||{}).textContent||''));
     if(st)st.querySelectorAll('tbody tr').forEach(tr=>{const a=tr.querySelector('a[href^="#team/"]');if(!a||a.parentElement.querySelector('.clb'))return;const c=CL[+a.getAttribute('href').split('/')[1]];if(c)a.insertAdjacentHTML('afterend',badge(c))});
-    if(st){const h=st.querySelector('.hint');if(h&&!/Playoff Machine/.test(h.innerHTML))h.innerHTML+=' x = clinched · y = bye · z = #1 seed · e = eliminated. <a href="#scenarios">Playoff Machine →</a>'}
+    if(st){const h=st.querySelector('.hint');if(h&&!/What If/.test(h.innerHTML)&&!/Playoff Machine/.test(h.innerHTML))h.innerHTML+=' x = clinched · y = bye · z = #1 seed · e = eliminated. <a href="#whatif">What If →</a>'}
     const [D0,X]=await Promise.all([deadline(),ledger().catch(()=>null)]);
     const nX=Object.values(CL).filter(c=>c.po).length,nE=Object.values(CL).filter(c=>c.elim).length,bub=Object.keys(T).map(Number).filter(i=>!CL[i].po&&!CL[i].elim).length;
     const sl=X?[...X.L].sort((a,b)=>b.n-a.n)[0]:null;
     const cards=[D0?`<a class="sr sr-dl" href="#deadline">${D0.passed?'<span class="sr-k">🔒 TRADES LOCKED</span><span class="sr-v">Deadline passed</span>':`<span class="sr-k">⏳ TRADE DEADLINE</span><span class="sr-v" data-dl="${D0.end||0}">${D0.end?left(D0.end-Date.now()):'Wk '+D0.w}</span>`}<span class="sr-l">${D0.passed?'Reopens at renewal':'After Week '+D0.w+' · Deadline Desk →'}</span></a>`:'',
-      `<a class="sr" href="#scenarios"><span class="sr-k">🔮 PLAYOFF MACHINE</span><span class="sr-v">${bub} alive</span><span class="sr-l">${nX} clinched · ${nE} eliminated · pick winners →</span></a>`,
+      `<a class="sr" href="#whatif"><span class="sr-k">🔮 WHAT IF</span><span class="sr-v">${bub} alive</span><span class="sr-l">${nX} clinched · ${nE} eliminated · pick games, playoffs, draft slots →</span></a>`,
       sl&&sl.n?`<a class="sr" href="#ledger" data-go="recap"><span class="sr-k">👟🍺 SHOEY LEDGER</span><span class="sr-v">${esc(sl.t.team)}</span><span class="sr-l">${sl.n} shoey${sl.n===1?'':'s'} owed this season</span></a>`:''].join('');
     const host=hx&&hx.isConnected?hx.parentNode:document.getElementById('view');
     if(!host||host.querySelector('.srs'))return;

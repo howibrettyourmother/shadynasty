@@ -35,3 +35,6 @@ section.panel[id],#clinch,#deadline,#ledger{scroll-margin-top:120px}
 .gc-l a{display:inline-flex;align-items:center;min-height:34px;padding:0 9px;border-radius:999px;border:1px solid rgba(255,199,44,.3);color:#e9edf3;text-decoration:none;font:700 11.5px/1 var(--disp);letter-spacing:.05em;background:rgba(255,199,44,.05)}
 .gc-l a:active{background:rgba(255,199,44,.18)}
 @media(min-width:761px){.gcards .gcard:last-child:nth-child(odd){grid-column:1/-1}.gcards .gcard:last-child:nth-child(odd) .cth{flex-basis:19%}}
+
+body.gnav-one #tabs{display:none!important;padding:0;min-height:0;border:0}
+@media(max-width:760px){body.gnav #grp a{font-size:9px;letter-spacing:.04em;padding:4px 1px;min-height:50px}body.gnav #grp a span{font-size:19px}}

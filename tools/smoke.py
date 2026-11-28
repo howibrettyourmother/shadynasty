@@ -18,12 +18,12 @@ SHOTS = sys.argv[sys.argv.index('--shots') + 1] if '--shots' in sys.argv else ''
 if SHOTS in args: args.remove(SHOTS)
 ROOT = BASE.rsplit('/', 1)[0] + '/'
 LOCAL = '127.0.0.1' in BASE or 'localhost' in BASE
-ROUTES = ['home', 'recap', 'matchups', 'power', 'race', 'scenarios', 'tank', 'draft', 'teams', 'team/1', 'analyzer', 'fleece',
+ROUTES = ['home', 'recap', 'matchups', 'power', 'race', 'whatif', 'scenarios', 'tank', 'draft', 'teams', 'team/1', 'analyzer', 'fleece',
           'trades', 'history', 'records', 'rivalry', 'shame', 'arcade', 'videos', 'office',
           # aliases and deep links that must keep working
           'ledger', 'deadline', 'clinch', 'machine', 'trades/team=1', 'bogus']
-GROUP = {'home': 'week', 'recap': 'week', 'matchups': 'week', 'power': 'week', 'race': 'race', 'scenarios': 'race', 'tank': 'race',
-         'draft': 'race', 'teams': 'dyn', 'team': 'dyn', 'analyzer': 'dyn', 'fleece': 'dyn', 'trades': 'dyn', 'history': 'hist',
+GROUP = {'home': 'week', 'recap': 'week', 'matchups': 'week', 'power': 'week', 'race': 'race', 'whatif': 'whatif', 'scenarios': 'whatif', 'tank': 'race',
+         'draft': 'race', 'machine': 'whatif', 'teams': 'dyn', 'team': 'dyn', 'analyzer': 'dyn', 'fleece': 'dyn', 'trades': 'dyn', 'history': 'hist',
          'records': 'hist', 'rivalry': 'hist', 'shame': 'hist', 'arcade': 'fun', 'videos': 'fun', 'office': 'fun'}
 # ESPN 403s "HeadlessChrome"; use real browser UAs
 UA = {'phone': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',
